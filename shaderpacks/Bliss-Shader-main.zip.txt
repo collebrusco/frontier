@@ -1,0 +1,21 @@
+#Sat Dec 28 03:20:12 CST 2024
+shadowDistance=256.0
+DAY8_l1_coverage=0.2
+TRANSLUCENT_COLORED_SHADOWS=true
+RAYMARCH_CLOUDS_WITH_FOG=true
+CloudLayer0_coverage=0.6
+MIDS_GRADE_B=0.5
+DAY6_l1_coverage=0.2
+CloudLayer1_coverage=0.6
+MOTION_BLUR=true
+TONEMAP=ACESFilm
+Morning_Cloudy_Fog=0.1
+SHADOWS_GRADE_B=0.5
+CHOOSE_RANDOM_WEATHER_PROFILE=true
+DAY8_l0_coverage=0.2
+CloudLayer1_height=350
+CloudLayer2_height=1500
+MIDS_GRADE_R=1.1
+HIGHLIGHTS_GRADE_B=0.4
+RainFog_amount=0.16
+DAY2_l0_coverage=0.6
