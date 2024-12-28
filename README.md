@@ -13,3 +13,6 @@ Run the launcher once, sign in, the forge 1.20.1 installation should be there. L
 there are **20 GB** of RAM allocated by default. adjust that if you don't have 32 lmk I can help w that
 
 Enjoy!
+
+### Disclaimer
+This repo is intended to hold a java minecraft 1.20.1 client with forge installed along with a bunch of specific mods, shaders, settings, and a few more things. I AM NOT the creator of anything included here (other than the compilation) and all rights are reserved by each respective creator / owner. This is just for my friends and I to quickly setup a client for our server on any windows pc with minecraft, and importantly **a real minecraft account is required even after downloading this pack** just as you'd expect.
