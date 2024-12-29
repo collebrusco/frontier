@@ -1,4 +1,4 @@
-#Sat Dec 28 23:30:36 CST 2024
+#Sun Dec 29 00:16:38 CST 2024
 shadowDistance=256.0
 DAY8_l1_coverage=0.2
 TRANSLUCENT_COLORED_SHADOWS=true
@@ -16,6 +16,7 @@ DAY8_l0_coverage=0.2
 CloudLayer1_height=350
 CloudLayer2_height=1500
 MIDS_GRADE_R=1.1
+TRANSLUCENT_ENTITIES=false
 HIGHLIGHTS_GRADE_B=0.4
 RainFog_amount=0.16
 DAY2_l0_coverage=0.6
