@@ -3,14 +3,15 @@
 ![logo](./0A_frontier_misc/img/icon.png)
    
 ## Client Download
-Click the green "<> Code" button towards the top right. Download as ZIP. Unzip the file to find a folder named frontier-main or similar. Re-name this to be your `.minecraft`. Done.    
+Click the green "<> Code" button towards the top right. Download as ZIP. Extract the folder, you'll find a folder labeled 'frontier-main' or similar full of everything listed above. This is your new `.minecraft` folder. Back up or delete your old one, re-name this one, put it in the same place. Done.  
+Optionally you could just drag all of the contents out of the zip into your existing `.minecraft`.
     
-To make this as simple as possible, simply re-name this folder to '.minecraft' and put it in `C:\Users\<you>\AppData\Roaming\` (which is where your .minecraft already is, back it up if you care. you can get here by hitting the windows key and typing `%appdata%`).
+Recall that your `.minecraft` folder should go here: `C:\Users\<you>\AppData\Roaming\` you can get here by hitting the windows key and typing `%appdata%`.
 
-Run the launcher once, sign in, the forge 1.20.1 installation should be there. Lmk if not
+So after placing your new .minecraft in Roaming, run the launcher once, sign in, the forge 1.20.1 installation should be there. Lmk if not
 
 ### Warning:
-there are **20 GB** of RAM allocated by default. adjust that if you don't have 32 lmk I can help w that
+there are **20 GB** of RAM allocated by default. adjust that if you don't have 32 lmk I can help w that it's in the installation settings in the MC launcher
 
 Enjoy!
 
