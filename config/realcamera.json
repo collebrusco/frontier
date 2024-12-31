@@ -3,7 +3,7 @@
   "isClassic": false,
   "dynamicCrosshair": false,
   "renderModel": true,
-  "adjustStep": 0.01,
+  "adjustStep": 0.1,
   "classic": {
     "adjustMode": "CAMERA",
     "scale": 8.0,

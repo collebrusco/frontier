@@ -1,5 +1,5 @@
-#Sun Dec 29 01:43:56 CST 2024
-shadowDistance=256.0
+#Mon Dec 30 23:55:52 CST 2024
+shadowDistance=2048.0
 DAY8_l1_coverage=0.2
 TRANSLUCENT_COLORED_SHADOWS=true
 RAYMARCH_CLOUDS_WITH_FOG=true
@@ -18,5 +18,7 @@ CloudLayer2_height=1500
 MIDS_GRADE_R=1.1
 TRANSLUCENT_ENTITIES=false
 HIGHLIGHTS_GRADE_B=0.4
+MIN_LIGHT_AMOUNT=1.3
 RainFog_amount=0.16
 DAY2_l0_coverage=0.6
+indirect_effect=3
