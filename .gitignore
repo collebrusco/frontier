@@ -20,4 +20,5 @@ ign
 .qmenu_opened.marker
 
 config/ccl.cfg
-
+frontier_assets/installer_updater_src.spec
+frontier_assets/dist
