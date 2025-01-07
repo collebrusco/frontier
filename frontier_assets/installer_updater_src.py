@@ -295,7 +295,7 @@ class App:
         self.setup_console(root, height=200, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE)
 
         # --- Image Section ---
-        self.image_label = self.setup_image(root, image_url="https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/0A_frontier_misc/img/icon.png")
+        self.image_label = self.setup_image(root, image_url="https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png")
 
         # --- Controls Section ---
         self.setup_controls(root)
@@ -349,14 +349,17 @@ class App:
             self.enable_path_editing(True)
             self.enable_install(False)
             self.enable_update(False)
+            self.enable_opendir(True)
         elif self.current_state in (STATE_NON_MANAGED, STATE_NO_INSTALL):
             self.enable_path_editing(True)
             self.enable_update(False)
             self.enable_install(True)
+            self.enable_opendir(True)
         elif self.current_state == STATE_CONNECTED:
             self.enable_path_editing(False)
             self.enable_install(False)
             self.enable_update(True)
+            self.enable_opendir(True)
 
     def enable_path_editing(self, enable):
         """Enable or disable the path field and buttons."""
@@ -374,6 +377,11 @@ class App:
         """Enable or disable the install and update buttons."""
         state = tk.NORMAL if enable else tk.DISABLED
         self.install_button.config(state=state)
+
+    def enable_opendir(self, enable):
+        """Enable or disable the install and update buttons."""
+        state = tk.NORMAL if enable else tk.DISABLED
+        self.open_dir_button.config(state=state)
 
     def setup_path_field(self, root):
         """Setup the Minecraft path field."""
@@ -420,7 +428,11 @@ class App:
         self.install_button = tk.Button(self.controls_frame, text="Install", command=self.install_modpack, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
         self.install_button.grid(row=1, column=2, padx=10, pady=5)
 
+        self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=self.open_dir, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
+        self.open_dir_button.grid(row=1, column=1, padx=10, pady=5)
 
+    def open_dir(self):
+        os.startfile(self.path_var.get())
 
     def setup_console(self, root, height=150, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
         """Set up the console for displaying messages."""
