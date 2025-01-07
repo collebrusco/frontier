@@ -3,6 +3,7 @@
 ![logo](./0A_frontier_misc/img/icon.png)
    
 ## Client Download
+Installer coming soon. For now,     
 Click the green "<> Code" button towards the top right. Download as ZIP. Extract the folder, you'll find a folder labeled 'frontier-main' or similar full of everything listed above. This is your new `.minecraft` folder. Back up or delete your old one, re-name this one, put it in the same place. Done.  
 Optionally you could just drag all of the contents out of the zip into your existing `.minecraft`.
     
