@@ -1,6 +1,6 @@
 # Frontier
 ### Java Minecraft Server 2025
-![logo](./0A_frontier_misc/img/icon.png)
+![logo](./frontier_assets/img/icon.png)
    
 ## Client Download
 Installer coming soon. For now,     
