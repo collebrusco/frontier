@@ -275,7 +275,7 @@ class FrontEnd:
     def __init__(self, root):
         self.root = root
         self.root.title("Frontier Installer/Updater")
-        self.root.geometry("600x700")
+        self.root.geometry("600x720")
         self.root.configure(bg=BG_COLOR)
         self.root.resizable(False, False)
 
