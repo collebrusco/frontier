@@ -18,7 +18,7 @@ import time
 import random
 
 # Global Constants for Design Language
-BG_COLOR = "#aeaaae"  # Default background color
+BG_COLOR = "#c0c0c0"  # Default background color
 CONNECTED_BG_COLOR = "#a4fba6"  # Background color when connected
 CONSOLE_BG = "#0f0e0f"  # Console background
 CONSOLE_FG = "lime"  # Console text color
@@ -104,7 +104,7 @@ class GitBackend:
         print(f'CONSOLE: {message}')
         self.ui_callback(message, color=color)
 
-    def print_status_update(self, path):
+    def print_status_update(self, path, v=False):
         """Check Git status and print branch, commit hash, date, and update status."""
         try:
             # Ensure it's a valid Git repository
@@ -118,6 +118,20 @@ class GitBackend:
             # Log branch, commit hash, and date
             status_message = f"Branch: {branch}\ncommit: {commit.hexsha[:7]} <{commit_date}>"
             self.ui_callback(status_message, color="pink")
+
+            if v:
+                for item in repo.index.diff(None):
+                    clr = ''
+                    match item.change_type:
+                        case 'M':
+                            clr = 'cyan'
+                        case 'A':
+                            clr = 'lime'
+                        case 'D':
+                            clr = 'red'
+                        case _:
+                            clr = 'orange'
+                    self.ui_callback(f'[{item.change_type}] {item.a_path}', clr)
 
             # Fetch remote changes
             self.ui_callback("Checking for new remote versions...", color="yellow")
@@ -147,7 +161,7 @@ class GitBackend:
                 target(*args)
             finally:
                 self.semaphore.release()
-        thread = threading.Thread(target=wrapper, daemon=True)
+        thread = threading.Thread(target=wrapper, daemon=False)
         thread.start()
 
     def check_repo(self, path):
@@ -233,13 +247,24 @@ class GitBackend:
             repo_path = Path(repo_path)
         try:
             repo = git.Repo(repo_path)
-            repo.git.reset('--hard')
-            repo.remotes.origin.fetch(progress=progress_callback)
+            if repo.is_dirty():
+                result = messagebox.askokcancel('Warning', 'You have modifications to tracked files that will be reset. The installer does not track anything like saves or options, so this is likely random timestamps or something that dont matter. Ill try to remove these from being tracked if I can eventually. For now,\nrun status to see what they are if you are worried, or press ok to proceed.')
+                if not result:
+                    raise UserWarning("user cancelled to check modifications")
+                if not repo.head.is_detached:
+                    # Repository is NOT in detached HEAD state
+                    tracking_branch = repo.active_branch.tracking_branch()
+                    if tracking_branch:
+                        self.ui_callback(f"Tracking branch: {tracking_branch}", "green")
+                        repo.git.reset('--hard')
+                        repo.remotes.origin.fetch(progress=progress_callback)
             repo.git.checkout(branch)
             repo.remotes.origin.pull(progress=progress_callback)
             self.ui_callback(f"Update on {branch} successful", 'lime')
             self.print_status_update(repo_path)
             
+        except UserWarning as w:
+            self.ui_callback(f'Update cancelled: {w}', 'orange')
         except Exception as e:
             self.ui_callback(f"Update failed: {e}", "red")
 
@@ -278,6 +303,7 @@ class FrontEnd:
         self.root.geometry("600x720")
         self.root.configure(bg=BG_COLOR)
         self.root.resizable(False, False)
+        self.cfglist = []
 
         # Initialize State
         self.current_branch = None
@@ -297,13 +323,30 @@ class FrontEnd:
         self.pgsema = threading.Semaphore(1)
 
         # --- Image Section ---
-        self.image_label = self.setup_image(root, image_url="https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png")
+        # self.image_label = self.setup_image(root, image_url="https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png")
 
-        # --- Controls Section ---
-        self.setup_controls()
+        # # --- Controls Section ---
+        # self.setup_controls()
+
+        self.setup_controls_and_image()
 
         # Update UI
         self.update_ui_for_state()
+
+        self.cfglist.append(self.root)
+        self.cfglist.append(self.path_frame)
+        self.cfglist.append(self.state_frame)
+        self.cfglist.append(self.path_buttons_frame)
+        self.cfglist.append(self.path_label)
+        self.cfglist.append(self.state_title_label)
+        self.cfglist.append(self.state_label)
+        self.cfglist.append(self.progress_canvas)
+        self.cfglist.append(self.progress_frame)
+        self.cfglist.append(self.image_label)
+        self.cfglist.append(self.controls_image_frame)
+        self.cfglist.append(self.inner_image_frame)
+        self.cfglist.append(self.controls_frame)
+        self.cfglist.append(self.branch_label)
 
 
     def setup_progress_bar(self, root):
@@ -326,35 +369,16 @@ class FrontEnd:
         self.state_label = tk.Label(self.state_frame, text=self.current_state, font=FONT_TEXT, bg=BG_COLOR, fg="black")
         self.state_label.pack(side=tk.LEFT, padx=5)
 
-    def set_state(self, new_state):
+    def set_state(self, new_state, log=True):
         """Transition to a new application state."""
-        self.console_print(f'transitioning from {self.current_state} -> {new_state}\n', "yellow")
+        if log:
+            self.console_print(f'transitioning from {self.current_state} -> {new_state}\n', "yellow")
         self.current_state = new_state
         self.state_label.config(text=new_state)
         if new_state == STATE_CONNECTED:
-            self.root.configure(bg=CONNECTED_BG_COLOR)
-            self.state_frame.configure(bg=CONNECTED_BG_COLOR)
-            self.path_frame.configure(bg=CONNECTED_BG_COLOR)
-            self.controls_frame.configure(bg=CONNECTED_BG_COLOR)
-            self.path_buttons_frame.configure(bg=CONNECTED_BG_COLOR)
-            self.branch_label.configure(bg=CONNECTED_BG_COLOR)
-            self.path_label.configure(bg=CONNECTED_BG_COLOR)
-            self.state_title_label.configure(bg=CONNECTED_BG_COLOR)
-            self.state_label.configure(bg=CONNECTED_BG_COLOR)
-            self.progress_canvas.configure(bg=CONNECTED_BG_COLOR)
-            self.progress_frame.configure(bg=CONNECTED_BG_COLOR)
+            [item.configure(bg=CONNECTED_BG_COLOR) for item in self.cfglist]
         else:
-            self.root.configure(bg=BG_COLOR)
-            self.state_frame.configure(bg=BG_COLOR)
-            self.path_frame.configure(bg=BG_COLOR)
-            self.controls_frame.configure(bg=BG_COLOR)
-            self.path_buttons_frame.configure(bg=BG_COLOR)
-            self.branch_label.configure(bg=BG_COLOR)
-            self.path_label.configure(bg=BG_COLOR)
-            self.state_title_label.configure(bg=BG_COLOR)
-            self.state_label.configure(bg=BG_COLOR)
-            self.progress_canvas.configure(bg=BG_COLOR)
-            self.progress_frame.configure(bg=BG_COLOR)
+            [item.configure(bg=BG_COLOR) for item in self.cfglist]
         self.update_ui_for_state()
     
     def update_progress_bar(self, current, max_value):
@@ -366,7 +390,6 @@ class FrontEnd:
 
         # Update the bar's width
         self.progress_canvas.coords(self.progress_bar, 0, 0, bar_width, 10)
-
 
     def simulate_progress_bar(self, duration):
         max_value = 100  # Simulate progress as 0 to 100%
@@ -395,9 +418,6 @@ class FrontEnd:
         # Ensure the progress bar reaches 100% at the end
         self.update_progress_bar(max_value, max_value)
 
-
-
-
     def update_ui_for_state(self):
         """Update UI elements based on the current state."""
         if self.current_state == STATE_UNCONNECTED:
@@ -405,16 +425,19 @@ class FrontEnd:
             self.enable_install(False)
             self.enable_update(False)
             self.enable_opendir(True)
+            self.enable_status(False)
         elif self.current_state in (STATE_NON_MANAGED, STATE_NO_INSTALL):
             self.enable_path_editing(True)
             self.enable_update(False)
             self.enable_install(True)
             self.enable_opendir(True)
+            self.enable_status(False)
         elif self.current_state == STATE_CONNECTED:
             self.enable_path_editing(False)
             self.enable_install(False)
             self.enable_update(True)
             self.enable_opendir(True)
+            self.enable_status(True)
 
     def enable_path_editing(self, enable):
         """Enable or disable the path field and buttons."""
@@ -437,6 +460,11 @@ class FrontEnd:
         """Enable or disable the install and update buttons."""
         state = tk.NORMAL if enable else tk.DISABLED
         self.open_dir_button.config(state=state)
+
+    def enable_status(self, enable):
+        """Enable or disable the install and update buttons."""
+        state = tk.NORMAL if enable else tk.DISABLED
+        self.status_button.config(state=state)
 
     # TODO controller called, pass cbs
     def setup_path_field(self):
@@ -482,7 +510,7 @@ class FrontEnd:
         self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.open_dir_button.grid(row=1, column=1, padx=10, pady=5)
 
-    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb):
+    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb):
         self.browse_button.config(command=browse_cb)
 
         self.confirm_button.config(command=confirm_cb)
@@ -493,12 +521,14 @@ class FrontEnd:
 
         self.open_dir_button.config(command=open_cb)
 
-    def setup_console(self, root, height=150, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
+        self.status_button.config(command=status_cb)
+
+    def setup_console(self, root, height=300, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
         """Set up the console for displaying messages."""
         console_frame = tk.Frame(root, bg=bg, height=height)
         console_frame.pack(fill=tk.X, padx=10, pady=5)
 
-        self.console_text = tk.Text(console_frame, bg=bg, fg=fg, wrap=tk.WORD, font=font, height=height // 20)
+        self.console_text = tk.Text(console_frame, bg=bg, fg=fg, wrap='none', font=font, height=height // 20)
         self.console_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
     def console_print(self, message, color=CONSOLE_FG, font=FONT_CONSOLE):
@@ -520,6 +550,45 @@ class FrontEnd:
         self.load_image_from_url(label, image_url, width, height)
 
         return label
+
+    def setup_controls_and_image(self):
+        """Set up the image and control buttons side-by-side."""
+        self.controls_image_frame = tk.Frame(self.root, bg=BG_COLOR)
+        self.controls_image_frame.pack(fill=tk.X, padx=10, pady=5)
+
+        # --- Image Section (Left) ---
+        self.inner_image_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
+        # self.inner_image_frame.grid(row=0, column=1, padx=5)
+        self.inner_image_frame.pack(side=tk.LEFT, padx=10, pady=10)
+
+        self.image_label = tk.Label(self.inner_image_frame, bg=BG_COLOR)
+        self.image_label.pack()
+        self.load_image_from_url(self.image_label, "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png", 200, 200)
+
+        # --- Controls Section (Right) ---
+        self.controls_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
+        # self.controls_frame.grid(row=0, column=2, padx=5)
+        self.controls_frame.pack(side=tk.RIGHT, padx=10, pady=10, fill=tk.Y)
+
+        # Branch Dropdown
+        self.branch_label = tk.Label(self.controls_frame, text="Branch:", font=FONT_TEXT, bg=BG_COLOR)
+        self.branch_label.pack(pady=5)
+        self.branch_var = tk.StringVar(value="master")
+        self.branch_dropdown = ttk.Combobox(self.controls_frame, textvariable=self.branch_var, state="readonly", width=25)
+        self.branch_dropdown.pack(pady=5)
+
+        # Buttons (Stacked)
+        self.update_button = tk.Button(self.controls_frame, text="Update", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightblue')
+        self.update_button.pack(pady=5)
+
+        self.install_button = tk.Button(self.controls_frame, text="Install", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
+        self.install_button.pack(pady=5)
+
+        self.status_button = tk.Button(self.controls_frame, text="Status", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
+        self.status_button.pack(pady=5)
+
+        self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
+        self.open_dir_button.pack(pady=5)
 
     def load_image_from_url(self, label, url, width, height):
         """Load and display an image from a URL, resizing it to fit."""
@@ -560,9 +629,9 @@ Controller
 class Controller:
     def __init__(self, root):
         self.frontend = FrontEnd(root)
-        self.frontend.setup_callbacks(self.control_browse, self.control_confirm, self.control_update, self.control_install, self.control_open)
+        self.frontend.setup_callbacks(self.control_browse, self.control_confirm, self.control_update, self.control_install, self.control_open, self.control_status)
         self.backend = GitBackend(self.frontend.console_print, self.frontend.update_progress_bar)
-        self.set_state(STATE_UNCONNECTED)
+        self.set_state(STATE_UNCONNECTED, False)
 
     def bootup_seq(self):
         self.frontend.console_print("Frontier - Forge Minecraft Server 2025")
@@ -576,9 +645,9 @@ class Controller:
         self.backend.run_in_thread(self.bootup_seq)
         self.frontend.root.mainloop()
 
-    def set_state(self, state):
+    def set_state(self, state, log=True):
         self.__state = state
-        self.frontend.set_state(self.get_state())
+        self.frontend.set_state(self.get_state(), log)
         if (self.__state == STATE_CONNECTED):
             self.update_dropdown()
             self.backend.print_status_update(self.frontend.path_var.get())
@@ -627,15 +696,14 @@ class Controller:
                     if not repo:
                         raise RuntimeError("failed to install remote")
                     self.frontend.console_print(f'successfully set up tracking for install at {path}')
-                    self.set_state(STATE_CONNECTED)
-
-                    
-                    
+                    self.set_state(STATE_CONNECTED)       
         else:
             self.set_state(STATE_NO_INSTALL)
 
 
-    def on_any_press(self):
+    def on_any_press(self, msg=None, clr='lime'):
+        if msg is not None:
+            self.frontend.console_print('msg', color=clr)
         if (False and self.get_state() == STATE_CONNECTED): # fix / remove
             self.update_dropdown()
 
@@ -675,6 +743,8 @@ class Controller:
         self.on_any_press()
         self.backend.run_in_thread(self.control_open_internal)
         
+    def control_status(self):
+        self.backend.run_in_thread(self.backend.print_status_update, self.frontend.path_var.get(), True)
 
 
 
