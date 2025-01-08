@@ -564,6 +564,7 @@ class FrontEnd:
         self.image_label = tk.Label(self.inner_image_frame, bg=BG_COLOR)
         self.image_label.pack()
         self.load_image_from_url(self.image_label, "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png", 200, 200)
+        # self.image_label.bind("<Button-1>", lambda e: webbrowser.open(link_url)) #TODO
 
         # --- Controls Section (Right) ---
         self.controls_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
