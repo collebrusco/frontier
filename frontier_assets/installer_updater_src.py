@@ -104,7 +104,7 @@ class GitBackend:
         print(f'CONSOLE: {message}')
         self.ui_callback(message, color=color)
 
-    def print_status_update(self, path, v=False):
+    def print_status_update(self, path, v=True):
         """Check Git status and print branch, commit hash, date, and update status."""
         try:
             # Ensure it's a valid Git repository
@@ -113,10 +113,11 @@ class GitBackend:
             commit = repo.head.commit
 
             # Get commit date
-            commit_date = datetime.datetime.fromtimestamp(commit.committed_date).strftime("%Y-%m-%d %H:%M:%S")
+            commit_date = datetime.datetime.fromtimestamp(commit.committed_date).strftime("%m-%d-%Y %H:%M")
 
             # Log branch, commit hash, and date
-            status_message = f"Branch: {branch}\ncommit: {commit.hexsha[:7]} <{commit_date}>"
+            status_message = f">> status: on branch '{branch}'\n>> commit: {commit.hexsha[:7]} ({'dirty' if len(repo.index.diff(None))!=0 else 'clean'}) <{commit_date}>"
+
             self.ui_callback(status_message, color="pink")
 
             if v:
@@ -131,7 +132,7 @@ class GitBackend:
                             clr = 'red'
                         case _:
                             clr = 'orange'
-                    self.ui_callback(f'[{item.change_type}] {item.a_path}', clr)
+                    self.ui_callback(f'>> [{item.change_type}] {item.a_path}', clr)
 
             # Fetch remote changes
             self.ui_callback("Checking for new remote versions...", color="yellow")
@@ -140,9 +141,9 @@ class GitBackend:
             # Compare local and remote branch commits
             remote_branch = repo.remotes.origin.refs[branch]
             if commit.hexsha == remote_branch.commit.hexsha:
-                self.ui_callback(f"You are up-to-date with version {branch}", color='lime')
+                self.ui_callback(f"You are up-to-date with version '{branch}'", color='lime')
             else:
-                self.ui_callback(f"A newer version {remote_branch.commit.hexsha[:7]} is available on the remote branch {branch}", color="orange")
+                self.ui_callback(f"!! A newer version {remote_branch.commit.hexsha[:7]} is available on the remote branch '{branch}'", color="orange")
 
         except git.exc.InvalidGitRepositoryError:
             self.ui_callback("Invalid Git repository. Please check the path.", color="red")
@@ -372,7 +373,7 @@ class FrontEnd:
     def set_state(self, new_state, log=True):
         """Transition to a new application state."""
         if log:
-            self.console_print(f'transitioning from {self.current_state} -> {new_state}\n', "yellow")
+            self.console_print(f'transitioning from {self.current_state} -> {new_state}', "yellow")
         self.current_state = new_state
         self.state_label.config(text=new_state)
         if new_state == STATE_CONNECTED:
@@ -488,7 +489,6 @@ class FrontEnd:
         self.confirm_button = tk.Button(self.path_buttons_frame, text="Confirm Path", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg="lightblue", fg="black")
         self.confirm_button.pack(side=tk.LEFT, padx=5)
 
-    # TODO controller called, pass cbs
     def setup_controls(self):
         """Set up the controls section with buttons and dropdowns."""
         self.controls_frame = tk.Frame(self.root, bg=BG_COLOR)
