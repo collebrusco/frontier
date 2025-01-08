@@ -1,4 +1,3 @@
-
 import sys
 import tkinter as tk
 from tkinter import ttk
@@ -30,7 +29,6 @@ BUTTON_HEIGHT = 2
 BUTTON_WIDTH = 20
 
 # Global Constants for Paths and Repo
-MINECRAFT_DEFAULT_DIR = Path.home() / "AppData/Roaming/.minecraft"
 REPO_URL = "https://github.com/collebrusco/frontier.git"
 
 # Application States
@@ -38,6 +36,25 @@ STATE_UNCONNECTED = "Unconnected"
 STATE_NON_MANAGED = "NonManagedInstall"
 STATE_NO_INSTALL = "NoInstall"
 STATE_CONNECTED = "Connected"
+import platform
+
+# OS Enum
+OS_WIN = "Windows"
+OS_MAC = "Darwin"
+OS_LIN = "Linux"
+
+def get_current_os():
+    """Detect the current operating system."""
+    system = platform.system()
+    if system not in [OS_LIN, OS_MAC, OS_WIN]:
+        raise RuntimeError(f"Unsupported operating system: {system}")
+    return system
+
+MINECRAFT_DEFAULT_DIR = Path.home()
+if get_current_os() == OS_WIN:
+    MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / "AppData/Roaming/.minecraft"
+if get_current_os() == OS_MAC:
+    MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / "Library/Application Support/minecraft"
 
 def run_as_admin():
     """Attempt to restart the script as an administrator."""
@@ -432,7 +449,13 @@ class App:
         self.open_dir_button.grid(row=1, column=1, padx=10, pady=5)
 
     def open_dir(self):
-        os.startfile(self.path_var.get())
+        thisos = get_current_os()
+        if thisos == OS_WIN:
+            os.startfile(self.path_var.get())
+        if thisos == OS_MAC:
+            subprocess.run(["open", self.path_var.get()], check=True)
+        if thisos == OS_LIN:
+            subprocess.run(["xdg-open", self.path_var.get()], check=True)
 
     def setup_console(self, root, height=150, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
         """Set up the console for displaying messages."""
