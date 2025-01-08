@@ -18,7 +18,7 @@ import time
 import random
 
 # Global Constants for Design Language
-BG_COLOR = "#ebe5ba"  # Default background color
+BG_COLOR = "#c0c0c0"  # Default background color
 CONNECTED_BG_COLOR = "#a4fba6"  # Background color when connected
 CONSOLE_BG = "#0f0e0f"  # Console background
 CONSOLE_FG = "lime"  # Console text color
@@ -161,7 +161,7 @@ class GitBackend:
                 target(*args)
             finally:
                 self.semaphore.release()
-        thread = threading.Thread(target=wrapper, daemon=True)
+        thread = threading.Thread(target=wrapper, daemon=False)
         thread.start()
 
     def check_repo(self, path):
