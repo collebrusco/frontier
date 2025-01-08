@@ -15,6 +15,7 @@ import ctypes
 import sys
 import datetime
 import time
+import random
 
 # Global Constants for Design Language
 BG_COLOR = "#aeaaae"  # Default background color
@@ -27,6 +28,8 @@ FONT_TEXT = (FONT_FAMILY, 12)
 FONT_CONSOLE = ("Courier", 12)
 BUTTON_HEIGHT = 2
 BUTTON_WIDTH = 20
+
+MAIN_BRANCH_NAME = 'main'
 
 # Global Constants for Paths and Repo
 REPO_URL = "https://github.com/collebrusco/frontier.git"
@@ -58,6 +61,8 @@ if get_current_os() == OS_MAC:
 
 def run_as_admin():
     """Attempt to restart the script as an administrator."""
+    if get_current_os() != OS_WIN:
+        raise NotImplementedError("mac/linux admin mode not implemented yet, we currently don't need admin and would rather keep it that way")
     if ctypes.windll.shell32.IsUserAnAdmin():
         # Already running as admin
         return True
@@ -74,10 +79,13 @@ def run_as_admin():
             return False
 
 
-class ModpackBackend:
-    def __init__(self, ui_callback, ui_root):
+def format_progress(cur, max, message):
+    return f"{cur}/{max if max else '?'} ({int((cur/max)*100) if max else '?'}%): {message.strip()}"
+
+class GitBackend:
+    def __init__(self, ui_callback, ui_bar_callback):
         self.ui_callback = ui_callback
-        self.ui_root = ui_root
+        self.ui_bar_callback = ui_bar_callback
         self.semaphore = threading.Semaphore(1)
 
     def fetch_remote_branches(self):
@@ -157,79 +165,35 @@ class ModpackBackend:
         except Exception as e:
             self.print_status(f"Error checking repository: {e}", "red")
             return None
-            
-    # def perform_backup(self, path):
-    #     """Handle directory backup with user choice for admin or manual backup."""
-    #     backup_index = 1
-    #     backup_path = path.with_name(f"{path.name}_BU{backup_index}")
-
-    #     # Increment index until a unique backup path is found
-    #     while os.path.exists('{backup_path}'):
-    #         backup_index += 1
-    #         backup_path = path.with_name(f"{path.name}_BU{backup_index}")
-
-    #     try:
-    #         self.print_status(f"Attempting to rename '{path}' to '{backup_path}'...", "yellow")
-
-    #         # Check for write permissions
-    #         if True or not os.access(path, os.W_OK):
-    #             self.print_status("Write access denied for the folder. Admin privileges required.", "red")
-
-    #             # Ask user whether to restart as admin or handle it themselves
-    #             response = messagebox.askyesnocancel(
-    #                 "Admin Privileges Required",
-    #                 "I need admin permissions to back this up, or you can re-name or delete the folder yourself.\n"
-    #                 "- Yes: Automatic backup (requires permissions)\n"
-    #                 "- No: Handle the backup yourself\n"
-    #                 "- Cancel: Abort this operation"
-    #             )
-    #             if response is None:  # User selected Cancel
-    #                 self.print_status("Backup operation canceled.", "red")
-    #                 return None
-    #             elif response:  # User selected Yes
-    #                 if run_as_admin():
-    #                     self.print_status("got permissions...", "yellow")
-    #                 else:
-    #                     self.print_status("Failed to get permissions.", "red")
-    #                     return None
-    #             else:  # User selected No
-    #                 self.print_status("re-name your existing install (or delete it if you don't care). i recommend if anything saving your options and saves. re-confirm folder here when finished.", "red")
-    #                 self.set_state(STATE_UNCONNECTED)  # Transition back to unconnected state
-    #                 return None
-
-    #         # Try to rename the directory
-    #         try:
-    #             os.rename(str(path), str(backup_path))
-    #             self.print_status(f"Backup successful (os.rename): {backup_path}", "cyan")
-    #             return backup_path
-    #         except OSError as e:
-    #             self.print_status(f"os.rename failed: {e}.", "red")
-
-    #         return backup_path
-    #     except Exception as e:
-    #         self.print_status(f"Backup failed: {e}", "red")
-    #         return None
-
-    # def get_unique_backup_path(self, path):
-    #     """Generate a unique backup path by appending '_BUx'."""
-    #     backup_index = 1
-    #     backup_path = path.with_name(f"{path.name}_BU{backup_index}")
-    #     while os.path.exists('{backup_path}'):
-    #         backup_index += 1
-    #         backup_path = path.with_name(f"{path.name}_BU{backup_index}")
-    #     return backup_path
-
-    # def confirm_backup(self, path):
-    #     """Ask the user to confirm a backup."""
-    #     response = messagebox.askyesno("Backup Existing Folder",
-    #                                    "An existing folder was found that is not managed by this app. "
-    #                                    "Would you like to rename it and proceed?")
-    #     if response:
-    #         return self.perform_backup(path)
-    #     else:
-    #         self.print_status("Backup declined by user. Operation aborted.", "red")
-    #         return None
         
+    def install_remote_at(self, path):
+        def progress_cb_cci(op_code, cur_count, max_count=None, message=""):
+            """Handles progress updates."""
+            progress_message = format_progress(cur_count, max_count, message)
+            self.print_status(progress_message, "cyan")
+            if max_count is not None:
+                self.ui_bar_callback(cur_count, max_count)
+    
+        self.ui_callback(f"init'ing git repo at {path}", color='yellow')
+        repo = git.Repo.init(path)
+        self.ui_callback(f"adding remote url {REPO_URL}", color='yellow')
+        origin = repo.create_remote("origin", url=REPO_URL)
+        self.ui_callback(f"fetching remote on network...", color='yellow')
+        time.sleep(1)
+        origin.fetch(progress=progress_cb_cci)
+        self.ui_callback(f"done. installing..")
+        try:
+            repo.git.checkout(MAIN_BRANCH_NAME)
+        except git.exc.GitCommandError as e:
+            response = messagebox.askokcancel("WARNING: Overwrite files", f"you already have an install I don't know about and the files listed below would be overwritten by installing this modpack. Continue if you are ok with this, or cancel and back up / move your old files. From git: {e}")
+            if response:
+                self.ui_callback(f'forcing overwrites...', color='orange')
+                repo.git.checkout(MAIN_BRANCH_NAME, force=True)
+            else:
+                return False
+        return True
+
+
     def fetch_remote_branches(self, path):
         """Fetch available remote branches."""
         try:
@@ -245,8 +209,10 @@ class ModpackBackend:
         """Clone the repo into the specified directory with progress updates."""
         def progress_callback(op_code, cur_count, max_count=None, message=""):
             """Handles progress updates."""
-            progress_message = f"{cur_count}/{max_count if max_count else '?'}: {message.strip()}"
+            progress_message = format_progress(cur_count, max_count, message)
             self.print_status(progress_message, "cyan")
+            if max_count is not None:
+                self.ui_bar_callback(cur_count, max_count)
 
         self.print_status(f"Cloning repository into {path}...", "yellow")
 
@@ -257,7 +223,25 @@ class ModpackBackend:
         except Exception as e:
             self.print_status(f"Clone failed: {e}", "red")
 
-
+    def update_modpack(self, repo_path, branch):
+        """Fetch and pull updates for the selected branch."""
+        def progress_callback(op_code, cur_count, max_count=None, message=""):
+            """Handles progress updates."""
+            progress_message = format_progress(cur_count, max_count, message)
+            print(progress_message)
+            self.ui_callback(progress_message, "cyan")
+            repo_path = Path(repo_path)
+        try:
+            repo = git.Repo(repo_path)
+            repo.git.reset('--hard')
+            repo.remotes.origin.fetch(progress=progress_callback)
+            repo.git.checkout(branch)
+            repo.remotes.origin.pull(progress=progress_callback)
+            self.ui_callback(f"Update on {branch} successful", 'lime')
+            self.print_status_update(repo_path)
+            
+        except Exception as e:
+            self.ui_callback(f"Update failed: {e}", "red")
 
     def run_git_command(self, repo, command):
         """Run a Git command and stream output to the console."""
@@ -287,7 +271,7 @@ class ModpackBackend:
             self.print_status(f"installing {path}", "yellow")
             self.install_repo(path)
           
-class App:
+class FrontEnd:
     def __init__(self, root):
         self.root = root
         self.root.title("Frontier Installer/Updater")
@@ -295,32 +279,43 @@ class App:
         self.root.configure(bg=BG_COLOR)
         self.root.resizable(False, False)
 
-        # Initialize Backend
-        self.backend = ModpackBackend(self.console_print, self.root)
-
         # Initialize State
-        self.current_state = STATE_UNCONNECTED
         self.current_branch = None
+        self.current_state = STATE_UNCONNECTED
 
         # --- State Display Section ---
         self.setup_state_display(root)
 
         # --- Path Section ---
-        self.setup_path_field(root)
+        self.setup_path_field()
 
         # --- Console Section ---
         self.setup_console(root, height=200, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE)
+
+        # --- Prog bar ---
+        self.setup_progress_bar(root)
+        self.pgsema = threading.Semaphore(1)
 
         # --- Image Section ---
         self.image_label = self.setup_image(root, image_url="https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png")
 
         # --- Controls Section ---
-        self.setup_controls(root)
+        self.setup_controls()
 
         # Update UI
         self.update_ui_for_state()
-        
 
+
+    def setup_progress_bar(self, root):
+        """Set up a progress bar below the console."""
+        self.progress_frame = tk.Frame(root, bg=BG_COLOR)
+        self.progress_frame.pack(fill=tk.X, padx=10, pady=5)
+
+        self.progress_canvas = tk.Canvas(self.progress_frame, height=10, bg=BG_COLOR, highlightthickness=0)
+        self.progress_canvas.pack(fill=tk.X, padx=5, pady=5)
+
+        self.progress_bar = self.progress_canvas.create_rectangle(0, 0, 0, 10, fill=CONNECTED_BG_COLOR, outline="")
+        self.progress_max_width = 580  # Adjust to match window width minus padding
 
     def setup_state_display(self, root):
         """Display the current application state."""
@@ -346,8 +341,8 @@ class App:
             self.path_label.configure(bg=CONNECTED_BG_COLOR)
             self.state_title_label.configure(bg=CONNECTED_BG_COLOR)
             self.state_label.configure(bg=CONNECTED_BG_COLOR)
-
-            self.backend.print_status_update(self.path_var.get())
+            self.progress_canvas.configure(bg=CONNECTED_BG_COLOR)
+            self.progress_frame.configure(bg=CONNECTED_BG_COLOR)
         else:
             self.root.configure(bg=BG_COLOR)
             self.state_frame.configure(bg=BG_COLOR)
@@ -358,7 +353,50 @@ class App:
             self.path_label.configure(bg=BG_COLOR)
             self.state_title_label.configure(bg=BG_COLOR)
             self.state_label.configure(bg=BG_COLOR)
+            self.progress_canvas.configure(bg=BG_COLOR)
+            self.progress_frame.configure(bg=BG_COLOR)
         self.update_ui_for_state()
+    
+    def update_progress_bar(self, current, max_value):
+        """Update the progress bar based on current progress."""
+        if max_value is None or max_value == 0:
+            max_value = 1  # Avoid division by zero
+        progress_ratio = min(max(current / max_value, 0), 1)  # Clamp ratio between 0 and 1
+        bar_width = int(self.progress_max_width * progress_ratio)
+
+        # Update the bar's width
+        self.progress_canvas.coords(self.progress_bar, 0, 0, bar_width, 10)
+
+
+    def simulate_progress_bar(self, duration):
+        max_value = 100  # Simulate progress as 0 to 100%
+        current = 0      # Starting point
+        start_time = time.time()
+        end_time = start_time + duration
+
+        while current < max_value:
+            # Calculate elapsed time and progress
+            elapsed_time = time.time() - start_time
+            progress_ratio = elapsed_time / duration
+            next_value = int(progress_ratio * max_value)
+
+            # Jitter to make progress seem less linear
+            jitter = random.randint(-1, 2)  # Small random fluctuations
+            next_value = max(0, min(max_value, next_value + jitter))
+
+            # If progress increases, update it
+            if next_value > current:
+                current = next_value
+                self.update_progress_bar(current, max_value)
+
+            # Sleep briefly to control update frequency
+            time.sleep(0.05)
+
+        # Ensure the progress bar reaches 100% at the end
+        self.update_progress_bar(max_value, max_value)
+
+
+
 
     def update_ui_for_state(self):
         """Update UI elements based on the current state."""
@@ -400,9 +438,10 @@ class App:
         state = tk.NORMAL if enable else tk.DISABLED
         self.open_dir_button.config(state=state)
 
-    def setup_path_field(self, root):
+    # TODO controller called, pass cbs
+    def setup_path_field(self):
         """Setup the Minecraft path field."""
-        self.path_frame = tk.Frame(root, bg=BG_COLOR)
+        self.path_frame = tk.Frame(self.root, bg=BG_COLOR)
         self.path_frame.pack(pady=10)
 
         self.path_label = tk.Label(self.path_frame, text="Minecraft Folder Path:", font=FONT_TEXT, bg=BG_COLOR)
@@ -415,21 +454,16 @@ class App:
         self.path_buttons_frame = tk.Frame(self.path_frame, bg=BG_COLOR)
         self.path_buttons_frame.grid(row=1, column=1, pady=5)
 
-        self.browse_button = tk.Button(self.path_buttons_frame, text="Browse", command=self.browse_path, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
+        self.browse_button = tk.Button(self.path_buttons_frame, text="Browse", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
         self.browse_button.pack(side=tk.LEFT, padx=5)
 
-        self.confirm_button = tk.Button(self.path_buttons_frame, text="Confirm Path", command=self.confirm_path, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg="lightblue", fg="black")
+        self.confirm_button = tk.Button(self.path_buttons_frame, text="Confirm Path", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg="lightblue", fg="black")
         self.confirm_button.pack(side=tk.LEFT, padx=5)
 
-    def browse_path(self):
-        """Open a directory selection dialog and update the path field."""
-        selected_path = fd.askdirectory(initialdir=str(MINECRAFT_DEFAULT_DIR), title="Select Minecraft Folder")
-        if selected_path:
-            self.path_var.set(selected_path)
-
-    def setup_controls(self, root):
+    # TODO controller called, pass cbs
+    def setup_controls(self):
         """Set up the controls section with buttons and dropdowns."""
-        self.controls_frame = tk.Frame(root, bg=BG_COLOR)
+        self.controls_frame = tk.Frame(self.root, bg=BG_COLOR)
         self.controls_frame.pack(pady=10)
 
         self.branch_label = tk.Label(self.controls_frame, text="Branch:", font=FONT_TEXT, bg=BG_COLOR)
@@ -439,23 +473,25 @@ class App:
         self.branch_dropdown = ttk.Combobox(self.controls_frame, textvariable=self.branch_var, state="readonly", width=25)
         self.branch_dropdown.grid(row=0, column=1, padx=5)
 
-        self.update_button = tk.Button(self.controls_frame, text="Update", command=self.update_modpack, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
+        self.update_button = tk.Button(self.controls_frame, text="Update", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
         self.update_button.grid(row=0, column=2, padx=10)
 
-        self.install_button = tk.Button(self.controls_frame, text="Install", command=self.install_modpack, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
+        self.install_button = tk.Button(self.controls_frame, text="Install", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
         self.install_button.grid(row=1, column=2, padx=10, pady=5)
 
-        self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=self.open_dir, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
+        self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.open_dir_button.grid(row=1, column=1, padx=10, pady=5)
 
-    def open_dir(self):
-        thisos = get_current_os()
-        if thisos == OS_WIN:
-            os.startfile(self.path_var.get())
-        if thisos == OS_MAC:
-            subprocess.run(["open", self.path_var.get()], check=True)
-        if thisos == OS_LIN:
-            subprocess.run(["xdg-open", self.path_var.get()], check=True)
+    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb):
+        self.browse_button.config(command=browse_cb)
+
+        self.confirm_button.config(command=confirm_cb)
+
+        self.update_button.config(command=update_cb)
+
+        self.install_button.config(command=install_cb)
+
+        self.open_dir_button.config(command=open_cb)
 
     def setup_console(self, root, height=150, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
         """Set up the console for displaying messages."""
@@ -464,9 +500,6 @@ class App:
 
         self.console_text = tk.Text(console_frame, bg=bg, fg=fg, wrap=tk.WORD, font=font, height=height // 20)
         self.console_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-        self.console_print("Frontier - Forge Minecraft Server 2025")
-        self.console_print("Welcome to the Frontier Client Modpack Installer/Updater")
-        self.console_print("Confirm your .minecraft path above to get started")
 
     def console_print(self, message, color=CONSOLE_FG, font=FONT_CONSOLE):
         """Print a message to the console in the given color and font."""
@@ -502,70 +535,157 @@ class App:
         except Exception as e:
             self.console_print(f"Error loading image: {e}", "red")
 
+
+
+"""
+Controller
+    state change(), get()
+
+    Frontend
+        root
+        on state chg
+        console print
+        init buttons(cbs)
+    Backend
+        run git cmds
+        get file stuff
+        more
+
+    update press()
+    install press()
+    confirm press()
+    ...
+"""
+
+class Controller:
+    def __init__(self, root):
+        self.frontend = FrontEnd(root)
+        self.frontend.setup_callbacks(self.control_browse, self.control_confirm, self.control_update, self.control_install, self.control_open)
+        self.backend = GitBackend(self.frontend.console_print, self.frontend.update_progress_bar)
+        self.set_state(STATE_UNCONNECTED)
+
+    def bootup_seq(self):
+        self.frontend.console_print("Frontier - Forge Minecraft Server 2025")
+        self.frontend.simulate_progress_bar(0.1)
+        self.frontend.update_progress_bar(0,1)
+        self.frontend.console_print("Welcome to the Frontier Client Modpack Installer/Updater")
+        time.sleep(0.1)
+        self.frontend.console_print("Confirm your .minecraft path above to get started")
+
+    def run_app(self):
+        self.backend.run_in_thread(self.bootup_seq)
+        self.frontend.root.mainloop()
+
+    def set_state(self, state):
+        self.__state = state
+        self.frontend.set_state(self.get_state())
+        if (self.__state == STATE_CONNECTED):
+            self.update_dropdown()
+            self.backend.print_status_update(self.frontend.path_var.get())
+
+    def get_state(self):
+        return self.__state
+
+    # TODO from fe
     def update_dropdown(self):
         """Update the dropdown with branches."""
-        repo_path = Path(self.path_var.get())
+        repo_path = Path(self.frontend.path_var.get())
         if not repo_path.exists():
-            self.console_print("Invalid repository path.", "red")
+            self.frontend.console_print("Invalid repository path.", "red")
             return
 
         branches = self.backend.fetch_remote_branches(repo_path)
-        self.branch_dropdown["values"] = branches
+        self.frontend.branch_dropdown["values"] = branches
         if branches:
-            self.branch_var.set(branches[0])  # Default to first branch
-
-    def _update_modpack(self):
-        """Fetch and pull updates for the selected branch."""
-        def progress_callback(op_code, cur_count, max_count=None, message=""):
-            """Handles progress updates."""
-            progress_message = f"{cur_count}/{max_count if max_count else '?'}: {message.strip()}"
-            print(progress_message)
-            self.console_print(progress_message, "cyan")
-        repo_path = Path(self.path_var.get())
-        branch = self.branch_var.get()
-        try:
-            repo = git.Repo(repo_path)
-            repo.git.reset('--hard')
-            repo.remotes.origin.fetch(progress=progress_callback)
-            repo.git.checkout(branch)
-            repo.remotes.origin.pull(progress=progress_callback)
-            self.console_print(f"Update on {branch} successful", 'lime')
-            self.backend.print_status_update(self.path_var.get())
-            
-        except Exception as e:
-            self.console_print(f"Update failed: {e}", "red")
-
-    def update_modpack(self):
-        self.backend.run_in_thread(self._update_modpack)
-
-    def confirm_path(self):
-        """Confirm the Minecraft folder path and determine the application state."""
-        path = Path(self.path_var.get())
-        if os.path.exists(f'{path.__str__()}'):
-            self.update_dropdown()
-            repo = self.backend.check_repo(path)
-            if repo:
-                self.set_state(STATE_CONNECTED)
-            else:
-                response = messagebox.showinfo(title="Back up or Remove", message="you have an existing folder here that is not managed by this installer. to avoid me messing up any of your old files, go re-name or move this. or, just delete it if you don't care. you may want to at least back up your options and of course, saves.")
-                self.set_state(STATE_UNCONNECTED)
-        else:
-            self.set_state(STATE_NO_INSTALL)
+            self.frontend.branch_var.set(branches[0])  # Default to first branch
 
     def install_modpack_internal(self, path):
         self.backend.check_and_prepare(path)
-        self.confirm_path()
-    def install_modpack(self):
+        self.control_confirm_internal()
+
+    def control_confirm_internal(self):
+        """Confirm the Minecraft folder path and determine the application state."""
+        path = Path(self.frontend.path_var.get())
+        if os.path.exists(f'{path.__str__()}'):
+            self.frontend.console_print('verifying tracked install...', color='yellow')
+            self.frontend.simulate_progress_bar(0.15)
+            repo = self.backend.check_repo(path)
+            if repo:
+                self.update_dropdown()
+                self.set_state(STATE_CONNECTED)
+            else: # TODO implement the fix the fuck out of this 9000
+                response = messagebox.askokcancel(title="Warning", message="You have an existing minecraft folder here not installed by this installer. I can install on top of this, but I may need to overwrite files. This installer does NOT track your saves or main options, but some other things. You will be warned again before any overwrites happen.\nPress ok to continue")
+                if not response:
+                    self.set_state(STATE_UNCONNECTED)
+                else: #TODO error checkin?
+                    if not self.backend.install_remote_at(path):
+                        self.frontend.console_print('did not add remote, try again or try removing pre-existing install', color='red')
+                        self.set_state(STATE_UNCONNECTED)
+                        return
+                    self.frontend.console_print('done. verifying...', color = 'yellow')
+                    repo = self.backend.check_repo(path)
+                    if not repo:
+                        raise RuntimeError("failed to install remote")
+                    self.frontend.console_print(f'successfully set up tracking for install at {path}')
+                    self.set_state(STATE_CONNECTED)
+
+                    
+                    
+        else:
+            self.set_state(STATE_NO_INSTALL)
+
+
+    def on_any_press(self):
+        if (False and self.get_state() == STATE_CONNECTED): # fix / remove
+            self.update_dropdown()
+
+    def control_confirm(self):
+        self.on_any_press()
+        self.backend.run_in_thread(self.control_confirm_internal)
+    
+    def control_browse(self):
+        """Open a directory selection dialog and update the path field."""
+        self.on_any_press()
+        selected_path = fd.askdirectory(initialdir=str(MINECRAFT_DEFAULT_DIR), title="Select Minecraft Folder")
+        if selected_path:
+            self.frontend.path_var.set(selected_path)
+
+    def control_install(self):
         """Handler for the Install Modpack button."""
-        path = Path(self.path_var.get())
+        self.on_any_press()
+        path = Path(self.frontend.path_var.get())
         self.backend.run_in_thread(self.install_modpack_internal, path)
+
+    def control_update(self):
+        self.on_any_press()
+        repo_path = Path(self.frontend.path_var.get())
+        branch = self.frontend.branch_var.get()
+        self.backend.run_in_thread(self.backend.update_modpack, repo_path, branch)
+    
+    def control_open_internal(self):
+        thisos = get_current_os()
+        if thisos == OS_WIN:
+            os.startfile(self.frontend.path_var.get())
+        if thisos == OS_MAC:
+            subprocess.run(["open", self.frontend.path_var.get()], check=True)
+        if thisos == OS_LIN:
+            subprocess.run(["xdg-open", self.frontend.path_var.get()], check=True)
+
+    def control_open(self):
+        self.on_any_press()
+        self.backend.run_in_thread(self.control_open_internal)
+        
+
+
+
+
 
 
 # Create the Tkinter app
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
+    control = Controller(tk.Tk())
+    control.run_app()
+    
 
 # import os
 
