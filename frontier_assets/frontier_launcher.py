@@ -825,8 +825,8 @@ class Controller:
         try:
             self.frontend.console_print('running launcher..', 'yellow')
             self.frontend.simulate_progress_bar(0.12)
-            self.frontend.console_print('closing frontier launcher to save resources...')
-            self.frontend.simulate_progress_bar(0.17)
+            self.frontend.console_print('shutting down to save resources...', 'yellow')
+            self.frontend.simulate_progress_bar(0.24)
             self.frontend.console_print('have fun!')
             subprocess.Popen([launcher_path])
             time.sleep(1)
