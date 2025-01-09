@@ -28,3 +28,17 @@ frontier_assets/dist
 config
 
 .mc_launcher_path.cache
+
+versions/version_manifest_v2.json
+
+Distant_Horizons_server_data/
+bin/aff240bc8e180f349b2c13429d5756eb1a65b48f/
+bin/d4abd45eda44d8516fe1c7a0c4f47a1dd04ab0d1/
+saves/
+screenshots/
+servers.dat
+servers.dat_old
+versions/1.20.1/1.20.1.json
+versions/1.21.4/
+versions/25w02a/
+xaero/
