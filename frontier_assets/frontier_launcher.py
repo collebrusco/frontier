@@ -427,18 +427,21 @@ class FrontEnd:
             self.enable_update(False)
             self.enable_opendir(True)
             self.enable_status(False)
+            self.enable_launch(False)
         elif self.current_state in (STATE_NON_MANAGED, STATE_NO_INSTALL):
             self.enable_path_editing(True)
             self.enable_update(False)
             self.enable_install(True)
             self.enable_opendir(True)
             self.enable_status(False)
+            self.enable_launch(False)
         elif self.current_state == STATE_CONNECTED:
             self.enable_path_editing(False)
             self.enable_install(False)
             self.enable_update(True)
             self.enable_opendir(True)
             self.enable_status(True)
+            self.enable_launch(True)
 
     def enable_path_editing(self, enable):
         """Enable or disable the path field and buttons."""
@@ -466,6 +469,11 @@ class FrontEnd:
         """Enable or disable the install and update buttons."""
         state = tk.NORMAL if enable else tk.DISABLED
         self.status_button.config(state=state)
+
+    def enable_launch(self, enable):
+        """Enable or disable the install and update buttons."""
+        state = tk.NORMAL if enable else tk.DISABLED
+        self.launch_button.config(state=state)
 
     # TODO controller called, pass cbs
     def setup_path_field(self):
@@ -510,7 +518,7 @@ class FrontEnd:
         self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.open_dir_button.grid(row=1, column=1, padx=10, pady=5)
 
-    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb):
+    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb, launch_cb):
         self.browse_button.config(command=browse_cb)
 
         self.confirm_button.config(command=confirm_cb)
@@ -523,12 +531,14 @@ class FrontEnd:
 
         self.status_button.config(command=status_cb)
 
+        self.launch_button.config(command=launch_cb)
+
     def setup_console(self, root, height=300, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
         """Set up the console for displaying messages."""
         console_frame = tk.Frame(root, bg=bg, height=height)
         console_frame.pack(fill=tk.X, padx=10, pady=5)
 
-        self.console_text = tk.Text(console_frame, bg=bg, fg=fg, wrap='none', font=font, height=height // 20)
+        self.console_text = tk.Text(console_frame, bg=bg, fg=fg, wrap='word', font=font, height=height // 20)
         self.console_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
     def console_print(self, message, color=CONSOLE_FG, font=FONT_CONSOLE):
@@ -552,24 +562,33 @@ class FrontEnd:
         return label
 
     def setup_controls_and_image(self):
-        """Set up the image and control buttons side-by-side."""
+        """Set up the image and control buttons side-by-side with evenly spaced columns."""
         self.controls_image_frame = tk.Frame(self.root, bg=BG_COLOR)
-        self.controls_image_frame.pack(fill=tk.X, padx=10, pady=5)
+        self.controls_image_frame.pack(fill=tk.BOTH, padx=10, pady=10)
+
+        # Configure grid weights for evenly spaced columns
+        self.controls_image_frame.columnconfigure(0, weight=1)  # Image column
+        self.controls_image_frame.columnconfigure(1, weight=1)  # Controls column
 
         # --- Image Section (Left) ---
         self.inner_image_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
-        # self.inner_image_frame.grid(row=0, column=1, padx=5)
-        self.inner_image_frame.pack(side=tk.LEFT, padx=10, pady=10)
+        self.inner_image_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         self.image_label = tk.Label(self.inner_image_frame, bg=BG_COLOR)
         self.image_label.pack()
-        self.load_image_from_url(self.image_label, "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png", 200, 200)
-        # self.image_label.bind("<Button-1>", lambda e: webbrowser.open(link_url)) #TODO
+        self.load_image_from_url(
+            self.image_label, 
+            "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png", 
+            200, 
+            200
+        )
+        
+        self.launch_button = tk.Button(self.inner_image_frame, text="Launch!", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
+        self.launch_button.pack(pady=5)
 
         # --- Controls Section (Right) ---
         self.controls_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
-        # self.controls_frame.grid(row=0, column=2, padx=5)
-        self.controls_frame.pack(side=tk.RIGHT, padx=10, pady=10, fill=tk.Y)
+        self.controls_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         # Branch Dropdown
         self.branch_label = tk.Label(self.controls_frame, text="Branch:", font=FONT_TEXT, bg=BG_COLOR)
@@ -590,6 +609,7 @@ class FrontEnd:
 
         self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.open_dir_button.pack(pady=5)
+
 
     def load_image_from_url(self, label, url, width, height):
         """Load and display an image from a URL, resizing it to fit."""
@@ -630,7 +650,16 @@ Controller
 class Controller:
     def __init__(self, root):
         self.frontend = FrontEnd(root)
-        self.frontend.setup_callbacks(self.control_browse, self.control_confirm, self.control_update, self.control_install, self.control_open, self.control_status)
+        self.frontend.setup_callbacks(
+            self.control_browse,
+            self.control_confirm,
+            self.control_update,
+            self.control_install,
+            self.control_open,
+            self.control_status,
+            self.control_launch
+        )
+
         self.backend = GitBackend(self.frontend.console_print, self.frontend.update_progress_bar)
         self.set_state(STATE_UNCONNECTED, False)
 
@@ -683,7 +712,7 @@ class Controller:
             if repo:
                 self.update_dropdown()
                 self.set_state(STATE_CONNECTED)
-            else: # TODO implement the fix the fuck out of this 9000
+            else:
                 response = messagebox.askokcancel(title="Warning", message="You have an existing minecraft folder here not installed by this installer. I can install on top of this, but I may need to overwrite files. This installer does NOT track your saves or main options, but some other things. You will be warned again before any overwrites happen.\nPress ok to continue")
                 if not response:
                     self.set_state(STATE_UNCONNECTED)
@@ -746,6 +775,68 @@ class Controller:
         
     def control_status(self):
         self.backend.run_in_thread(self.backend.print_status_update, self.frontend.path_var.get(), True)
+
+    def launch_task(self):
+        # Define the cache file path
+        cache_file = os.path.join(self.frontend.path_var.get(), ".mc_launcher_path.cache")
+        default_launcher_path = "C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"
+
+        # Check if the cache file exists
+        if os.path.exists(cache_file):
+            # Read the cached path
+            with open(cache_file, "r") as f:
+                launcher_path = f.read().strip()
+        else:
+            # Create the cache file and populate it with the default path
+            launcher_path = default_launcher_path
+            with open(cache_file, "w") as f:
+                f.write(launcher_path)
+
+        # Validate if the launcher executable exists
+        while not os.path.isfile(launcher_path):
+            # Prompt the user with an error message
+            self.frontend.console_print(f'no launcher at {launcher_path}', 'red')
+            response = messagebox.askyesno(
+                "Launcher Not Found",
+                f"The launcher was not found at:\n{launcher_path}\n\nDo you want to browse for the launcher?"
+            )
+
+            if not response:
+                self.frontend.console_print('User aborted launch', 'orange')
+                return
+
+            # Open a file dialog to browse for the launcher
+            launcher_path = fd.askopenfilename(
+                title="Select Minecraft Launcher",
+                filetypes=[("Executable Files", "*.exe")]
+            )
+
+            # If the user cancels the file dialog, abort
+            if not launcher_path:
+                self.frontend.console_print('User aborted launch', 'orange')
+                return
+
+        # Update the cache file with the valid launcher path
+        self.frontend.console_print(f'found launcher at {launcher_path}', 'lime')
+        with open(cache_file, "w") as f:
+            f.write(launcher_path)
+
+        # Launch the Minecraft Launcher
+        try:
+            self.frontend.console_print('running launcher..', 'yellow')
+            self.frontend.simulate_progress_bar(0.12)
+            self.frontend.console_print('closing frontier launcher to save resources...')
+            self.frontend.simulate_progress_bar(0.17)
+            self.frontend.console_print('have fun!')
+            subprocess.Popen([launcher_path])
+            time.sleep(1)
+            self.frontend.root.quit()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to launch Minecraft Launcher:\n{e}")
+
+
+    def control_launch(self):
+        self.backend.run_in_thread(self.launch_task)
 
 
 

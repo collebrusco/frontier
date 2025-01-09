@@ -26,3 +26,5 @@ frontier_assets/dist
 **.DS_Store
 
 config
+
+.mc_launcher_path.cache
