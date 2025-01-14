@@ -1,4 +1,4 @@
-#Mon Dec 30 23:55:52 CST 2024
+#Mon Jan 13 22:10:05 CST 2025
 shadowDistance=2048.0
 DAY8_l1_coverage=0.2
 TRANSLUCENT_COLORED_SHADOWS=true
