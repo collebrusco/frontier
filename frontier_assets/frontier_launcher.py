@@ -33,6 +33,7 @@ MAIN_BRANCH_NAME = 'main'
 
 # Global Constants for Paths and Repo
 REPO_URL = "https://github.com/collebrusco/frontier.git"
+REPO_URL_SSH = "git@github.com:collebrusco/frontier.git"
 
 # Application States
 STATE_UNCONNECTED = "Unconnected"
@@ -169,7 +170,7 @@ class GitBackend:
         """Check if the path is a valid Git repository."""
         try:
             repo = git.Repo(path)
-            if repo.remotes.origin.url == REPO_URL:
+            if repo.remotes.origin.url in [REPO_URL, REPO_URL_SSH]:
                 return repo
             else:
                 self.print_status("Remote URL does not match the expected repository.", "red")
