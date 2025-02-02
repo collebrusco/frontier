@@ -1,0 +1,43 @@
+{
+  "model": "suffuse:gun/trapper50cal_geo",
+  "texture": "suffuse:gun/uv/trapper50cal",
+  "hud": "suffuse:gun/hud/trapper50cal_hud",
+  "slot": "suffuse:gun/slot/trapper50cal",
+  "animation": "suffuse:trapper50cal",
+  "use_default_animation": "pistol",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 0.6
+  },
+  "sounds": {
+    "draw": "tacz:p320/p320_draw",
+    "put_away": "tacz:p320/p320_put_away",
+    "reload_empty": "suffuse:trapper50cal/trapper50cal_reload_empty",
+    "inspect_empty": "suffuse:trapper50cal/trapper50cal_inspect",
+    "inspect": "suffuse:trapper50cal/trapper50cal_inspect",
+    "shoot": "suffuse:trapper50cal/trapper50cal_fire",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "shoot_3p": "suffuse:trapper50cal/trapper50cal_fire"
+  },
+  "offhand_show": {
+    "pos": [4, 13, -2],
+    "rotate": [-90, -35, 90],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-5, 13, -2],
+      "rotate": [-90, -35, 90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

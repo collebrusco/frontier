@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.gun.gm6.name",
+  "tooltip": "suffuse.gun.gm6.desc",
+  "display": "suffuse:gm6_display",
+  "data": "suffuse:gm6_data",
+  "type": "sniper"
+}

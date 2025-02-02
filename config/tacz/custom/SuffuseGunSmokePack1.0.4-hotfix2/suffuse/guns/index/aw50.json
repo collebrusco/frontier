@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.gun.aw50.name",
+  "tooltip": "suffuse.gun.aw50.desc",
+  "display": "suffuse:aw50_display",
+  "data": "suffuse:aw50_data",
+  "type": "sniper"
+}

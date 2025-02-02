@@ -1,0 +1,74 @@
+{
+  "ammo": "tacz:762x39", // 弹药类型，使用 5.56x45mm 弹药
+  "ammo_amount": 120, // 标准弹匣容量
+  "bolt": "open_bolt", // 枪机类型，使用开膛枪机
+  "rpm": 623, // 每分钟射速 (Rounds Per Minute)
+  "bullet": {
+    "life": 1.0, // 子弹寿命，单位为秒
+    "bullet_amount": 1, // 每次发射的子弹数量
+    "damage": 11.5, // 基础伤害
+    "tracer_count_interval": 1, // 曳光弹计数间隔（0表示不使用曳光弹）
+    "extra_damage": {
+      "armor_ignore": 0.25, // 无视护甲的伤害比例
+      "head_shot_multiplier": 1.5, // 爆头伤害倍数
+      "damage_adjust": [ // 根据距离调整伤害
+        {"distance": 0.5, "damage": 11.59},
+        {"distance": 40, "damage": 10.5},
+        {"distance": 70, "damage": 7.5},
+        {"distance": "infinite", "damage": 5} // 无穷远距离的伤害
+      ]
+    },
+    "speed": 240, // 子弹速度
+    "gravity": 0.0245, // 子弹重力影响，越大下坠越快
+    "knockback": 0, // 击退效果
+    "friction": 0.01, // 空气摩擦力
+    "ignite": false, 
+    "pierce": 1 
+  },
+  "reload": {
+    "type": "magazine", 
+    "feed": {
+      "empty": 6.5, 
+      "tactical": 6.5 
+    },
+    "cooldown": {
+      "empty": 9.17,
+      "tactical": 7.88 
+    }
+  },
+  "draw_time": 1.8, 
+  "put_away_time": 0.67, 
+  "aim_time": 0.35, 
+  "sprint_time": 0.2,
+  "weight": 11.7,
+  "fire_mode": [
+    "auto"
+  ],
+  "recoil": {
+    "pitch": [
+      {"time": 0, "value": [1.2, 1.2]},
+      {"time": 0.3, "value": [1.2, 1.2]},
+      {"time": 0.5, "value": [-0.15, -0.15]},
+      {"time": 0.65, "value": [0, 0]}
+    ],
+    "yaw": [
+      {"time": 0, "value": [-0.2, 0.2]},
+      {"time": 0.3, "value": [-0.2, 0.3]},
+      {"time": 0.5, "value": [0, 0]}
+    ]
+  },
+  "inaccuracy": {
+    "stand": 9.1,
+    "move": 8.9,
+    "sneak": 6.2,
+    "lie": 5,
+    "aim": 0.23
+  },
+  "allow_attachment_types": [
+    "scope",
+    "grip",
+    "stock"
+  ],
+  "exclusive_attachments": {
+  }
+}

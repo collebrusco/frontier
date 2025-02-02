@@ -1,0 +1,58 @@
+{
+  "model": "suffuse:gun/xm7_geo",
+  "texture": "suffuse:gun/uv/xm7",
+  "hud": "suffuse:gun/hud/xm7_hud",
+  "slot": "suffuse:gun/slot/xm7",
+  "animation": "suffuse:xm7",
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 1.125
+  },
+  "iron_zoom": 1.2,
+  "shell": {
+    "initial_velocity": [5, 2, 1],
+    "random_velocity": [1, 1, 0.25],
+    "acceleration": [0.0, -10, 0.0],
+    "angular_velocity": [360, -1200, 90],
+    "living_time": 1.0
+  },
+  "sounds": {
+    "shoot": "suffuse:xm7/xm7_fire",
+    "shoot_3p": "suffuse:xm7/xm7_fire",
+    "silence": "suffuse:xm7/xm7_fire_s2",
+    "silence_3p": "suffuse:xm7/xm7_fire_s2",
+	  "reload_empty": "suffuse:xm7/xm7_reload_empty",
+	  "reload_tactical": "suffuse:xm7/xm7_reload_tactical",
+    "dry_fire": "tacz:dry_fire",
+    "draw": "tacz:hk_mp5a5/hk_mp5a5_draw",
+    "fire_select": "tacz:fire_select",
+    "inspect": "suffuse:xm7/xm7_inspect",
+    "inspect_empty": "suffuse:xm7/xm7_inspect_empty",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "melee_push": "tacz:melee_stock/melee_stock_01",
+    "melee_stock": "tacz:melee_stock/melee_stock_03"
+  },
+  "offhand_show": {
+    "pos": [0, 19, 4],
+    "rotate": [0, 0, 60],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [0, 19, 3],
+      "rotate": [-180, 0, 120],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

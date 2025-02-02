@@ -1,0 +1,11 @@
+{
+    // 枪械的显示名称，支持本地化
+    "name": "suffuse.gun.an94.name",
+    "tooltip": "suffuse.gun.an94.desc",
+    // 枪械效果文件
+    "display": "suffuse:an94_display",
+    // 枪械参数文件
+    "data": "suffuse:an94_data",
+    // 枪械种类，用于创造标签栏归类。
+    "type": "rifle"
+}

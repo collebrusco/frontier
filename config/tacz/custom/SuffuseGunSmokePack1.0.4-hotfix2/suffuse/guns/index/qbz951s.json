@@ -1,0 +1,11 @@
+{
+    // 枪械的显示名称，支持本地化
+    "name": "suffuse.gun.qbz951s.name",
+    "tooltip": "suffuse.gun.qbz951s.desc",
+    // 枪械效果文件
+    "display": "suffuse:qbz951s_display",
+    // 枪械参数文件
+    "data": "suffuse:qbz951s_data",
+    // 枪械种类，用于创造标签栏归类。
+    "type": "rifle"
+}
