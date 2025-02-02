@@ -2,28 +2,43 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/gold"
+        "tag": "forge:ingots/uranium"
       },
-      "count": 16
+      "count": 1
     },
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "immersiveengineering:plate_steel"
+      },
+      "count": 155
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:componet_steel"
+      },
+      "count": 40
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:stick_steel"
+      },
+      "count": 3
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:plate_aluminum"
       },
       "count": 64
     },
     {
       "item": {
-        "tag": "forge:gems/quartz"
+        "tag": "immersiveengineering:plate_iron"
       },
-      "count": 8
+      "count": 24
     }
   ],
   "result": {
     "type": "gun",
-    "id": "tacz:hk416d",
-    "attachments": {
-      "stock": "tacz:oem_stock_tactical"
-    }
+    "id": "tacz:hk416d"
   }
 }

@@ -2,33 +2,33 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:gems/diamond"
+        "tag": "immersiveengineering:plate_steel"
       },
-      "count": 15
+      "count": 365
     },
     {
       "item": {
-        "tag": "forge:ingots/gold"
+        "tag": "immersiveengineering:componet_steel"
       },
-      "count": 60
+      "count": 67
     },
     {
       "item": {
-        "tag": "forge:ingots/netherite"
+        "tag": "immersiveengineering:stick_steel"
       },
-      "count": 3
+      "count": 16
     },
     {
       "item": {
-        "tag": "forge:ingots/iron"
-      },
-      "count": 300
-    },
-    {
-      "item": {
-        "tag": "forge:rods/blaze"
+        "tag": "minecraft:anvil"
       },
       "count": 5
+    },
+    {
+      "item": {
+        "tag": "minecraft:lever"
+      },
+      "count": 1
     }
   ],
   "result": {

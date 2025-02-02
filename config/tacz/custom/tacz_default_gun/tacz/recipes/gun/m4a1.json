@@ -2,28 +2,37 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "forge:ingots/uranium"
       },
-      "count": 38
+      "count": 1
     },
     {
       "item": {
-        "tag": "forge:gems/lapis"
+        "tag": "immersiveengineering:plate_steel"
       },
-      "count": 6
+      "count": 133
     },
     {
       "item": {
-        "tag": "minecraft:logs"
+        "tag": "immersiveengineering:componet_steel"
       },
-      "count": 8
+      "count": 22
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:stick_steel"
+      },
+      "count": 3
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:plate_aluminum"
+      },
+      "count": 32
     }
   ],
   "result": {
     "type": "gun",
-    "id": "tacz:m4a1",
-    "attachments": {
-      "stock": "tacz:oem_stock_tactical"
-    }
+    "id": "tacz:m4a1"
   }
 }

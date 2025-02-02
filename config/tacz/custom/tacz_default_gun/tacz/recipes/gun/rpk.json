@@ -2,34 +2,31 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
-      },
-      "count": 56
-    },
-    {
-      "item": {
-        "tag": "forge:ingots/gold"
-      },
-      "count": 8
-    },
-    {
-      "item": {
-        "tag": "forge:gems/quartz"
-      },
-      "count": 8
-    },
-    {
-      "item": {
         "tag": "minecraft:logs"
       },
-      "count": 12
+      "count": 48
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:plate_steel"
+      },
+      "count": 220
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:componet_iron"
+      },
+      "count": 32
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:stick_steel"
+      },
+      "count": 8
     }
   ],
   "result": {
     "type": "gun",
-    "id": "tacz:rpk",
-    "attachments": {
-      "stock": "tacz:oem_stock_heavy"
-    }
+    "id": "tacz:rpk"
   }
 }

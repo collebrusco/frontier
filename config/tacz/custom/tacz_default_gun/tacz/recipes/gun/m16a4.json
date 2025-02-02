@@ -2,21 +2,27 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "immersiveengineering:plate_aluminum"
       },
-      "count": 36
+      "count": 64
     },
     {
       "item": {
-        "tag": "forge:gems/lapis"
+        "tag": "immersiveengineering:plate_steel"
       },
-      "count": 8
+      "count": 128
     },
     {
       "item": {
-        "tag": "minecraft:logs"
+        "tag": "immersiveengineering:componet_steel"
       },
-      "count": 6
+      "count": 35
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:stick_steel"
+      },
+      "count": 3
     }
   ],
   "result": {

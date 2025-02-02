@@ -2,28 +2,31 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/gold"
+        "tag": "forge:ingots/uranium"
       },
-      "count": 9
+      "count": 1
     },
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "immersiveengineering:plate_steel"
       },
-      "count": 72
+      "count": 160
     },
     {
       "item": {
-        "tag": "forge:gems/quartz"
+        "tag": "immersiveengineering:componet_iron"
       },
-      "count": 5
+      "count": 12
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:stick_steel"
+      },
+      "count": 1
     }
   ],
   "result": {
     "type": "gun",
-    "id": "tacz:hk_g3",
-    "attachments": {
-      "stock": "tacz:oem_stock_tactical"
-    }
+    "id": "tacz:hk_g3"
   }
 }
