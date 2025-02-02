@@ -1,0 +1,15 @@
+{
+    "slot": "warhammer:ammo/slot/promethium_can",
+    "tracer_color": "#ff7f00",
+    "particle": {
+      "name": "irons_spellbooks:fire",
+      "delta": [
+        1,
+        0.2,
+        1
+      ],
+      "speed": 0.03,
+      "life_time": 1,
+      "count": 2
+    }
+  }

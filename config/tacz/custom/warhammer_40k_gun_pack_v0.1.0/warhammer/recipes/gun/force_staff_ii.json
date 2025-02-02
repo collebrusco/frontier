@@ -1,0 +1,61 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:nether_star"
+            }
+        },
+        {
+            "item": {
+                "item": "minecraft:redstone_block"
+            },
+            "count": 6
+        },
+        {
+            "item": {
+                "item": "minecraft:gold_ingot"
+            },
+            "count": 12
+        },
+        {
+            "item": {
+                "item": "minecraft:iron_ingot"
+            },
+            "count": 40
+        },
+        {
+            "item": {
+                "item": "minecraft:fire_charge"
+            },
+            "count": 10
+        }
+    ],
+    "result": {
+
+            "type": "gun",
+            "id": "warhammer:force_staff_ii",
+            "nbt": {
+                "ISB_Spells": {
+                    "data": [
+                        {
+                            "id": "irons_spellbooks:fire_breath",
+                            "index": 0,
+                            "level": 10,
+                            "locked": 0
+                        }
+                    ],
+                    "maxSpells": 1,
+                    "mustEquip": 0,
+                    "spellWheel": 1
+
+            },
+            "ISBUpgrades": [
+                {
+                    "id": "irons_spellbooks:cooldown",
+                    "slot":"mainhand",
+                    "upgrades": 16
+                }
+            ]
+        }
+    }
+}

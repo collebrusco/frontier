@@ -1,0 +1,8 @@
+{
+    "name": "warhammer.gun.artemia_iii.name",
+    "display": "warhammer:artemia_iii_display",
+    "data": "warhammer:artemia_iii_data",
+    "type": "rpg",
+    "item_type": "modern_kinetic",
+    "sort": 10
+}

@@ -1,0 +1,21 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:copper_ingot"
+            },
+            "count": 3
+        },
+        {
+            "item": {
+                "item": "minecraft:gunpowder"
+            },
+            "count": 6
+        }
+    ],
+    "result": {
+        "type": "ammo",
+        "id": "warhammer:825_ammo",
+        "count": 30
+    }
+}

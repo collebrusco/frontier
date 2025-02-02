@@ -1,0 +1,38 @@
+{
+    "model": "warhammer:gun/kantrael_xii",
+    "texture": "warhammer:gun/uv/kantrael_xii",
+    "slot": "warhammer:gun/slot/kantrael_xii",
+    "hud": "warhammer:gun/hud/kantrael_xii",
+    "animation": "warhammer:kantrael_xii",
+    "use_default_animation": "rifle",
+    "transform": {
+        "scale": {
+            "thirdperson": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "ground": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "fixed": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
+    "muzzle_flash": {
+        "texture": "warhammer:flash/laser2",
+        "scale": 1.5
+    },
+    "third_person_animation": "default",
+    "sounds": {
+        "shoot": "warhammer:kantrael_xii/shoot",
+        "draw": "warhammer:kantrael_xii/draw",
+        "reload_empty": "warhammer:kantrael_xii/reload",
+        "reload_tactical": "warhammer:kantrael_xii/reload"
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:glass"
+            },
+            "count":20
+        },
+        {
+            "item": {
+                "item": "minecraft:redstone_block"
+            },
+            "count": 12
+        },
+        {
+            "item": {
+                "item": "minecraft:iron_ingot"
+            },
+            "count": 40
+        },
+        {
+            "item": {
+                "item": "minecraft:copper_ingot"
+            },
+            "count": 20
+        }
+    ],
+    "result": {
+        "type": "gun",
+        "id": "warhammer:kantrael_xii"
+    }
+}

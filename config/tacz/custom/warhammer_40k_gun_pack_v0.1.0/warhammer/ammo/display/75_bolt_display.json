@@ -1,0 +1,9 @@
+{
+
+    "slot": "warhammer:ammo/slot/75_bolt",
+    "shell": {
+      "model": "warhammer:ammo/shell/75_bolt",
+      "texture": "warhammer:ammo/shell/75_bolt"
+    },
+    "tracer_color": "#ffc474"
+  }

@@ -1,0 +1,121 @@
+{
+    "ammo": "warhammer:psyker_power",
+    "ammo_amount": 30,
+    "bolt": "open_bolt",
+    "rpm": 150,
+    "bullet": {
+        "life": 10,
+        "damage": 9.5,
+        "speed": 40,
+        "gravity": 0,
+        "knockback": 0.2,
+        "friction": 0.01,
+        "ignite": false,
+        "pierce": 1,
+        "extra_damage": {
+            "armor_ignore": 0.3,
+            "head_shot_multiplier": 1.5,
+            "damage_adjust": [
+                {
+                    "distance": 4.5,
+                    "damage": 9.5
+                },
+                {
+                    "distance": 70,
+                    "damage": 10
+                },
+                {
+                    "distance": 80,
+                    "damage": 9.5
+                },
+                {
+                    "distance": 120,
+                    "damage": 9
+                },
+                {
+                    "distance": "infinite",
+                    "damage": 6
+                }
+            ]
+        }
+    },
+    "reload": {
+        "type": "fuel",
+        "feed": {
+            "empty": 1.7,
+            "tactical": 1.7
+        },
+        "cooldown": {
+            "empty": 2.5,
+            "tactical": 2.5
+        }
+    },
+    "draw_time": 0.7,
+    "put_away_time": 0.3,
+    "aim_time": 0.15,
+    "sprint_time": 0.15,
+    "fire_mode": [
+        "semi"
+    ],
+    "recoil": {
+        "pitch": [
+            {
+                "time": 0,
+                "value": [
+                    0.7,
+                    0.7
+                ]
+            },
+            {
+                "time": 0.25,
+                "value": [
+                    0.7,
+                    0.7
+                ]
+            },
+            {
+                "time": 0.45,
+                "value": [
+                    -0.175,
+                    -0.175
+                ]
+            },
+            {
+                "time": 0.6,
+                "value": [
+                    0,
+                    0
+                ]
+            }
+        ],
+        "yaw": [
+            {
+                "time": 0,
+                "value": [
+                    -0.35,
+                    0
+                ]
+            },
+            {
+                "time": 0.25,
+                "value": [
+                    -0.35,
+                    0
+                ]
+            },
+            {
+                "time": 0.45,
+                "value": [
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    "inaccuracy": {
+        "stand": 0,
+        "move": 0,
+        "lie": 0,
+        "aim": 0
+    }
+}

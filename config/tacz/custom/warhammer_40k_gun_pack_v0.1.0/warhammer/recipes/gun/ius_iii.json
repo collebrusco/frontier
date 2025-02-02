@@ -1,0 +1,20 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:iron_ingot"
+            },
+            "count": 30
+        },
+        {
+            "item": {
+                "item": "minecraft:copper_ingot"
+            },
+            "count": 6
+        }
+    ],
+    "result": {
+        "type": "gun",
+        "id": "warhammer:ius_iii"
+    }
+}

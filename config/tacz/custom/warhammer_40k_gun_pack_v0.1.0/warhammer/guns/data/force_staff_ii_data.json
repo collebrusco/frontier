@@ -1,0 +1,100 @@
+{
+    "ammo": "warhammer:psyker_power",
+    "ammo_amount": 30,
+    "bolt": "open_bolt",
+    "rpm": 60,
+    "bullet": {
+        "life": 1.7,
+        "damage": 15,
+        "bullet_amount": 32,
+        "speed": 10,
+        "gravity": 0,
+        "knockback": 0.1,
+        "friction": 0.1,
+        "ignite": true,
+        "pierce": 20,
+        "extra_damage": {
+            "armor_ignore": 1,
+            "head_shot_multiplier": 1
+        }
+    },
+    "reload": {
+        "type": "fuel",
+        "feed": {
+            "empty": 1.7,
+            "tactical": 1.7
+        },
+        "cooldown": {
+            "empty": 2.5,
+            "tactical": 2.5
+        }
+    },
+    "draw_time": 0.7,
+    "put_away_time": 0.3,
+    "aim_time": 0.15,
+    "sprint_time": 0.15,
+    "fire_mode": [
+        "semi"
+    ],
+    "recoil": {
+        "pitch": [
+            {
+                "time": 0,
+                "value": [
+                    0.7,
+                    0.7
+                ]
+            },
+            {
+                "time": 0.25,
+                "value": [
+                    0.7,
+                    0.7
+                ]
+            },
+            {
+                "time": 0.45,
+                "value": [
+                    -0.175,
+                    -0.175
+                ]
+            },
+            {
+                "time": 0.6,
+                "value": [
+                    0,
+                    0
+                ]
+            }
+        ],
+        "yaw": [
+            {
+                "time": 0,
+                "value": [
+                    -0.35,
+                    0
+                ]
+            },
+            {
+                "time": 0.25,
+                "value": [
+                    -0.35,
+                    0
+                ]
+            },
+            {
+                "time": 0.45,
+                "value": [
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    "inaccuracy": {
+        "stand": 12,
+        "move": 12,
+        "lie": 12,
+        "aim": 12
+    }
+}

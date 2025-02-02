@@ -1,0 +1,38 @@
+{
+    "model": "warhammer:gun/accatran_ii",
+    "texture": "warhammer:gun/uv/accatran_ii",
+    "slot": "warhammer:gun/slot/accatran_ii",
+    "hud": "warhammer:gun/hud/accatran_ii",
+    "animation": "warhammer:accatran_ii",
+    "use_default_animation": "pistol",
+    "transform": {
+        "scale": {
+            "thirdperson": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "ground": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "fixed": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
+    "muzzle_flash": {
+        "texture": "warhammer:flash/laser2",
+        "scale": 1.5
+    },
+    "third_person_animation": "default",
+    "sounds": {
+        "shoot": "warhammer:accatran_ii/shoot",
+        "draw": "warhammer:accatran_ii/draw",
+        "reload_empty": "warhammer:accatran_ii/reload",
+        "reload_tactical": "warhammer:accatran_ii/reload"
+    }
+}

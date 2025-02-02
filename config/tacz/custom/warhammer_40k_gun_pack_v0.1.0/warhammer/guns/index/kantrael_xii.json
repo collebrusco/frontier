@@ -1,0 +1,9 @@
+{
+    "name": "warhammer.gun.kantrael_xii.name",
+    "display": "warhammer:kantrael_xii_display",
+    "data": "warhammer:kantrael_xii_data",
+    "type": "rifle",
+    "item_type": "modern_kinetic",
+
+    "sort": 10
+}

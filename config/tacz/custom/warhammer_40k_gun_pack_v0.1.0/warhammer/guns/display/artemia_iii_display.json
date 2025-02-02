@@ -1,0 +1,49 @@
+{
+    "model": "warhammer:gun/artemia_iii",
+    "texture": "warhammer:gun/uv/artemia_iii",
+    "slot": "warhammer:gun/slot/artemia_iii",
+    "hud": "warhammer:gun/hud/artemia_iii",
+    "animation": "warhammer:artemia_iii",
+    
+    "use_default_animation": "rifle",
+    "show_crosshair": true,
+    "shell": {
+
+        "initial_velocity": [5, 2, 1],
+
+        "random_velocity": [1, 1, 0.25],
+
+        "acceleration": [0.0, -10, 0.0],
+
+        "angular_velocity": [360, -1200, 90],
+
+        "living_time": 1.0
+    },
+    "transform": {
+        "scale": {
+            "thirdperson": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "ground": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "fixed": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
+    "third_person_animation": "default",
+    "sounds": {
+        "shoot": "warhammer:artemia_iii/shoot",
+        "draw": "warhammer:artemia_iii/draw",
+        "reload_empty": "warhammer:artemia_iii/reload",
+        "reload_tactical": "warhammer:artemia_iii/reload",
+        "put_away": "warhammer:ius_iii/put_away"
+    }
+}

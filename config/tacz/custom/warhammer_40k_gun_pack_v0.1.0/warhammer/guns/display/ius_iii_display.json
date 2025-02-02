@@ -1,0 +1,52 @@
+{
+    "model": "warhammer:gun/ius_iii",
+    "texture": "warhammer:gun/uv/ius_iii",
+    "slot": "warhammer:gun/slot/ius_iii",
+    "hud": "warhammer:gun/hud/ius_iii",
+    "animation": "warhammer:ius_iii",
+    "use_default_animation": "pistol",
+    "show_crosshair": true,
+    "shell": {
+
+        "initial_velocity": [5, 2, 1],
+
+        "random_velocity": [1, 1, 0.25],
+
+        "acceleration": [0.0, -10, 0.0],
+
+        "angular_velocity": [360, -1200, 90],
+
+        "living_time": 1.0
+    },
+    "transform": {
+        "scale": {
+            "thirdperson": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "ground": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "fixed": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
+    "muzzle_flash": {
+        "texture": "tacz:flash/common_muzzle_flash",
+        "scale": 1.0
+    },
+    "third_person_animation": "default",
+    "sounds": {
+        "shoot": "warhammer:ius_iii/shoot",
+        "draw": "warhammer:ius_iii/draw",
+        "reload_empty": "warhammer:ius_iii/reload_empty",
+        "reload_tactical": "warhammer:ius_iii/reload_tactical",
+        "put_away": "warhammer:ius_iii/put_away"
+    }
+}

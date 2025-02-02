@@ -1,0 +1,5 @@
+{
+    "name": "warhammer.ammo.psyker_power.name",
+    "display": "warhammer:psyker_power_display",
+    "stack_size": 60
+  }

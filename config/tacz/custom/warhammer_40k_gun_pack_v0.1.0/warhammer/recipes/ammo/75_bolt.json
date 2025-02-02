@@ -1,0 +1,27 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:copper_ingot"
+            },
+            "count": 8
+        },
+        {
+            "item": {
+                "item": "minecraft:blaze_powder"
+            },
+            "count": 4
+        },
+        {
+            "item":{
+                "item":"minecraft:obsidian"
+            },
+            "count": 1
+        }
+    ],
+    "result": {
+        "type": "ammo",
+        "id": "warhammer:75_bolt",
+        "count": 8
+    }
+}

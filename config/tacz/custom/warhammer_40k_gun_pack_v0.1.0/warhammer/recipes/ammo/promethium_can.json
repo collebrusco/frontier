@@ -1,0 +1,21 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:blaze_powder"
+            },
+            "count": 8
+        },
+        {
+            "item": {
+                "item": "minecraft:iron_ingot"
+            },
+            "count": 3
+        }
+    ],
+    "result": {
+        "type": "ammo",
+        "id": "warhammer:promethium_can",
+        "count": 64
+    }
+}

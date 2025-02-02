@@ -1,0 +1,8 @@
+{
+    "name": "warhammer.gun.force_staff_iv.name",
+    "display": "warhammer:force_staff_iv_display",
+    "data": "warhammer:force_staff_iv_data",
+    "type": "rpg",
+    "item_type": "modern_kinetic",
+    "sort": 10
+}
