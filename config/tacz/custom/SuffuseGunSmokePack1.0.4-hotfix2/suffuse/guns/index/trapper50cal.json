@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.gun.trapper50cal.name",
+  "tooltip": "suffuse.gun.trapper50cal.desc",
+  "display": "suffuse:trapper50cal_display",
+  "data": "suffuse:trapper50cal_data",
+  "type": "pistol"
+}

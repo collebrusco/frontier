@@ -2,27 +2,33 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "minecraft:glass"
       },
-      "count": 39
+      "count": 10
     },
     {
       "item": {
-        "tag": "forge:gems/lapis"
+        "tag": "immersiveengineering:plate_steel"
       },
-      "count": 8
+      "count": 148
     },
     {
       "item": {
-        "tag": "minecraft:logs"
+        "tag": "immersiveengineering:componet_steel"
       },
-      "count": 6
+      "count": 32
     },
     {
       "item": {
-        "tag": "forge:gems/amethyst"
+        "tag": "immersiveengineering:stick_steel"
       },
-      "count": 1
+      "count": 4
+    },
+    {
+      "item": {
+        "tag": "minecraft:clay"
+      },
+      "count": 32
     }
   ],
   "result": {

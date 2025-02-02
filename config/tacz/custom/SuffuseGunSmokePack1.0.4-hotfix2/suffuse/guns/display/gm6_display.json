@@ -1,0 +1,45 @@
+{
+  "model": "suffuse:gun/gm6_geo",
+  "texture": "suffuse:gun/uv/gm6",
+  "hud": "suffuse:gun/hud/gm6_hud",
+  "slot": "suffuse:gun/slot/gm6",
+  "animation": "suffuse:gm6",
+  "use_default_animation": "rifle",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 2
+  },
+  "sounds": {
+    "shoot": "suffuse:gm6/gm6_shoot",
+    "shoot_3p": "suffuse:gm6/gm6_shoot",
+    "melee_push": "tacz:melee_stock/melee_stock_02",
+    "draw": "tacz:aa12/aa12_draw",
+    "reload_empty": "suffuse:gm6/gm6_empty",
+    "inspect": "suffuse:gm6/gm6_inspect",
+    "inspect_empty": "suffuse:gm6/gm6_inspect",
+    "reload_tactical": "suffuse:gm6/gm6_tactical",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "melee_stock": "tacz:melee_stock/melee_stock_03"
+  },
+  "offhand_show": {
+    "pos": [0, 20, 4],
+    "rotate": [0, 0, 30],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-4, 24, 3],
+      "rotate": [-90, -5, -90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

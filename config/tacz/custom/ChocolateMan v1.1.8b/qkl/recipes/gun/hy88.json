@@ -1,0 +1,27 @@
+{
+ 
+    "materials": [
+      {
+        "item": {
+       
+          "tag": "forge:ingots/iron"
+        },
+        "count": 22
+      },
+      {
+        "item": {
+       
+          "tag": "minecraft:logs"
+        },
+        "count": 6
+      }
+   
+    ],
+   
+    "result": {
+   
+      "type": "gun",
+     
+      "id": "qkl:hy88"
+    }
+  }

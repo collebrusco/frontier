@@ -1,0 +1,46 @@
+{
+    "qkl.attachment.bayonet_cb11.name": "CB11 刺刀",
+    "qkl.attachment.bayonet_fkc1.name": "FKC1 刺刀",
+    "qkl.attachment.m1917_bayonet.name": "M1917 刺刀",
+    "qkl.attachment.m1925_bayonet.name": "M1925(MU73) 军刺",
+    "qkl.attachment.hy88_bayonet.name": "汉阳造88式 刺刀",
+    "qkl.attachment.sl1.name": "SL-1 重型枪管+消音器 (RMG专用)",
+    "qkl.attachment.scope_sigk.name": "x3.5 SIGK H型燕尾槽专用瞄具",
+
+
+    "qkl.ammo.16mm.name": "16.5mm 纸壳弹",
+    "qkl.ammo.rb10.name": "7.5x52mm RB10",
+
+    "qkl.gun.rmg.name": "RMG Mod.1970 通用机枪",
+    "qkl.gun.mu73.name": "MU73 (MA) Mod.1942 半自动步枪",
+    "qkl.gun.mua73.name": "MUA73 (MA) Mod.1944 自动步枪",
+    "qkl.gun.mu73m.name": "MA90 (C) 民用半自动步枪",
+    "qkl.gun.lmg31.name": "LMG31 Mod.1940/1955 班用机枪",
+    "qkl.gun.csg19.name": "CSG19 冲锋枪",
+    "qkl.gun.clf10.name": "CLF10 中折式霰弹枪",
+    "qkl.gun.fk15.name": "F-K 15 燧发枪",
+    "qkl.gun.cbr11.name": "CBR11步兵型 栓动步枪",
+    "qkl.gun.cbr11sp.name": "CBR11狙击型 栓动步枪",
+    "qkl.gun.1912.name": "斯太尔 M1912",
+    "qkl.gun.1897.name": "温切斯特 M1897",
+    "qkl.gun.1912p16.name": "斯太尔 M1912/P16",
+    "qkl.gun.1871.name": "斯宾塞 M1865/1871",
+    "qkl.gun.hy88.name": "汉阳造 88式步枪",
+
+    "rebel.gun.mu73.desc":"葡萄西枪炮公司设计的MA步枪，1938年被军方选中作为新一代制式步枪，于1942年正式列装\n§e§l【虚构】【原创】",
+    "rebel.gun.mua73.desc":"葡萄西枪炮公司设计的MA步枪全自动改进型，采用更短的重枪管,于1944年正式列装部队\n§e§l【虚构】【原创】",
+    "rebel.gun.mu73m.desc":"由葡萄西枪炮公司设计并销售的民用步枪，相比军用版缩短了枪管长度，并只能发射装药量更低的RB10民用版\n§e§l【虚构】【原创】",
+    "rebel.gun.rmg.desc":"由葡萄西武器设计局设计并生产的通用机枪，于1967年被军方选中，经过测试和修改后于1970年正式列装部队\n§e§l【虚构】【原创】",
+    "rebel.gun.lmg31.desc":"由葡萄西武器设计局设计并生产的班用机枪，于1940年正式列装部队。1955型加装了侧面折叠瞄具固定器，同时具备固定弹鼓的作用\n§e§l【虚构】【原创】",
+    "rebel.gun.csg19.desc":"由葡萄西枪炮公司设计的SMG40冲锋枪，该枪便于携带，适合装甲兵和二线部队使用，于1950年列装部队\n§e§l【虚构】【原创】",
+    "rebel.gun.clf10.desc":"由葡萄西枪炮公司设计并销售的民用霰弹枪\n§e§l【虚构】【原创】",
+    "rebel.gun.fk15.desc":"\n§e§l【虚构】【原创】",
+    "rebel.gun.cbr11.desc":"\n§e§l【虚构】【原创】",
+    "rebel.gun.cbr11sp.desc":"\n§e§l【虚构】【原创】",
+
+    "rebel.gun.1897.desc":"\n§e§l【历史】",
+    "rebel.gun.1871.desc":"\n§e§l【历史】",
+    "rebel.gun.1912.desc":"\n§e§l【历史】",
+    "rebel.gun.1912p16.desc":"\n§e§l【历史】",
+    "rebel.gun.hy88.desc":"\n§e§l【历史】"
+     }

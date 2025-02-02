@@ -2,28 +2,31 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
-      },
-      "count": 38
-    },
-    {
-      "item": {
-        "tag": "forge:gems/lapis"
-      },
-      "count": 6
-    },
-    {
-      "item": {
         "tag": "minecraft:logs"
       },
-      "count": 10
+      "count": 32
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:plate_steel"
+      },
+      "count": 192
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:componet_iron"
+      },
+      "count": 32
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:stick_steel"
+      },
+      "count": 4
     }
   ],
   "result": {
     "type": "gun",
-    "id": "tacz:ak47",
-    "attachments": {
-      "stock": "tacz:oem_stock_tactical"
-    }
+    "id": "tacz:ak47"
   }
 }

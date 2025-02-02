@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.gun.tec9.name",
+  "tooltip": "suffuse.gun.tec9.desc",
+  "display": "suffuse:tec9_display",
+  "data": "suffuse:tec9_data",
+  "type": "pistol"
+}

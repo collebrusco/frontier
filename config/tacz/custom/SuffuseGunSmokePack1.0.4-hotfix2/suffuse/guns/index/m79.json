@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.gun.m79.name",
+  "tooltip": "suffuse.gun.m79.desc",
+  "display": "suffuse:m79_display",
+  "data": "suffuse:m79_data",
+  "type": "rpg"
+}

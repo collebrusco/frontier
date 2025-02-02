@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.gun.pkp.name",
+  "tooltip": "suffuse.gun.pkp.desc",
+  "display": "suffuse:pkp_display",
+  "data": "suffuse:pkp_data",
+  "type": "mg"
+}

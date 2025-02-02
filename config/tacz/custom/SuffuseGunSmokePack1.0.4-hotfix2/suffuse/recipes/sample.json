@@ -1,0 +1,50 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": ""
+      },
+      "count": 
+    },
+    {
+      "item": {
+        "tag": ""
+      },
+      "count": 
+    },
+    {
+      "item": {
+        "tag": ""
+      },
+      "count": 
+    },
+	{
+      "item": {
+        "tag": ""
+      },
+      "count": 
+    },
+    {
+      "item": {
+        "tag": ""
+      },
+      "count": 
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:"
+  }
+}
+//forge:ingots/netherite
+//forge:rods/blaze
+//forge:gems/diamond
+//forge:ingots/gold
+//forge:ingots/iron
+//forge:gems/quartz
+//minecraft:logs
+//forge:gems/lapis
+//minecraft:sand
+//minecraft:clay_ball
+//forge:dusts/redstone
+//forge:gems/amethyst

@@ -2,15 +2,39 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "forge:ingots/uranium"
       },
-      "count": 36
+      "count": 1
     },
     {
       "item": {
-        "tag": "forge:gems/lapis"
+        "tag": "immersiveengineering:plate_steel"
       },
-      "count": 4
+      "count": 108
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:componet_steel"
+      },
+      "count": 24
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:stick_steel"
+      },
+      "count": 2
+    },
+    {
+      "item": {
+        "tag": "immersiveengineering:plate_aluminum"
+      },
+      "count": 64
+    },
+    {
+      "item": {
+        "tag": "minecraft:clay"
+      },
+      "count": 32
     }
   ],
   "result": {
