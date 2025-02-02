@@ -1,9 +1,0 @@
-{
-    "name": "warhammer.gun.columnus_v.name",
-    "display": "warhammer:columnus_v_display",
-    "data": "warhammer:columnus_v_data",
-    "type": "rifle",
-    "item_type": "modern_kinetic",
-
-    "sort": 10
-}

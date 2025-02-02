@@ -1,9 +1,0 @@
-{
-    "name": "warhammer.gun.accatran_vid.name",
-    "display": "warhammer:accatran_vid_display",
-    "data": "warhammer:accatran_vid_data",
-    "type": "rifle",
-    "item_type": "modern_kinetic",
-
-    "sort": 10
-}
