@@ -1,24 +1,28 @@
-#Sun Feb 02 04:25:53 CST 2025
+#Tue Feb 04 16:59:45 CST 2025
 shadowDistance=2048.0
 DAY8_l1_coverage=0.2
-TRANSLUCENT_COLORED_SHADOWS=true
-RAYMARCH_CLOUDS_WITH_FOG=true
-CloudLayer0_coverage=0.6
 MIDS_GRADE_B=0.5
+CloudLayer0_coverage=0.6
 DAY6_l1_coverage=0.2
-CloudLayer1_coverage=0.6
 MOTION_BLUR=true
 TONEMAP=ACESFilm
 Morning_Cloudy_Fog=0.1
 SHADOWS_GRADE_B=0.5
 CHOOSE_RANDOM_WEATHER_PROFILE=true
+SHADOW_FILTER_SAMPLE_COUNT=95
 DAY8_l0_coverage=0.2
-CloudLayer1_height=350
-CloudLayer2_height=1500
 MIDS_GRADE_R=1.1
+RainFog_amount=0.16
+indirect_effect=3
+TRANSLUCENT_COLORED_SHADOWS=true
+RAYMARCH_CLOUDS_WITH_FOG=true
+Min_Shadow_Filter_Radius=11.0
+VPS_Search_Samples=6
+CloudLayer1_coverage=0.6
+CloudLayer2_height=1500
+CloudLayer1_height=350
 TRANSLUCENT_ENTITIES=false
 HIGHLIGHTS_GRADE_B=0.4
+Max_Shadow_Filter_Radius=33.0
 MIN_LIGHT_AMOUNT=1.3
-RainFog_amount=0.16
 DAY2_l0_coverage=0.6
-indirect_effect=3
