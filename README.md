@@ -3,8 +3,8 @@
 ![logo](./frontier_assets/img/icon.png)
    
 ## Install the Modpack
-click on and download the `installer_updater.exe`. Windows will warn you about this file, if you trust me press more info and run it. If not that's ok, the source is included or install yourself.        
-Run the installer/updater, and follow instructions from there. Once installed, just run the minecraft launcher and launch Java.           
+click on and download the `FrontierLauncher.exe`. Windows will warn you about this file, if you trust me press more info and run it. If not that's ok, the source is included or install yourself.        
+Run the launcher, and follow instructions from there. It should install everything you need. Once installed, just run the minecraft launcher and launch Java.           
            
 This app can be used to update your modpack to the latest version if the server updates as well. We might keep adding mods or shaders etc.
 
