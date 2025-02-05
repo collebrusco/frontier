@@ -1,0 +1,108 @@
+{
+    "ammo": "warhammer:promethium_can",
+    "ammo_amount": 140,
+    "bolt": "open_bolt",
+    "rpm": 960,
+    "bullet": {
+        "life": 1.7,
+        "damage": 0.7,
+        "bullet_amount": 16,
+        "tracer_count_interval": 0,
+        "speed": 20,
+        "gravity": 0,
+        "knockback": 0.1,
+        "friction": 0.1,
+        "ignite": true,
+        "pierce": 20,
+        "extra_damage": {
+            "armor_ignore": 1,
+            "head_shot_multiplier": 1
+        }
+    },
+    "reload": {
+        "type": "magazine",
+        "feed": {
+            "empty": 2.83,
+            "tactical": 2.83
+        },
+        "cooldown": {
+            "empty": 3.67,
+            "tactical": 3.67
+        }
+    },
+    "draw_time": 0.7,
+    "put_away_time": 0.3,
+    "aim_time": 0.1,
+    "sprint_time": 0.1,
+    "fire_mode": [
+        "burst",
+        "auto"
+      ],
+      "burst_data": {
+        "continuous_shoot": false,
+        "count": 4,
+        "bpm": 1200,
+        "min_interval": 1
+      },
+    "recoil": {
+        "pitch": [
+            {
+                "time": 0,
+                "value": [
+                    0.0,
+                    0.1
+                ]
+            },
+            {
+                "time": 0.25,
+                "value": [
+                    0.0,
+                    0.1
+                ]
+            },
+            {
+                "time": 0.45,
+                "value": [
+                    -0.1,
+                    -0.0
+                ]
+            },
+            {
+                "time": 0.6,
+                "value": [
+                    0,
+                    0
+                ]
+            }
+        ],
+        "yaw": [
+            {
+                "time": 0,
+                "value": [
+                    -0.45,
+                    -0.15
+                ]
+            },
+            {
+                "time": 0.25,
+                "value": [
+                    0.15,
+                    0.45
+                ]
+            },
+            {
+                "time": 0.45,
+                "value": [
+                    0,
+                    0
+                ]
+            }
+        ]
+    },
+    "inaccuracy": {
+        "stand": 10,
+        "move": 10,
+        "lie": 10,
+        "aim": 10
+    }
+}

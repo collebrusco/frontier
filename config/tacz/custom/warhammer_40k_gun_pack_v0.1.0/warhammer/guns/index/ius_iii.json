@@ -1,0 +1,8 @@
+{
+    "name": "warhammer.gun.ius_iii.name",
+    "display": "warhammer:ius_iii_display",
+    "data": "warhammer:ius_iii_data",
+    "type": "pistol",
+    "item_type": "modern_kinetic",
+    "sort": 10
+}

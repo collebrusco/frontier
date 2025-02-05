@@ -1,0 +1,46 @@
+{
+ "qkl.attachment.bayonet_cb11.name": "CB11 Bayonet",
+ "qkl.attachment.bayonet_fkc1.name": "FKC1 Bayonet",
+ "qkl.attachment.m1917_bayonet.name": "M1917 Bayonet",
+ "qkl.attachment.m1925_bayonet.name": "M1925(MU73) Bayonet",
+ "qkl.attachment.hy88_bayonet.name": "Type 88 Hanyang Bayonet",
+ "qkl.attachment.sl1.name": "SL-1 Heavy Silencer (RMG)",
+ "qkl.attachment.scope_sigk.name": "x3.5 SIGK",
+
+
+ "qkl.ammo.16mm.name": "16.5mm",
+ "qkl.ammo.rb10.name": "7.5x52mm RB10",
+
+ "qkl.gun.rmg.name": "RMG Mod.1970",
+ "qkl.gun.mu73.name": "MU73 (MA) Mod.1942",
+ "qkl.gun.mua73.name": "MUA73 (MA) Mod.1942",
+ "qkl.gun.1897.name": "Winchester Model 1897",
+ "qkl.gun.1871.name": "Spencer Model 1865/1871",
+ "qkl.gun.lmg31.name": "LMG31 Mod.1955",
+ "qkl.gun.csg19.name": "CSG19",
+ "qkl.gun.mu73m.name": "MA90 (C)",
+ "qkl.gun.clf10.name": "CLF10",
+ "qkl.gun.fk15.name": "F-K 15",
+ "qkl.gun.1912.name": "Steyr Model 1912",
+ "qkl.gun.1912p16.name": "Steyr Model 1912/P16",
+ "qkl.gun.hy88.name": "Type 88 Hanyang rifle",
+ "qkl.gun.cbr11.name": "CBR11 Infantry",
+ "qkl.gun.cbr11sp.name": "CBR11 sniper",
+
+ "rebel.gun.mu73.desc":"【Fictitiou】",
+ "rebel.gun.mua73.desc":"【Fictitiou】",
+ "rebel.gun.mu73m.desc":"【Fictitiou】",
+ "rebel.gun.rmg.desc":"【Fictitiou】",
+ "rebel.gun.lmg31.desc":"【Fictitiou】",
+ "rebel.gun.csg19.desc":"【Fictitiou】",
+ "rebel.gun.clf10.desc":"【Fictitiou】",
+ "rebel.gun.fk15.desc":"【Fictitiou】",
+ "rebel.gun.cbr11.desc":"【Fictitiou】",
+ "rebel.gun.cbr11sp.desc":"【Fictitiou】",
+
+ "rebel.gun.1897.desc":"【Historical】",
+ "rebel.gun.1871.desc":"【Historical】",
+ "rebel.gun.1912.desc":"【Historical】",
+ "rebel.gun.1912p16.desc":"【Historical】",
+ "rebel.gun.hy88.desc":"【Historical】"
+  }

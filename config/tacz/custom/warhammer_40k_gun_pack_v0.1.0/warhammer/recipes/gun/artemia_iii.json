@@ -1,0 +1,26 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:netherite_ingot"
+            },
+            "count": 6
+        },
+        {
+            "item": {
+                "item": "minecraft:iron_ingot"
+            },
+            "count": 64
+        },
+        {
+            "item": {
+                "item": "minecraft:copper_ingot"
+            },
+            "count": 16
+        }
+    ],
+    "result": {
+        "type": "gun",
+        "id": "warhammer:artemia_iii"
+    }
+}

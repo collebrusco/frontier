@@ -6,7 +6,6 @@ from PIL import Image, ImageTk
 import requests
 from io import BytesIO
 import os
-import git
 import threading
 from pathlib import Path
 import tkinter.filedialog as fd
@@ -33,6 +32,7 @@ MAIN_BRANCH_NAME = 'main'
 
 # Global Constants for Paths and Repo
 REPO_URL = "https://github.com/collebrusco/frontier.git"
+REPO_URL_SSH = "git@github.com:collebrusco/frontier.git"
 
 # Application States
 STATE_UNCONNECTED = "Unconnected"
@@ -40,11 +40,25 @@ STATE_NON_MANAGED = "NonManagedInstall"
 STATE_NO_INSTALL = "NoInstall"
 STATE_CONNECTED = "Connected"
 import platform
+import os
+import sys
+import shutil
+import tkinter as tk
+from tkinter import messagebox
+import subprocess
+import platform
+import urllib.request
 
-# OS Enum
+
+# Git download URL for Windows
+GIT_DOWNLOAD_URL = "https://github.com/git-for-windows/git/releases/download/v2.47.1.windows.2/Git-2.47.1.2-64-bit.exe"
+GIT_INSTALLER_PATH = os.path.join(os.getenv("TEMP"), "Git-Installer.exe")
+
+# Detect OS
 OS_WIN = "Windows"
 OS_MAC = "Darwin"
 OS_LIN = "Linux"
+
 
 def get_current_os():
     """Detect the current operating system."""
@@ -52,6 +66,112 @@ def get_current_os():
     if system not in [OS_LIN, OS_MAC, OS_WIN]:
         raise RuntimeError(f"Unsupported operating system: {system}")
     return system
+
+
+def detect_git():
+    """Check if Git is installed and accessible."""
+    git_path = shutil.which("git")
+    if git_path:
+        return git_path
+    return None
+
+
+def set_git_env_var(git_path):
+    # Now import git after setting up the environment
+    import git
+    git.refresh()  # Ensure GitPython picks up the new path:
+    """Set the GIT_PYTHON_GIT_EXECUTABLE environment variable dynamically."""
+    os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = git_path
+    
+    # Attempt to make the change persistent
+    if get_current_os() == OS_WIN:
+        try:
+            subprocess.run(["setx", "GIT_PYTHON_GIT_EXECUTABLE", git_path], check=True, shell=True)
+            return True
+        except Exception as e:
+            print(f"Failed to set persistent env var: {e}")
+    elif get_current_os() in [OS_LIN, OS_MAC]:
+        shell_config = os.path.expanduser("~/.bashrc")
+        if not os.path.exists(shell_config):
+            shell_config = os.path.expanduser("~/.zshrc")  # Try Zsh if Bash doesn't exist
+        try:
+            with open(shell_config, "a") as f:
+                f.write(f"\nexport GIT_PYTHON_GIT_EXECUTABLE={git_path}\n")
+            return True
+        except Exception as e:
+            print(f"Failed to update shell config: {e}")
+    return False
+
+
+def download_git_installer():
+    """Download the latest Git for Windows installer."""
+    try:
+        print("Downloading Git installer...")
+        urllib.request.urlretrieve(GIT_DOWNLOAD_URL, GIT_INSTALLER_PATH)
+        print("Download complete.")
+        return True
+    except Exception as e:
+        print(f"Failed to download Git installer: {e}")
+        return False
+
+
+def install_git_silently():
+    """Install Git for Windows silently."""
+    try:
+        if not os.path.exists(GIT_INSTALLER_PATH):
+            if not download_git_installer():
+                return False
+        print("Installing Git silently...")
+        subprocess.run([GIT_INSTALLER_PATH, "/SILENT", "/NORESTART"], check=True)
+        print("Git installation complete.")
+        return True
+    except Exception as e:
+        print(f"Failed to install Git: {e}")
+        return False
+
+
+def handle_missing_git():
+    """Handle cases where Git is not found."""
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+
+    if get_current_os() == OS_WIN:
+        result = messagebox.askyesno(
+            "Git Not Found",
+            "Git is required to run this application but was not found.\n\n"
+            "Would you like to download and install Git automatically?"
+        )
+        if result:
+            if install_git_silently():
+                messagebox.showinfo("Success", "Git was installed successfully. Please restart the application.")
+                sys.exit(0)
+            else:
+                messagebox.showerror("Error", "Failed to install Git. Please install it manually.")
+                sys.exit(1)
+    
+    else:
+        result = messagebox.askyesno(
+            "Git Not Found",
+            "Git is required to run this application but was not found.\n\n"
+            "Would you like to download and install Git manually?"
+        )
+        if result:
+            if get_current_os() == OS_MAC:
+                subprocess.run(["open", "https://git-scm.com/download/mac"], check=True)
+            elif get_current_os() == OS_LIN:
+                subprocess.run(["xdg-open", "https://git-scm.com/download/linux"], check=True)
+        sys.exit(1)
+
+
+git_path = detect_git()
+if not git_path:
+    handle_missing_git()
+else:
+    print(f"Found Git at {git_path}")
+    set_git_env_var(git_path)
+
+import git  # Ensure GitPython is available after setup
+git.refresh()
 
 MINECRAFT_DEFAULT_DIR = Path.home()
 if get_current_os() == OS_WIN:
@@ -116,7 +236,7 @@ class GitBackend:
             commit_date = datetime.datetime.fromtimestamp(commit.committed_date).strftime("%m-%d-%Y %H:%M")
 
             # Log branch, commit hash, and date
-            status_message = f">> status: on branch '{branch}'\n>> commit: {commit.hexsha[:7]} ({'dirty' if len(repo.index.diff(None))!=0 else 'clean'}) <{commit_date}>"
+            status_message = f">> status: on branch '{branch}'\n>> commit: {commit.hexsha[:7]} ({'dirty' if len(repo.index.diff(None))!=0 else 'clean'}) \"{commit.message}\" <{commit_date}>"
 
             self.ui_callback(status_message, color="pink")
 
@@ -169,7 +289,7 @@ class GitBackend:
         """Check if the path is a valid Git repository."""
         try:
             repo = git.Repo(path)
-            if repo.remotes.origin.url == REPO_URL:
+            if repo.remotes.origin.url in [REPO_URL, REPO_URL_SSH]:
                 return repo
             else:
                 self.print_status("Remote URL does not match the expected repository.", "red")
@@ -845,12 +965,7 @@ class Controller:
 
 # Create the Tkinter app
 if __name__ == "__main__":
+
     control = Controller(tk.Tk())
     control.run_app()
     
-
-# import os
-
-# folder = "C:/Users/tedti/AppData/Roaming/.minecraft"
-# for item in os.listdir(folder):
-#     print(item)

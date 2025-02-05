@@ -1,0 +1,14 @@
+{
+  // 一个标签页
+  "gunss": {
+    // 名称
+    "name": "suffuse.type.gunss.name",
+    // 图标，按照原版标准物品格式来写
+    "icon": {
+      "item": "tac:gun",
+      "nbt": {
+        "GunId": "tac:glock_17"
+      }
+    }
+  }
+}

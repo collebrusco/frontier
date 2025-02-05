@@ -1,0 +1,9 @@
+{
+    "name": "warhammer.gun.locke.name",
+    "display": "warhammer:locke_display",
+    "data": "warhammer:locke_data",
+    "type": "rpg",
+    "item_type": "modern_kinetic",
+
+    "sort": 10
+}

@@ -1,0 +1,24 @@
+{
+    "pack.warhammer.name": "WarHammer40K Gun pack",
+    "pack.warhammer.desc": "A Gun pack based on WarHammer40K.",
+
+    "warhammer.gun.locke.name":"Locke Mk IIb Spearhead Boltgun",
+    "warhammer.gun.columnus_v.name":"Columnus Mk V Infantry Autogun",
+    "warhammer.gun.kantrael_xii.name":"Kantrael MG.XII Pattern Lasgun",
+    "warhammer.gun.ius_iii.name":"Ius Mk III Shredder Autopistol",
+    "warhammer.gun.artemia_iii.name":"Artemia Mk III Purgation Flamer",
+    "warhammer.gun.force_staff_iv.name":"Equinox Mk IV Voidstrike Force Staff",
+    "warhammer.gun.accatran_ii.name":"Accatran MG Mk II Heavy Laspistol",
+    "warhammer.gun.force_staff_iii.name":"Equinox Mk III Trauma Force Staff",
+    "warhammer.gun.force_staff_vi.name":"Nomanus Mk VI Surge Force Staff",
+    "warhammer.gun.force_staff_ii.name":"Rifthaven Mk II Purgatus Force Staff",
+    "warhammer.gun.accatran_vid.name":"Accatran Mk VId Recon Lasgun",
+
+    "warhammer.ammo.75_bolt.name":".75 Bolt Ammo",
+    "warhammer.ammo.825_ammo.name":"8.25mm Ammo",
+    "warhammer.ammo.laser_cell.name":"Laser Cell",
+    "warhammer.ammo.promethium_can.name":"Promethium Can",
+    "warhammer.ammo.psyker_power.name":"Psyker Power"
+
+
+  }

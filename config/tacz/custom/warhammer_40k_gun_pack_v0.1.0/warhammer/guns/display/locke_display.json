@@ -1,0 +1,52 @@
+{
+    "model": "warhammer:gun/locke_geo",
+    "texture": "warhammer:gun/uv/locke",
+    "slot": "warhammer:gun/slot/locke",
+    "hud": "warhammer:gun/hud/locke",
+    "animation": "warhammer:locke",
+    "use_default_animation": "rifle",
+    "shell": {
+
+        "initial_velocity": [5, 2, 1],
+
+        "random_velocity": [1, 1, 0.25],
+
+        "acceleration": [0.0, -10, 0.0],
+
+        "angular_velocity": [360, -1200, 90],
+
+        "living_time": 1.0
+    },
+    "transform": {
+        "scale": {
+            "thirdperson": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "ground": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "fixed": [
+                1.0,
+                1.0,
+                1.0
+            ]
+        }
+    },
+    "muzzle_flash": {
+        "texture": "tacz:flash/common_muzzle_flash",
+        "scale": 1.5
+    },
+    "third_person_animation": "default",
+    "sounds": {
+        "shoot": "warhammer:locke/shoot",
+        "dry_fire": "warhammer:locke/dry_fire",
+        "draw": "warhammer:locke/draw",
+        "reload_empty": "warhammer:locke/reload_empty",
+        "reload_tactical": "warhammer:locke/reload_tactical",
+        "put_away": "warhammer:locke/put_away"
+    }
+}

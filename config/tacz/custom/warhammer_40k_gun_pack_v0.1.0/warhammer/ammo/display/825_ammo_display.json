@@ -1,0 +1,10 @@
+{
+  "slot": "warhammer:ammo/slot/825_ammo",
+  "model": "warhammer:ammo/825_ammo",
+  "texture": "warhammer:ammo/uv/825_ammo",
+  "shell": {
+    "model": "warhammer:ammo/shell/825_ammo",
+    "texture": "warhammer:ammo/shell/825_ammo"
+  },
+  "tracer_color": "#ffc474"
+}

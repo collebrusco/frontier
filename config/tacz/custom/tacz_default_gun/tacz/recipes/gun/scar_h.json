@@ -2,27 +2,33 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/gold"
+        "tag": "immersiveengineering:plate_aluminum"
       },
-      "count": 16
+      "count": 100
     },
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "tag": "immersiveengineering:plate_steel"
       },
-      "count": 96
+      "count": 194
     },
     {
       "item": {
-        "tag": "forge:gems/diamond"
+        "tag": "immersiveengineering:componet_steel"
       },
-      "count": 2
+      "count": 44
     },
     {
       "item": {
-        "tag": "forge:rods/blaze"
+        "tag": "immersiveengineering:stick_steel"
       },
-      "count": 4
+      "count": 5
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/uranium"
+      },
+      "count": 1
     }
   ],
   "result": {

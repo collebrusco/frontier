@@ -1,0 +1,21 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:ender_pearl"
+            },
+            "count": 1
+        },
+        {
+            "item": {
+                "item": "minecraft:dragon_breath"
+            },
+            "count": 1
+        }
+    ],
+    "result": {
+        "type": "ammo",
+        "id": "warhammer:psyker_power",
+        "count": 4
+    }
+}

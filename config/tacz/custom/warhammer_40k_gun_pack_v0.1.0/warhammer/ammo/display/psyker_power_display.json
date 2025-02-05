@@ -1,0 +1,14 @@
+{
+    "slot": "warhammer:ammo/slot/psyker_power",
+    "particle": {
+      "name": "minecraft:soul_fire_flame",
+      "delta": [
+        0.05,
+        0.05,
+        0.05
+      ],
+      "speed": 0,
+      "life_time": 3,
+      "count": 8
+    }
+  }

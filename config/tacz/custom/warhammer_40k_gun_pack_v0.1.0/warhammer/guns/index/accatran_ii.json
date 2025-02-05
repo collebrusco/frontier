@@ -1,0 +1,9 @@
+{
+    "name": "warhammer.gun.accatran_ii.name",
+    "display": "warhammer:accatran_ii_display",
+    "data": "warhammer:accatran_ii_data",
+    "type": "pistol",
+    "item_type": "modern_kinetic",
+
+    "sort": 10
+}

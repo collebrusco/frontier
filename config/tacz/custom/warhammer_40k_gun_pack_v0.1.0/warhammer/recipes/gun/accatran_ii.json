@@ -1,0 +1,38 @@
+{
+    "materials": [
+        {
+            "item": {
+                "item": "minecraft:glass"
+            },
+            "count":20
+        },
+        {
+            "item": {
+                "item": "minecraft:redstone_block"
+            },
+            "count": 8
+        },
+        {
+            "item": {
+                "item": "minecraft:gold_ingot"
+            },
+            "count": 4
+        },
+        {
+            "item": {
+                "item": "minecraft:iron_ingot"
+            },
+            "count": 20
+        },
+        {
+            "item": {
+                "item": "minecraft:copper_ingot"
+            },
+            "count": 10
+        }
+    ],
+    "result": {
+        "type": "gun",
+        "id": "warhammer:accatran_ii"
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "pack.warhammer.name": "战锤40K:暗潮 附属包",
+  "pack.warhammer.desc": "基于《战锤40K:暗潮》制作的附属包。",
+  
+  "warhammer.gun.locke.name": "洛克先锋爆矢枪 Mk.IIb",
+  "warhammer.gun.columnus_v.name": "科伦努斯步兵自动枪 Mk.V",
+  "warhammer.gun.kantrael_xii.name": "卡特雷尔步兵激光枪 MG.XII",
+  "warhammer.gun.ius_iii.name": "尤斯粉碎者自动手枪 Mk.III",
+  "warhammer.gun.artemia_iii.name": "阿提米亚涤罪火焰喷射器 Mk.III",
+  "warhammer.gun.force_staff_iv.name": "阴阳虚空打击力场杖 Mk.IV",
+  "warhammer.gun.accatran_ii.name": "阿卡特兰重型激光手枪 MG Mk.II",
+  "warhammer.gun.force_staff_iii.name": "阴阳创伤力场杖 Mk.II",
+  "warhammer.gun.force_staff_vi.name": "诺曼纽斯激涌力场杖 Mk.VI",
+  "warhammer.gun.force_staff_ii.name": "裂隙港净化力场杖 Mk.II",
+  "warhammer.gun.accatran_vid.name":"阿卡特兰侦查激光枪 Mk.VId",
+
+  "warhammer.ammo.75_bolt.name": ".75 爆弹",
+  "warhammer.ammo.825_ammo.name": "8.25mm 子弹",
+  "warhammer.ammo.laser_cell.name": "激光电池",
+  "warhammer.ammo.promethium_can.name": "钷素燃料罐",
+  "warhammer.ammo.psyker_power.name": "灵能能量"
+}

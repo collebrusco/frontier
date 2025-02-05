@@ -1,0 +1,54 @@
+{
+    "model": "warhammer:gun/force_staff_iv",
+    "texture": "warhammer:gun/uv/force_staff_iv",
+    "slot": "warhammer:gun/slot/force_staff_iv",
+    "hud": "warhammer:gun/hud/force_staff_iv",
+    "animation": "warhammer:force_staff_iv",
+    "use_default_animation": "rifle",
+    "show_crosshair": true,
+    "shell": {
+
+        "initial_velocity": [5, 2, 1],
+
+        "random_velocity": [1, 1, 0.25],
+
+        "acceleration": [0.0, -10, 0.0],
+
+        "angular_velocity": [360, -1200, 90],
+
+        "living_time": 1.0
+    },
+    "transform": {
+        "scale": {
+            "thirdperson": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "ground": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "fixed": [
+                2.0,
+                2.0,
+                2.0
+            ]
+        }
+    },
+    "iron_zoom": 1.0,
+    "muzzle_flash": {
+        "texture": "tacz:flash/common_muzzle_flash",
+        "scale": 1.5
+    },
+    "third_person_animation": "default",
+    "sounds": {
+        "shoot": "warhammer:force_staff/shoot",
+        "dry_fire": "warhammer:force_staff/dry_fire",
+        "draw": "warhammer:force_staff/draw",
+        "reload_empty": "warhammer:force_staff/reload",
+        "reload_tactical": "warhammer:force_staff/reload",
+        "put_away": "warhammer:force_staff/put_away"
+    }
+}

@@ -1,0 +1,5 @@
+{
+    "name": "warhammer.ammo.laser_cell.name",
+    "display": "warhammer:laser_cell_display",
+    "stack_size": 64
+  }
