@@ -43,3 +43,12 @@ versions/1.21.4/
 versions/25w02a/
 versions/jre_manifest.json
 xaero/
+
+XaeroWaypoints_BACKUP240807/
+common.toml
+data/
+item_settings.toml
+mods/.connector/
+versions/25w03a/
+versions/25w04a/
+versions/25w05a/
