@@ -8,9 +8,15 @@ Run the launcher, and follow instructions from there. It should install everythi
            
 This app can be used to update your modpack to the latest version if the server updates as well. We might keep adding mods or shaders etc.
 
-#### If you can use git yourself
+### If you know how to use git
 backup or delete your .minecraft folder and you can clone this there (or move it in, keeping your options & saves etc.) then run the minecraft launcher. You can keep it updated by just pulling the main branch.
-
+```
+# windows
+git clone https://github.com/collebrusco/frontier ~/AppData/Roaming/.minecraft
+# mac
+git clone https://github.com/collebrusco/frontier ~/Library/Application\ Support/minecraft
+```
+That is essentially all the installer does, and the updater runs `git pull` on main.
 Enjoy!
 
 ### Disclaimer
