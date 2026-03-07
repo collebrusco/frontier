@@ -1,6 +1,0 @@
-{
-    "slot": "warhammer:ammo/slot/laser_cell",
-    "model": "warhammer:ammo/laser_cell",
-    "texture":"warhammer:ammo/uv/laser_cell",
-    "tracer_color": "#FF3030"
-  }
