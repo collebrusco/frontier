@@ -397,16 +397,19 @@ class GitBackend:
                         repo.remotes.origin.fetch(progress=progress_callback)
             repo.git.checkout(branch)
             # On Windows the running exe is locked — git can't overwrite it.
-            # Rename it out of the way so git pull can write the new version freely.
-            # We restore it if pull fails.
+            # Rename it out of the way, then restore it from HEAD so git sees a
+            # clean worktree for that file. Pull can then update it freely.
+            # Restore from .old if pull fails.
             renamed_exe = False
             if pre_hash is not None and exe_path.exists():
                 exe_path.rename(exe_old_path)
                 renamed_exe = True
+                repo.git.checkout('HEAD', '--', LAUNCHER_EXE_NAME)
             try:
                 repo.remotes.origin.pull(progress=progress_callback)
             except Exception as pull_err:
                 if renamed_exe:
+                    exe_path.unlink(missing_ok=True)
                     exe_old_path.rename(exe_path)
                     renamed_exe = False
                 raise pull_err
