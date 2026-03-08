@@ -394,7 +394,7 @@ class GitBackend:
                     repo.git.stash('push', '-m', 'frontier_launcher_auto_stash')
                     stashed = True
                 else:
-                    result = messagebox.askokcancel('Warning', 'You have modifications to tracked files that will be reset. The installer does not track anything like saves or options, so this is likely random timestamps or something that dont matter. Ill try to remove these from being tracked if I can eventually. For now,\nrun status to see what they are if you are worried, or press ok to proceed.')
+                    result = messagebox.askokcancel('Warning', 'You have modifications to tracked files that will be reset.\nCheck the preserve local settings box to try to save and re-apply these across the update')
                     if not result:
                         raise UserWarning("user cancelled to check modifications")
                     if not repo.head.is_detached:
