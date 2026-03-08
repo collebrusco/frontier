@@ -410,6 +410,8 @@ class GitBackend:
             # Restore from .old if pull fails.
             renamed_exe = False
             if pre_hash is not None and exe_path.exists():
+                if exe_old_path.exists():
+                    exe_old_path.unlink()
                 exe_path.rename(exe_old_path)
                 renamed_exe = True
                 repo.git.checkout('HEAD', '--', LAUNCHER_EXE_NAME)
