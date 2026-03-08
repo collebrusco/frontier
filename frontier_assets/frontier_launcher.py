@@ -512,7 +512,9 @@ class FrontEnd:
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
 
-        tk.Label(self.root, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999").pack(side=tk.BOTTOM, pady=2)
+        self.version_label = tk.Label(self.root, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
+        self.version_label.pack(side=tk.BOTTOM, pady=2)
+        self.cfglist.append(self.version_label)
 
     def setup_progress_bar(self, root):
         """Set up a progress bar below the console."""
