@@ -852,7 +852,7 @@ class Controller:
         self.set_state(STATE_UNCONNECTED, False)
 
     def bootup_seq(self):
-        self.frontend.console_print("Frontier - Forge Minecraft Server 2025")
+        self.frontend.console_print("Frontier - Forge Minecraft Server 2026")
         self.frontend.simulate_progress_bar(0.1)
         self.frontend.update_progress_bar(0,1)
         self.frontend.console_print("Welcome to the Frontier Client Modpack Installer/Updater")
