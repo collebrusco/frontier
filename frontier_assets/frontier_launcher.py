@@ -1,5 +1,5 @@
 # ==== VERSION NUMBER ====
-VERSION_NUMBER = "1.1-dev"
+VERSION_NUMBER = "1.1"
 # ========================
 import sys
 import tkinter as tk
