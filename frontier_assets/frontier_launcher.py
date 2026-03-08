@@ -1,3 +1,6 @@
+# ==== VERSION NUMBER ====
+VERSION_NUMBER = "1.1-dev"
+# ========================
 import sys
 import tkinter as tk
 from tkinter import ttk
@@ -509,6 +512,7 @@ class FrontEnd:
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
 
+        tk.Label(self.root, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999").pack(side=tk.BOTTOM, pady=2)
 
     def setup_progress_bar(self, root):
         """Set up a progress bar below the console."""
