@@ -372,7 +372,7 @@ class GitBackend:
         except Exception as e:
             self.print_status(f"Clone failed: {e}", "red")
 
-    def update_modpack(self, repo_path, branch):
+    def update_modpack(self, repo_path, branch, preserve_settings=False):
         """Fetch and pull updates for the selected branch."""
         def progress_callback(op_code, cur_count, max_count=None, message=""):
             """Handles progress updates."""
@@ -387,17 +387,22 @@ class GitBackend:
 
         try:
             repo = git.Repo(repo_path)
+            stashed = False
             if repo.is_dirty():
-                result = messagebox.askokcancel('Warning', 'You have modifications to tracked files that will be reset. The installer does not track anything like saves or options, so this is likely random timestamps or something that dont matter. Ill try to remove these from being tracked if I can eventually. For now,\nrun status to see what they are if you are worried, or press ok to proceed.')
-                if not result:
-                    raise UserWarning("user cancelled to check modifications")
-                if not repo.head.is_detached:
-                    # Repository is NOT in detached HEAD state
-                    tracking_branch = repo.active_branch.tracking_branch()
-                    if tracking_branch:
-                        self.ui_callback(f"Tracking branch: {tracking_branch}", "green")
-                        repo.git.reset('--hard')
-                        repo.remotes.origin.fetch(progress=progress_callback)
+                if preserve_settings:
+                    self.ui_callback("Stashing local settings...", "yellow")
+                    repo.git.stash('push', '-m', 'frontier_launcher_auto_stash')
+                    stashed = True
+                else:
+                    result = messagebox.askokcancel('Warning', 'You have modifications to tracked files that will be reset. The installer does not track anything like saves or options, so this is likely random timestamps or something that dont matter. Ill try to remove these from being tracked if I can eventually. For now,\nrun status to see what they are if you are worried, or press ok to proceed.')
+                    if not result:
+                        raise UserWarning("user cancelled to check modifications")
+                    if not repo.head.is_detached:
+                        tracking_branch = repo.active_branch.tracking_branch()
+                        if tracking_branch:
+                            self.ui_callback(f"Tracking branch: {tracking_branch}", "green")
+                            repo.git.reset('--hard')
+                            repo.remotes.origin.fetch(progress=progress_callback)
             repo.git.checkout(branch)
             # On Windows the running exe is locked — git can't overwrite it.
             # Rename it out of the way, then restore it from HEAD so git sees a
@@ -416,6 +421,15 @@ class GitBackend:
                     exe_old_path.rename(exe_path)
                     renamed_exe = False
                 raise pull_err
+            if stashed:
+                self.ui_callback("Applying your settings...", "yellow")
+                try:
+                    repo.git.stash('pop')
+                    self.ui_callback("Settings applied successfully.", "lime")
+                except git.exc.GitCommandError:
+                    repo.git.checkout('--', '.')
+                    repo.git.stash('drop')
+                    self.ui_callback("Couldn't apply your settings cleanly — they conflicted with the update and were cleared. Sorry!", "orange")
             self.ui_callback(f"Update on {branch} successful", 'lime')
             self.print_status_update(repo_path)
 
@@ -511,6 +525,7 @@ class FrontEnd:
         self.cfglist.append(self.inner_image_frame)
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
+        self.cfglist.append(self.preserve_settings_check)
 
         self.version_label = tk.Label(self.root, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
         self.version_label.pack(side=tk.BOTTOM, pady=2)
@@ -620,6 +635,7 @@ class FrontEnd:
         """Enable or disable the install and update buttons."""
         state = tk.NORMAL if enable else tk.DISABLED
         self.update_button.config(state=state)
+        self.preserve_settings_check.config(state=state)
         
     def enable_install(self, enable):
         """Enable or disable the install and update buttons."""
@@ -766,6 +782,10 @@ class FrontEnd:
         # Buttons (Stacked)
         self.update_button = tk.Button(self.controls_frame, text="Update", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightblue')
         self.update_button.pack(pady=5)
+
+        self.preserve_settings_var = tk.BooleanVar(value=False)
+        self.preserve_settings_check = tk.Checkbutton(self.controls_frame, text="Preserve local settings", variable=self.preserve_settings_var, bg=BG_COLOR)
+        self.preserve_settings_check.pack()
 
         self.install_button = tk.Button(self.controls_frame, text="Install", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
         self.install_button.pack(pady=5)
@@ -932,7 +952,8 @@ class Controller:
         self.on_any_press()
         repo_path = Path(self.frontend.path_var.get())
         branch = self.frontend.branch_var.get()
-        self.backend.run_in_thread(self.backend.update_modpack, repo_path, branch)
+        preserve = self.frontend.preserve_settings_var.get()
+        self.backend.run_in_thread(self.backend.update_modpack, repo_path, branch, preserve)
     
     def control_open_internal(self):
         thisos = get_current_os()
