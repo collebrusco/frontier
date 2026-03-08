@@ -380,6 +380,8 @@ class GitBackend:
         exe_path = Path(repo_path) / LAUNCHER_EXE_NAME
         pre_hash = _hash_file(exe_path) if (get_current_os() == OS_WIN and exe_path.exists()) else None
 
+        exe_old_path = exe_path.with_suffix('.exe.old') if exe_path else None
+
         try:
             repo = git.Repo(repo_path)
             if repo.is_dirty():
@@ -394,7 +396,20 @@ class GitBackend:
                         repo.git.reset('--hard')
                         repo.remotes.origin.fetch(progress=progress_callback)
             repo.git.checkout(branch)
-            repo.remotes.origin.pull(progress=progress_callback)
+            # On Windows the running exe is locked — git can't overwrite it.
+            # Rename it out of the way so git pull can write the new version freely.
+            # We restore it if pull fails.
+            renamed_exe = False
+            if pre_hash is not None and exe_path.exists():
+                exe_path.rename(exe_old_path)
+                renamed_exe = True
+            try:
+                repo.remotes.origin.pull(progress=progress_callback)
+            except Exception as pull_err:
+                if renamed_exe:
+                    exe_old_path.rename(exe_path)
+                    renamed_exe = False
+                raise pull_err
             self.ui_callback(f"Update on {branch} successful", 'lime')
             self.print_status_update(repo_path)
 
@@ -811,6 +826,14 @@ class Controller:
         self.frontend.update_progress_bar(0,1)
         self.frontend.console_print("Welcome to the Frontier Client Modpack Installer/Updater")
         time.sleep(0.1)
+        # Clean up leftover .old exe from a previous self-update rename
+        if get_current_os() == OS_WIN:
+            old_exe = Path(self.frontend.path_var.get()) / (LAUNCHER_EXE_NAME + '.old')
+            if old_exe.exists():
+                try:
+                    old_exe.unlink()
+                except Exception:
+                    pass  # not critical
         self.frontend.console_print("Confirm your .minecraft path above to get started")
 
     def run_app(self):
