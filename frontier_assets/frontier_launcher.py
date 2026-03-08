@@ -15,6 +15,7 @@ import sys
 import datetime
 import time
 import random
+import hashlib
 
 # Global Constants for Design Language
 BG_COLOR = "#c0c0c0"  # Default background color
@@ -29,6 +30,7 @@ BUTTON_HEIGHT = 2
 BUTTON_WIDTH = 20
 
 MAIN_BRANCH_NAME = 'main'
+LAUNCHER_EXE_NAME = "FrontierLauncher.exe"
 
 # Global Constants for Paths and Repo
 REPO_URL = "https://github.com/collebrusco/frontier.git"
@@ -202,10 +204,19 @@ def run_as_admin():
 def format_progress(cur, max, message):
     return f"{cur}/{max if max else '?'} ({int((cur/max)*100) if max else '?'}%): {message.strip()}"
 
+def _hash_file(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        for chunk in iter(lambda: f.read(65536), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 class GitBackend:
-    def __init__(self, ui_callback, ui_bar_callback):
+    def __init__(self, ui_callback, ui_bar_callback, quit_cb):
         self.ui_callback = ui_callback
         self.ui_bar_callback = ui_bar_callback
+        self.quit_cb = quit_cb
         self.semaphore = threading.Semaphore(1)
 
     def fetch_remote_branches(self):
@@ -366,6 +377,9 @@ class GitBackend:
             print(progress_message)
             self.ui_callback(progress_message, "cyan")
             repo_path = Path(repo_path)
+        exe_path = Path(repo_path) / LAUNCHER_EXE_NAME
+        pre_hash = _hash_file(exe_path) if (get_current_os() == OS_WIN and exe_path.exists()) else None
+
         try:
             repo = git.Repo(repo_path)
             if repo.is_dirty():
@@ -383,7 +397,15 @@ class GitBackend:
             repo.remotes.origin.pull(progress=progress_callback)
             self.ui_callback(f"Update on {branch} successful", 'lime')
             self.print_status_update(repo_path)
-            
+
+            if pre_hash is not None and exe_path.exists():
+                post_hash = _hash_file(exe_path)
+                if pre_hash != post_hash:
+                    self.ui_callback("Launcher executable was updated!", "yellow")
+                    if messagebox.askyesno("Launcher Updated", "The Frontier Launcher itself was updated.\nRestart now to run the new version?"):
+                        subprocess.Popen([str(exe_path)])
+                        self.quit_cb()
+
         except UserWarning as w:
             self.ui_callback(f'Update cancelled: {w}', 'orange')
         except Exception as e:
@@ -780,7 +802,7 @@ class Controller:
             self.control_launch
         )
 
-        self.backend = GitBackend(self.frontend.console_print, self.frontend.update_progress_bar)
+        self.backend = GitBackend(self.frontend.console_print, self.frontend.update_progress_bar, self.frontend.root.quit)
         self.set_state(STATE_UNCONNECTED, False)
 
     def bootup_seq(self):

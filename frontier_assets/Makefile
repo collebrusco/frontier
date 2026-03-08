@@ -1,5 +1,8 @@
 # just so I don't forget it
-.PHONY: exe
+.PHONY: exe install
+
+install:
+	cp dist/frontier_launcher.exe ../FrontierLauncher.exe
 
 exe: frontier_launcher.py
 	python -m PyInstaller --onefile --noconsole --add-data "img/icon.png;." --icon "img/icon.png" frontier_launcher.py
