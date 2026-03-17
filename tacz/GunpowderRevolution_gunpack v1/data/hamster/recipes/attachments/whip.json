@@ -2,15 +2,9 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:string"
+        "item": "minecraft:bedrock"
       },
-      "count": 30
-    },
-    {
-      "item": {
-        "tag": "forge:slimeballs"
-      },
-      "count": 5
+      "count": 1
     }
   ],
   "result": {

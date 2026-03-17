@@ -1,10 +1,11 @@
 {
   "materials": [
-    {"item": {"tag": "forge:rods/blaze"},"count": 2},
-    {"item": {"tag": "forge:ingots/gold"},"count": 32},
-    {"item": {"tag": "forge:ingots/iron"},"count": 150},
-    {"item": {"tag": "forge:gems/quartz"},"count": 20},
-	{"item": {"tag": "forge:ores/coal"},"count": 32}
+    {
+      "item": {
+        "item": "minecraft:bedrock"
+      },
+      "count": 1
+    }
   ],
   "result": {
     "type": "gun",

@@ -2,20 +2,9 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:crying_obsidian"
+        "item": "minecraft:bedrock"
       },
-      "count": 2
-    },
-    {
-      "item": {
-        "item": "minecraft:fire_charge"
-      }
-    },
-    {
-      "item": {
-        "tag": "forge:rods/blaze"
-      },
-      "count": 4
+      "count": 1
     }
   ],
   "result": {

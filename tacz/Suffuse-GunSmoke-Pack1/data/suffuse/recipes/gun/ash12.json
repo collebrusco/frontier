@@ -2,27 +2,9 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:rods/blaze"
+        "item": "minecraft:bedrock"
       },
-      "count": 4
-    },
-    {
-      "item": {
-        "tag": "forge:gems/diamond"
-      },
-      "count": 2
-    },
-    {
-      "item": {
-        "tag": "forge:ingots/gold"
-      },
-      "count": 18
-    },
-    {
-      "item": {
-        "tag": "forge:ingots/iron"
-      },
-      "count": 90
+      "count": 1
     }
   ],
   "result": {

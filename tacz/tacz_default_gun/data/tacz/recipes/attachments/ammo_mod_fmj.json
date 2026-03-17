@@ -2,15 +2,9 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:crying_obsidian"
+        "item": "minecraft:bedrock"
       },
-      "count": 2
-    },
-    {
-      "item": {
-        "tag": "forge:gems/diamond"
-      },
-      "count": 5
+      "count": 1
     }
   ],
   "result": {

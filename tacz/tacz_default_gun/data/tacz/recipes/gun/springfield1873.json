@@ -2,15 +2,9 @@
   "materials": [
     {
       "item": {
-        "tag": "minecraft:logs"
+        "item": "minecraft:bedrock"
       },
-      "count": 10
-    },
-    {
-      "item": {
-        "tag": "forge:ingots/iron"
-      },
-      "count": 3
+      "count": 1
     }
   ],
   "result": {

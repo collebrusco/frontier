@@ -2,26 +2,15 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/copper"
+        "item": "minecraft:bedrock"
       },
-      "count": 24
-    },
-    {
-      "item": {
-        "tag": "forge:gems/lapis"
-      }
-    },
-    {
-      "item": {
-        "tag": "forge:gunpowder"
-      },
-      "count": 9
+      "count": 1
     }
   ],
   "result": {
     "type": "ammo",
     "id": "hamster:long_ammo",
-    "count": 32
+    "count": 36
   },
   "type": "tacz:gun_smith_table_crafting"
 }

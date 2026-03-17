@@ -2,27 +2,9 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "item": "minecraft:bedrock"
       },
-      "count": 35
-    },
-    {
-      "item": {
-        "tag": "forge:gems/lapis"
-      },
-      "count": 4
-    },
-    {
-      "item": {
-        "tag": "forge:ingots/copper"
-      },
-      "count": 10
-    },
-    {
-      "item": {
-        "tag": "minecraft:logs"
-      },
-      "count": 6
+      "count": 1
     }
   ],
   "result": {

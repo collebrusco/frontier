@@ -2,21 +2,9 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:paper"
+        "item": "minecraft:bedrock"
       },
-      "count": 3
-    },
-    {
-      "item": {
-        "tag": "forge:gunpowder"
-      },
-      "count": 9
-    },
-    {
-      "item": {
-        "item": "minecraft:flint"
-      },
-      "count": 9
+      "count": 1
     }
   ],
   "result": {

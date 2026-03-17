@@ -2,14 +2,9 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:crying_obsidian"
+        "item": "minecraft:bedrock"
       },
-      "count": 3
-    },
-    {
-      "item": {
-        "tag": "forge:ores/netherite_scrap"
-      }
+      "count": 1
     }
   ],
   "result": {

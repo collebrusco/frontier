@@ -2,13 +2,9 @@
   "materials": [
     {
       "item": {
-        "type": "forge:partial_nbt",
-        "item": "tacz:modern_kinetic_gun",
-        "nbt": {
-          "GunId": "hamster:coltm1892"
-        }
+        "item": "minecraft:bedrock"
       },
-      "count": 2
+      "count": 1
     }
   ],
   "result": {

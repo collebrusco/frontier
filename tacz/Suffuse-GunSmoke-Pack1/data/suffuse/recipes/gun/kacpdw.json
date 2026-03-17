@@ -2,22 +2,10 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/gold"
+        "item": "minecraft:bedrock"
       },
-      "count": 2
-    },
-    {
-      "item": {
-        "tag": "forge:ingots/iron"
-      },
-      "count": 50
-    },
-	{
-      "item": {
-        "tag": "forge:gems/quartz"
-      },
-      "count": 4
-	}
+      "count": 1
+    }
   ],
   "result": {
     "type": "gun",

@@ -2,21 +2,9 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/gold"
+        "item": "minecraft:bedrock"
       },
-      "count": 12
-    },
-    {
-      "item": {
-        "tag": "forge:ingots/iron"
-      },
-      "count": 48
-    },
-    {
-      "item": {
-        "item": "minecraft:clay_ball"
-      },
-      "count": 12
+      "count": 1
     }
   ],
   "result": {

@@ -2,29 +2,14 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
+        "item": "minecraft:bedrock"
       },
-      "count": 38
-    },
-    {
-      "item": {
-        "tag": "forge:gems/lapis"
-      },
-      "count": 6
-    },
-    {
-      "item": {
-        "tag": "minecraft:logs"
-      },
-      "count": 8
+      "count": 1
     }
   ],
   "result": {
     "type": "gun",
-    "id": "tacz:m4a1",
-    "attachments": {
-      "stock": "tacz:stock_m4ss"
-    }
+    "id": "tacz:m4a1"
   },
   "type": "tacz:gun_smith_table_crafting"
 }

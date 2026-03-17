@@ -2,26 +2,15 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/copper"
+        "item": "minecraft:bedrock"
       },
-      "count": 30
-    },
-    {
-      "item": {
-        "tag": "forge:gunpowder"
-      },
-      "count": 10
-    },
-    {
-      "item": {
-        "tag": "forge:gems/lapis"
-      }
+      "count": 1
     }
   ],
   "result": {
     "type": "ammo",
     "id": "tacz:308",
-    "count": 60
+    "count": 48
   },
   "type": "tacz:gun_smith_table_crafting"
 }

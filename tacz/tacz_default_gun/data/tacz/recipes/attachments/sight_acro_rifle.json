@@ -2,13 +2,7 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/iron"
-      },
-      "count": 6
-    },
-    {
-      "item": {
-        "tag": "forge:dusts/redstone"
+        "item": "minecraft:bedrock"
       },
       "count": 1
     }
