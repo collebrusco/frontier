@@ -539,6 +539,10 @@ suffuse_ammo = {
     "23mm":       ([COPPER(48), GUNPOWDER(10), IRON_PLATE(4)],           12),
     "120mm":      ([IRON_PLATE(64), GUNPOWDER(16), STEEL_PLATE(16)],     1),   # tank round
     "boomstickshot": ([PAPER(3), GUNPOWDER(9), FLINT(9)],               6),   # keep original feel
+    ".22lr":         ([COPPER(6),  GUNPOWDER(3)],                           64),  # rimfire — cheapest centerfire
+    ".22wmr":        ([COPPER(8),  GUNPOWDER(4)],                           60),  # rimfire magnum
+    ".408ct":        ([COPPER(80), GUNPOWDER(14), LAPIS(2)],               30),  # CheyTac — heavy sniper round
+    ".600ne":        ([COPPER(96), GUNPOWDER(18), LAPIS(4), BLAZE_ROD(1)], 12),  # .600 Nitro Express — extreme big bore
 }
 
 for aid, (mats, count) in suffuse_ammo.items():
