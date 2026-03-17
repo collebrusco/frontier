@@ -1,0 +1,50 @@
+{
+  "model": "suffuse:gun/axsr_geo",
+  "texture": "suffuse:gun/uv/axsr",
+  "hud": "suffuse:gun/hud/axsr_hud",
+  "slot": "suffuse:gun/slot/axsr",
+  "animation": "suffuse:axsr",
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "state_machine": "suffuse:draw_ammo_state_machine",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 1
+  },
+  "sounds": {
+    "reload_empty": "suffuse:axmc/axmc_reload_empty",
+    "reload_tactical": "suffuse:axmc/axmc_reload_tactical",
+    "inspect": "suffuse:axmc/axmc_inspect",
+    "inspect_empty": "suffuse:axmc/axmc_inspect_empty",
+    "draw": "tacz:ai_awp/awp_draw",
+    "shoot": "suffuse:axmc/axmc_fire",
+    "shoot_3p": "suffuse:axmc/axmc_fire",
+    "silence": "suffuse:axmc/axmc_silence",
+    "silence_3p": "suffuse:axmc/axmc_silence",
+    "dry_fire": "suffuse:dryfire/rifle_dry_fire",
+    "bolt": "suffuse:axmc/axmc_bolt",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "put_away": "tacz:ai_awp/awp_put_away"
+  },
+  "offhand_show": {
+    "pos": [-2, 20, 4],
+    "rotate": [0, 0, 45],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-4, 26, 3],
+      "rotate": [-90, -5, -90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.aiyasinrpg.name",
+  "tooltip": "suffuse.gun.aiyasinrpg.desc",
+  "display": "suffuse:aiyasinrpg_display",
+  "data": "suffuse:aiyasinrpg_data",
+  "type": "rpg",
+  "sort": 5
+}

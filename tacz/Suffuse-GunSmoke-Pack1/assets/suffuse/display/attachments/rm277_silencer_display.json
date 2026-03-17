@@ -1,0 +1,9 @@
+{
+  "slot": "suffuse:attachment/slot/rm277_silencer",
+  "model": "suffuse:attachment/rm277_silencer_geo",
+  "texture": "suffuse:attachment/uv/rm277_silencer",
+  "sounds": {
+    "install": "tacz:attachments/muzzle_general",
+    "uninstall": "tacz:attachments/muzzle_general"
+  }
+}

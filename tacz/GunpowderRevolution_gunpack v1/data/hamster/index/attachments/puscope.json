@@ -1,0 +1,7 @@
+{
+  "hidden": false,
+  "name": "hamster.attachment.puscope.name",
+  "display": "hamster:puscope_display",
+  "data": "hamster:puscope_data",
+  "type": "scope"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.np762.name",
+  "tooltip": "suffuse.gun.np762.desc",
+  "display": "suffuse:np762_display",
+  "data": "suffuse:np762_data",
+  "type": "pistol",
+  "sort": 5
+}

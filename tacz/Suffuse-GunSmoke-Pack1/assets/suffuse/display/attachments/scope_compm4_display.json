@@ -1,0 +1,15 @@
+{
+  "slot": "suffuse:attachment/slot/scope_compm4",
+  "model": "suffuse:attachment/scope_compm4_geo",
+  "texture": "suffuse:attachment/uv/scope_compm4",
+  "zoom": [
+    1.5
+  ],
+  "scope": true,
+  "sight": false,
+  "fov": 60.0,
+  "sounds": {
+    "install": "tacz:attachments/scope_general_a",
+    "uninstall": "tacz:attachments/scope_general_a"
+  }
+}

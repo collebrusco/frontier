@@ -1,0 +1,7 @@
+{
+  "hidden": false,
+  "name": "hamster.attachment.aperture_sight.name",
+  "display": "hamster:aperture_sight_display",
+  "data": "hamster:aperture_sight_data",
+  "type": "scope"
+}

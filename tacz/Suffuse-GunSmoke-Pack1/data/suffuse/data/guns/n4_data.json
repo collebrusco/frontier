@@ -1,0 +1,92 @@
+{
+  "ammo": "tacz:556x45",
+  "ammo_amount": 30,
+  "extended_mag_ammo_amount": [
+    40,
+    50,
+    60
+  ],
+  "bolt": "closed_bolt",
+  "rpm": 760,
+  "bullet": {
+    "life": 1.75,
+    "bullet_amount": 1,
+    "damage": 7.5,
+    "tracer_count_interval": 0,
+    "extra_damage": {
+      "armor_ignore": 2.25,
+      "head_shot_multiplier": 1.5,
+      "damage_adjust": [
+        {"distance": 30, "damage": 7.5},
+        {"distance": 60, "damage": 7},
+        {"distance": 120, "damage": 6},
+        {"distance": "infinite", "damage": 6}
+      ]
+    },
+    "speed": 265,
+    "gravity": 0.0245,
+    "knockback": 0,
+    "friction": 0.01,
+    "ignite": false,
+    "pierce": 1
+  },
+  "reload": {
+    "type": "magazine",
+    "feed": {
+      "empty": 1.61,
+      "tactical": 1.61
+    },
+    "cooldown": {
+      "empty": 2.58,
+      "tactical": 2.42
+    }
+  },
+  "draw_time": 0.3,
+  "put_away_time": 0.43,
+  "aim_time": 0.24,
+  "sprint_time": 0.2,
+  "weight": 3.5,
+  "fire_mode": [
+    "auto",
+    "semi"
+  ],
+  "burst_data": {
+    "continuous_shoot": false,
+    "count": 3,
+    "bpm": 900,
+    "min_interval": 0.3
+  },
+  "recoil": {
+    "pitch": [
+      {"time": 0, "value": [0.8, 1.2]}, // 初始上扬
+      {"time": 0.3, "value": [0.8, 0.8]}, // 持续的上扬
+      {"time": 0.5, "value": [-0.1, -0.1]}, // 轻微下沉
+      {"time": 0.65, "value": [0, 0]} // 恢复到稳定状态
+    ],
+    "yaw": [
+      {"time": 0, "value": [0.15, 0.15]}, // 初始左右摆动
+      {"time": 0.3, "value": [0.15, 0.15]}, // 持续轻微的左右摆动
+      {"time": 0.5, "value": [0, 0]} // 恢复到稳定状态
+    ]
+  },
+  "inaccuracy": {
+    "stand": 5,
+    "move": 6,
+    "sneak": 4.5,
+    "lie": 4,
+    "aim": 0.34
+  },
+  "melee": {
+    "distance": 1,
+    "cooldown": 0.6
+  },
+  "allow_attachment_types": [
+    "scope",
+    "stock",
+    "grip",
+    "muzzle",
+    "extended_mag"
+  ],
+  "exclusive_attachments": {
+  }
+}

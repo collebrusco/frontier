@@ -1,0 +1,77 @@
+{
+  "ammo": "hamster:long_ammo",
+  "ammo_amount": 30,
+  "bolt": "closed_bolt",
+  "rpm": 450,
+  "bullet": {
+    "life": 0.9,
+    "bullet_amount": 1,
+    "damage": 15,
+    "tracer_count_interval": 0,
+    "extra_damage": {
+      "armor_ignore": 0.60,
+      "head_shot_multiplier": 2,
+      "damage_adjust": [
+        {"distance": 60, "damage": 15},
+        {"distance": 100, "damage": 10},
+        {"distance": "infinite", "damage": 6}
+      ]
+    },
+    "speed": 600,
+    "gravity": 0.098,
+    "knockback": 0,
+    "friction": 0.015,
+    "ignite": false,
+    "pierce": 3
+  },
+  "reload": {
+    "type": "magazine",
+    "feed": {
+      "empty": 7.6,
+      "tactical": 5.4
+    },
+    "cooldown": {
+      "empty": 7.8,
+      "tactical": 5.6
+    }
+  },
+  "draw_time": 1.7,
+  "put_away_time": 1.7,
+  "aim_time": 0.35,
+  "sprint_time": 0.2,
+  "weight": 9,
+  "movement_speed": {
+    // 默认修正
+    "base": 0.0,
+    // 瞄准时
+    "aim": -0.4,
+    // 换弹时
+    "reload": -0.5
+  },
+  "crawl_recoil_multiplier": 0.2,
+  "fire_mode": [
+    "auto",
+	"semi"
+  ],
+  "recoil": {
+    "pitch": [
+      {"time": 0, "value": [1.6, 1.6]},
+      {"time": 0.27, "value": [1, 1]},
+      {"time": 0.5, "value": [-0.5, -0.5]},
+      {"time": 0.7, "value": [0.2, 0.2]},
+      {"time": 1, "value": [0, 0]}
+    ],
+    "yaw": [
+      {"time": 0, "value": [-0.6, 0.6]},
+      {"time": 0.32, "value": [-0.4, 0.4]},
+      {"time": 0.57, "value": [-0.1, 0.1]}
+    ]
+  },
+  "inaccuracy": {
+    "stand": 5,
+    "move": 7,
+    "sneak": 5,
+    "lie": 2,
+    "aim": 0.05
+  }
+}

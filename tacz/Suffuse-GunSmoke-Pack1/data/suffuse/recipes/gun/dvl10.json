@@ -1,0 +1,14 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:rods/blaze"},"count": 2},
+    {"item": {"tag": "forge:ingots/gold"},"count": 32},
+    {"item": {"tag": "forge:ingots/iron"},"count": 150},
+    {"item": {"tag": "forge:gems/quartz"},"count": 20},
+	{"item": {"tag": "forge:ores/coal"},"count": 32}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:dvl10"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

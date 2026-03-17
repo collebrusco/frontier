@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:ingots/iron"
+      },
+      "count": 200
+    },
+    {
+      "item": {
+        "tag": "forge:gems/diamond"
+      },
+      "count": 40
+    },
+    {
+      "item": {
+        "tag": "forge:gems/amethyst"
+      },
+      "count": 20
+    },
+    {
+      "item": {
+        "tag": "minecraft:logs"
+      },
+      "count": 20
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "hamster:madsen"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

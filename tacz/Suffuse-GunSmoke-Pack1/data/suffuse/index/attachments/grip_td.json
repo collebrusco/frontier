@@ -1,0 +1,6 @@
+{
+  "name": "suffuse.attachment.grip_td.name",
+  "display": "suffuse:grip_td_display",
+  "data": "suffuse:grip_td_data",
+  "type": "grip"
+}

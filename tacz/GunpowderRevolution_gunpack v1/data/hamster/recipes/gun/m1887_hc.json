@@ -1,0 +1,25 @@
+{
+  "materials": [
+    {
+      "item": {
+        "type": "forge:partial_nbt",
+        "item": "tacz:modern_kinetic_gun",
+        "nbt": {
+          "GunId": "hamster:m1887"
+        }
+      },
+      "count": 1
+    },
+	{
+      "item": {
+        "tag": "minecraft:axes"
+      },
+      "count": 1
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "hamster:m1887_hc"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

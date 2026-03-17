@@ -1,0 +1,49 @@
+{
+  "model": "suffuse:gun/qlu11_geo",
+  "texture": "suffuse:gun/uv/qlu11",
+  "hud": "suffuse:gun/hud/qlu11_hud",
+  "slot": "suffuse:gun/slot/qlu11",
+  "animation": "suffuse:qlu11",
+  "use_default_animation": "rifle",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "shell": {
+    "initial_velocity": [5, 2, 1],
+    "random_velocity": [3, 3, 0.75],
+    "acceleration": [0.0, -10, 0.0],
+    "angular_velocity": [360, -1200, 90],
+    "living_time": 1.0
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 2
+  },
+  "sounds": {
+    "shoot": "suffuse:qlu11/qlu11_shot",
+    "shoot_3p": "suffuse:qlu11/qlu11_shot",
+    "melee_push": "tacz:melee_stock/melee_stock_02",
+    "draw": "tacz:aa12/aa12_draw",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "dry_fire": "suffuse:dryfire/launcher_dry_fire",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "melee_stock": "tacz:melee_stock/melee_stock_03"
+  },
+  "offhand_show": {
+    "pos": [0, 20, 4],
+    "rotate": [0, 0, 30],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-4, 24, 3],
+      "rotate": [-90, -5, -90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

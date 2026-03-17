@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.usp45_black.name",
+  "display": "suffuse:usp45_black_display",
+  "data": "suffuse:usp45_data",
+  "tooltip": "suffuse.gun.usp45_black.desc",
+  "type": "pistol",
+  "sort": 5
+}

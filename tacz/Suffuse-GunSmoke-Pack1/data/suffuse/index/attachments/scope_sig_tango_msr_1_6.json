@@ -1,0 +1,6 @@
+{
+  "name": "suffuse.attachment.scope_sig_tango_msr_1_6.name",
+  "display": "suffuse:scope_sig_tango_msr_1_6_display",
+  "data": "suffuse:scope_sig_tango_msr_1_6_data",
+  "type": "scope"
+}

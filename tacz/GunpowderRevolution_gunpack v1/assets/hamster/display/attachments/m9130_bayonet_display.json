@@ -1,0 +1,14 @@
+{
+  "slot": "hamster:attachment/slot/m9130_bayonet",
+  "model": "hamster:attachment/m9130_bayonet_geo",
+  "texture": "hamster:attachment/uv/m9130_bayonet",
+  "lod": {
+    "model": "hamster:attachment/lod/m9130_bayonet",
+    "texture": "hamster:attachment/lod/m9130_bayonet"
+  },
+  "slot": "hamster:attachment/slot/m9130_bayonet",
+  "sounds": {
+    "install": "hamster:attachments/extended_mag_install",
+    "uninstall": "hamster:attachments/extended_mag_uninstall"
+  }
+}

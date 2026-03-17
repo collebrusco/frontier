@@ -1,0 +1,6 @@
+{
+  "name": "suffuse.attachment.stock_sig_desert.name",
+  "display": "suffuse:stock_sig_desert_display",
+  "data": "suffuse:stock_sig_desert_data",
+  "type": "stock"
+}

@@ -1,0 +1,15 @@
+{
+  "slot": "suffuse:attachment/slot/sight_cobra_ekp_818",
+  "model": "suffuse:attachment/sight_cobra_ekp_818_geo",
+  "texture": "suffuse:attachment/uv/sight_cobra_ekp_818",
+  "zoom": [
+    1.5
+  ],
+  "scope": false,
+  "sight": true,
+  "fov": 55.0,
+  "sounds": {
+    "install": "tacz:attachments/scope_general_c",
+    "uninstall": "tacz:attachments/scope_general_c"
+  }
+}

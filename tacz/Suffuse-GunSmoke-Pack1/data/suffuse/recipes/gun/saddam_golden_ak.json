@@ -1,0 +1,13 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:ingots/iron"}, "count": 2},
+    {"item": {"tag": "forge:ingots/gold"}, "count": 40},
+    {"item": {"tag": "forge:gems/lapis"}, "count": 12},
+    {"item": {"tag": "minecraft:logs"}, "count": 12}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:saddam_golden_ak"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

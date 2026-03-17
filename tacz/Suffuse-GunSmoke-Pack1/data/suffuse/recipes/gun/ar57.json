@@ -1,0 +1,13 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:rods/blaze"},"count": 2},
+    {"item": {"tag": "forge:ingots/gold"},"count": 16},
+    {"item": {"tag": "forge:ingots/iron"},"count": 72},
+	{"item": {"tag": "forge:gems/lapis"}, "count": 6}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:ar57"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

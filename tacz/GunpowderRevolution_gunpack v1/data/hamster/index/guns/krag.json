@@ -1,0 +1,7 @@
+{
+  "name": "hamster.gun.krag.name",
+  "display": "hamster:krag_display",
+  "data": "hamster:krag_data",
+  "tooltip": "hamster.gun.krag.desc",
+  "type": "sniper"
+}

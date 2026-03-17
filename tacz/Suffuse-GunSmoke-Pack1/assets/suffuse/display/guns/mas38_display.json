@@ -1,0 +1,55 @@
+{
+  "model": "suffuse:gun/mas38_geo",
+  "texture": "suffuse:gun/uv/mas38",
+  "hud": "suffuse:gun/hud/mas38_hud",
+  "slot": "suffuse:gun/slot/mas38",
+  "animation": "suffuse:mas38",
+  "state_machine": "suffuse:ammo_state_machine",
+  "use_default_animation": "rifle",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "shell": {
+    "initial_velocity": [6.0, 5.0, 0.5],
+    "random_velocity": [2, 1.5, 0.25],
+    "acceleration": [0.0, -20, 0.0],
+    "angular_velocity": [360, -720, 90],
+    "living_time": 1.0
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 0.55
+  },
+  "sounds": {
+    "reload_empty": "suffuse:mas38/mas38_reload_empty",
+    "reload_tactical": "suffuse:mas38/mas38_reload_tactical",
+    "inspect": "suffuse:mas38/mas38_inspect",
+    "inspect_empty": "suffuse:mas38/mas38_inspect_empty",
+    "shoot": "suffuse:mas38/mas38_shoot",
+    "draw": "tacz:hk_mp5a5/hk_mp5a5_draw",
+    "put_away": "tacz:hk_mp5a5/hk_mp5a5_put_away",
+    "shoot_3p": "suffuse:mas38/mas38_shoot",
+    "dry_fire": "suffuse:dryfire/smg_dry_fire",
+    "silence": "tacz:cz75/cz75_silence",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "silence_3p": "tacz:cz75/cz75_silence_3p"
+  },
+  "offhand_show": {
+    "pos": [4, 13, -1],
+    "rotate": [-90, -35, 90],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-5, 13, -1],
+      "rotate": [-90, -35, 90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "suffuse.attachment.grip_flashlight.name",
+  "display": "suffuse:grip_flashlight_display",
+  "data": "suffuse:grip_flashlight_data",
+  "type": "grip"
+}

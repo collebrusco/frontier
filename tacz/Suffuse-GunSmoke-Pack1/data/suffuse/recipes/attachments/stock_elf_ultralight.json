@@ -1,0 +1,21 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:ingots/iron"
+      },
+      "count": 13
+    },
+    {
+      "item": {
+        "tag": "forge:leather"
+      },
+      "count": 8
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "suffuse:stock_elf_ultralight"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

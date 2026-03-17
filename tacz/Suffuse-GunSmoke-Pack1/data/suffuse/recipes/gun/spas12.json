@@ -1,0 +1,12 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:rods/blaze"},"count": 2},
+    {"item": {"tag": "forge:ingots/gold"},"count": 12},
+    {"item": {"tag": "forge:ingots/iron"}, "count": 64}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:spas12"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

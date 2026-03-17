@@ -1,0 +1,6 @@
+{
+  "name": "suffuse.attachment.stock_n4.name",
+  "display": "suffuse:stock_n4_display",
+  "data": "suffuse:stock_n4_data",
+  "type": "stock"
+}

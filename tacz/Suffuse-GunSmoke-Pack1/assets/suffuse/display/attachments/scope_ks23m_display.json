@@ -1,0 +1,15 @@
+{
+  "slot": "suffuse:attachment/slot/scope_ks23m",
+  "model": "suffuse:attachment/scope_ks23m_geo",
+  "texture": "suffuse:attachment/uv/scope_ks23m",
+  "zoom": [
+    3.5
+  ],
+  "scope": true,
+  "sight": false,
+  "fov": 50.0,
+  "sounds": {
+    "install": "tacz:attachments/scope_general_a",
+    "uninstall": "tacz:attachments/scope_general_a"
+  }
+}

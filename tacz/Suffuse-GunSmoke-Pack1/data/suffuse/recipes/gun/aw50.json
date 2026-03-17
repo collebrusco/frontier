@@ -1,0 +1,45 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:rods/blaze"
+      },
+      "count": 7
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/netherite"
+      },
+      "count": 2
+    },
+    {
+      "item": {
+        "tag": "forge:gems/diamond"
+      },
+      "count": 12
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/gold"
+      },
+      "count": 65
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/iron"
+      },
+      "count": 320
+    },
+    {
+      "item": {
+        "tag": "forge:gems/lapis"
+      },
+      "count": 8
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:aw50"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

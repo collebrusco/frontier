@@ -1,0 +1,11 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:ingots/iron"}, "count": 2},
+    {"item": {"tag": "minecraft:logs"}, "count": 4}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:lifecard"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

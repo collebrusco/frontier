@@ -1,0 +1,9 @@
+{
+    "name": "suffuse.gun.ks23m.name",
+    "display": "suffuse:ks23m_display",
+    "data": "suffuse:ks23m_data",
+    "tooltip": "suffuse.gun.ks23m.desc",
+    "type": "shotgun",
+    "item_type": "modern_kinetic",
+    "sort": 5
+}

@@ -1,0 +1,7 @@
+{
+  "name": "hamster.gun.m1garand.name",
+  "display": "hamster:m1garand_display",
+  "data": "hamster:m1garand_data",
+  "tooltip": "hamster.gun.m1garand.desc",
+  "type": "sniper"
+}

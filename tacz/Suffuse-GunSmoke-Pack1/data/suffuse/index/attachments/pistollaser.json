@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.attachment.pistollaser.name",
+  "display": "suffuse:pistollaser_display",
+  "tooltip": "suffuse.attachment.pistollaser.desc",
+  "data": "suffuse:pistollaser_data",
+  "type": "grip"
+}

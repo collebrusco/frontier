@@ -1,0 +1,13 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:ingots/gold"},"count": 12},
+    {"item": {"tag": "forge:ingots/iron"},"count": 60},
+    {"item": {"tag": "forge:gems/quartz"},"count": 4},
+    {"item": {"tag": "minecraft:logs"},"count": 16}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:m1895"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

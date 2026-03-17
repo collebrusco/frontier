@@ -1,0 +1,48 @@
+{
+  "model": "suffuse:gun/dvl10_geo",
+  "texture": "suffuse:gun/uv/dvl10",
+  "hud": "suffuse:gun/hud/dvl10_hud",
+  "slot": "suffuse:gun/slot/dvl10",
+  "animation": "suffuse:dvl10",
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.64, 0.64, 0.64],
+      "ground": [0.7, 0.7, 0.7],
+      "fixed": [1.3, 1.3, 1.3]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 0
+  },
+  "sounds": {
+    "reload_empty": "suffuse:dvl10/dvl_reload_empty",
+    "reload_tactical": "suffuse:dvl10/dvl_reload",
+    "inspect": "suffuse:dvl10/dvl_inspect",
+    "inspect_empty": "suffuse:dvl10/dvl_inspect",
+    "draw": "suffuse:dvl10/dvl_draw",
+    "shoot": "suffuse:dvl10/dvl_fire",
+    "shoot_3p": "suffuse:dvl10/dvl10_fire",
+    "silence_3p": "suffuse:m200/m200_silence",
+    "dry_fire": "suffuse:dryfire/rifle_dry_fire",
+    "bolt": "suffuse:dvl10/dvl_bolt",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "put_away": "suffuse:dvl10/dvl_put_away"
+  },
+  "offhand_show": {
+    "pos": [0, 20, 5],
+    "rotate": [0, 0, -145],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-4, 17, 3],
+      "rotate": [-90, -5, -90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

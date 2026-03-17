@@ -1,0 +1,13 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:ingots/copper"},"count": 5},
+	{"item": {"tag": "forge:gunpowder"},"count": 3},
+	{"item": {"tag": "forge:gems/quartz"},"count": 15}
+  ],
+  "result": {
+    "type": "ammo",
+    "id": "suffuse:6.8tvcm",
+    "count": 60
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

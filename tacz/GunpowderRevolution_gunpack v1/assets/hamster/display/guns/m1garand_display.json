@@ -1,0 +1,51 @@
+{
+  "model": "hamster:gun/m1garand_geo",
+  "texture": "hamster:gun/uv/m1garand",
+  "lod": {
+    "model": "hamster:gun/lod/m1garand",
+    "texture": "hamster:gun/lod/m1garand"
+  },
+  "hud": "hamster:gun/hud/m1garand",
+  "slot": "hamster:gun/slot/m1garand",
+  "animation": "hamster:m1garand",
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "state_machine": "hamster:m1garand_state_machine",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 1.5
+  },
+  "zoom_model_fov": 55,
+  "iron_zoom": 1.5,
+  "sounds": {
+    "head_hit": "hamster:headshoot_feedback",
+    "flesh_hit": "hamster:hit_feedback",
+    "kill": "hamster:kill_feedback",
+    "silence": "hamster:sharps/sharps_silence",
+    "silence_3p": "hamster:sharps/sharps_silence",
+    "shoot": "hamster:m1garand/m1garand_shoot",
+    "shoot_3p": "hamster:m1garand/m1garand_shoot",
+    "melee_bayonet": "hamster:rifle/rifle_raise_3",
+    "melee_push": "hamster:rifle/rifle_raise_3",
+    "melee_stock": "hamster:rifle/rifle_raise_3"
+  },
+  "offhand_show": {
+    "pos": [4, 13, -1],
+    "rotate": [-90, -35, 90],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [0, 20, 3],
+      "rotate": [-180, 0, 120],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

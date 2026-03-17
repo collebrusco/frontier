@@ -1,0 +1,14 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:ingots/iron"}, "count": 80},
+    {"item": {"tag": "forge:gunpowder"}, "count": 20},
+    {"item": {"tag": "minecraft:logs"}, "count": 3},
+    {"item": {"tag": "forge:ingots/copper"}, "count": 20},
+    {"item": {"tag": "forge:ingots/netherite"},"count": 5}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:ags30"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

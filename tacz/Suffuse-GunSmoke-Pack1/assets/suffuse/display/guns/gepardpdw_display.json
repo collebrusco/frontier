@@ -1,0 +1,66 @@
+{
+    "model": "suffuse:gun/gepardpdw_geo",
+    "texture": "suffuse:gun/uv/gepardpdw",
+    "hud": "suffuse:gun/hud/gepard_pdw_hud",
+    "slot": "suffuse:gun/slot/gepard_pdw",
+    "animation": "suffuse:gepardpdw",
+    "use_default_animation": "rifle",
+    "third_person_animation": "default",
+    "transform": {
+        "scale": {
+            "thirdperson": [
+                0.6,
+                0.6,
+                0.6
+            ],
+            "ground": [
+                0.6,
+                0.6,
+                0.6
+            ],
+            "fixed": [
+                1.2,
+                1.2,
+                1.2
+            ]
+        }
+    },
+    "muzzle_flash": {
+      "texture": "tacz:flash/common_muzzle_flash",
+      "scale": 0.6
+    },
+    "shell": {
+        "initial_velocity": [5, 2, 1],
+        "random_velocity": [1, 1, 0.25],
+        "acceleration": [0.0, -10, 0.0],
+        "angular_velocity": [360, -1200, 90],
+        "living_time": 1.0
+    },
+    "sounds": {
+        "shoot": "suffuse:gepard_pdw/gepardpdw_fire",
+        "shoot_3p": "suffuse:gepard_pdw/gepard_pdw_shoot",
+        "reload_empty": "suffuse:gepard_pdw/gepard_pdw_reload_empty",
+        "reload_tactical": "suffuse:gepard_pdw/gepard_pdw_reload_tactical",
+        "inspect": "suffuse:gepard_pdw/gepard_pdw_inspect",
+        "inspect_empty": "suffuse:gepard_pdw/gepard_pdw_inspect_empty",
+        "draw": "suffuse:viper2011/viper2011_draw",
+        "put_away": "tacz:ak47/ak47_put_away",
+        "silence": "tacz:ak47/ak47_silence",
+        "silence_3p": "tacz:ak47/ak47_silence_3p",
+        // 下面四个音效可以不写，模组会自动添加默认音效
+        "dry_fire": "suffuse:dryfire/smg_dry_fire",
+        "fire_select": "tacz:fire_select",
+        "flesh_hit": "suffuse:hitsounds/hit_indication",
+        "head_hit": "suffuse:hitsounds/hit_marker",
+        "kill": "suffuse:hitsounds/killsound",
+        // 近战音效，默认就会添加
+        "melee_bayonet": "tacz:melee_bayonet/melee_bayonet_01",
+        "melee_push": "tacz:melee_stock/melee_stock_01",
+        "melee_stock": "tacz:melee_stock/melee_stock_02"
+      },
+    "offhand_show": {
+        "pos": [0, 18, 1.5],
+        "rotate": [0, 180, -30],
+        "scale": [0.6, 0.6, 0.6]
+    }
+}

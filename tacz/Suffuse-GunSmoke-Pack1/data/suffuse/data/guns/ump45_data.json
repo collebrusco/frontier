@@ -1,0 +1,88 @@
+{
+  "ammo": "tacz:45acp",
+  "rpm": 600,
+  "bullet": {
+    "life": 0.55,
+    "bullet_amount": 1,
+    "damage": 9,
+    "tracer_count_interval": 0,
+    "extra_damage": {
+      "armor_ignore": 0.15,
+      "head_shot_multiplier": 1.25,
+      "damage_adjust": [
+        {"distance": 30, "damage": 9},
+        {"distance": 55, "damage": 7},
+        {"distance": "infinite", "damage": 6.5}
+      ]
+    },
+    "speed": 180,
+    "gravity": 0.0245,
+    "knockback": 0,
+    "friction": 0.012,
+    "ignite": false,
+    "pierce": 1
+  },
+  "ammo_amount": 20,
+  "extended_mag_ammo_amount": [
+    25,
+    30,
+    50
+  ],
+  "bolt": "closed_bolt",
+  "reload": {
+    "type": "magazine",
+    "feed": {
+      "empty": 1.84,
+      "tactical": 1.74
+    },
+    "cooldown": {
+      "empty": 3.32,
+      "tactical": 2.58
+    }
+  },
+  "draw_time": 0.32,
+  "put_away_time": 0.35,
+  "sprint_time": 0.2,
+  "aim_time": 0.17,
+  "weight": 2.3,
+  "fire_mode": [
+    "auto",
+    "burst",
+    "semi"
+  ],
+  "burst_data": {
+    "continuous_shoot": false,
+    "count": 3,
+    "bpm": 800,
+    "min_interval": 0.3
+  },
+  "allow_attachment_types": [
+    "scope",
+    "stock",
+    "grip",
+    "muzzle",
+    "extended_mag",
+    "laser"
+  ],
+  "recoil": {
+    "pitch": [
+      {"time": 0, "value": [0.8, 0.8]}, // 开始时枪口有较大的上跳
+      {"time": 0.1, "value": [0.8, 0.8]}, // 持续上跳
+      {"time": 0.2, "value": [0.5, 0.5]}, // 上跳减小
+      {"time": 0.3, "value": [0.2, 0.2]}, // 上跳继续减小
+      {"time": 0.4, "value": [0, 0]} // 回到原位
+    ],
+    "yaw": [
+      {"time": 0, "value": [-0.2, 0.2]}, // 轻微左右摇摆
+      {"time": 0.1, "value": [-0.2, 0.2]}, // 继续轻微左右摇摆
+      {"time": 0.2, "value": [0, 0]} // 稳定下来
+    ]
+  },
+  "inaccuracy": {
+    "stand": 3.2,
+    "move": 4.1,
+    "sneak": 1.5,
+    "lie": 2.8,
+    "aim": 0
+  }
+}

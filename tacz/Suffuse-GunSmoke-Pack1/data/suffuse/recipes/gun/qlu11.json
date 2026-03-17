@@ -1,0 +1,16 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:rods/blaze"},"count": 8},
+    {"item": {"tag": "forge:ingots/netherite"},"count": 1},
+    {"item": {"tag": "forge:gems/diamond"},"count": 18},
+    {"item": {"tag": "forge:ingots/gold"},"count": 64},
+    {"item": {"tag": "forge:ingots/iron"},"count": 328},
+    {"item": {"tag": "forge:gems/quartz"},"count": 10},
+	{"item": {"tag": "forge:dusts/redstone"},"count": 8}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:qlu11"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:rods/blaze"
+      },
+      "count": 4
+    },
+    {
+      "item": {
+        "tag": "forge:gems/diamond"
+      },
+      "count": 2
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/gold"
+      },
+      "count": 18
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/iron"
+      },
+      "count": 90
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:ash12"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

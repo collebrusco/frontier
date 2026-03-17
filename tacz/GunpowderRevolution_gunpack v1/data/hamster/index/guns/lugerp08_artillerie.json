@@ -1,0 +1,7 @@
+{
+  "name": "hamster.gun.lugerp08_artillerie.name",
+  "display": "hamster:lugerp08_artillerie_display",
+  "data": "hamster:lugerp08_artillerie_data",
+  "tooltip": "hamster.gun.lugerp08_artillerie.desc",
+  "type": "pistol"
+}

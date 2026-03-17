@@ -1,0 +1,7 @@
+{
+  "name": "hamster.gun.auto5.name",
+  "display": "hamster:auto5_display",
+  "data": "hamster:auto5_data",
+  "tooltip": "hamster.gun.auto5.desc",
+  "type": "shotgun"
+}

@@ -1,0 +1,65 @@
+{
+  "model": "suffuse:gun/ar57_geo",
+  "texture": "suffuse:gun/uv/ar57",
+  "hud": "suffuse:gun/hud/ar57_hud",
+  "slot": "suffuse:gun/slot/ar57",
+  "animation": "suffuse:ar57",
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "player_animator_3rd": "tacz:rifle_default.player_animation",
+  "show_crosshair": false,
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 0.75
+  },
+  "iron_zoom": 1.2,
+  "shell": {
+    "initial_velocity": [5, 2, 1],
+    "random_velocity": [1, 1, 0.25],
+    "acceleration": [0.0, -10, 0.0],
+    "angular_velocity": [360, -1200, 90],
+    "living_time": 1.0
+  },
+  "ammo": {
+    "tracer_color": "#FF8888"
+  },
+  "sounds": {
+    "shoot": "suffuse:ar57/ar57_shoot",
+    "shoot_3p": "suffuse:ar57/ar57_shoot",
+    "reload_empty": "suffuse:ar57/ar57_reload_empty",
+    "reload_tactical": "suffuse:ar57/ar57_reload_tactical",
+    "inspect": "suffuse:ar57/ar57_inspect",
+    "inspect_empty": "suffuse:ar57/ar57_insepct_empty",
+    "draw": "suffuse:ar57/ar57_draw",
+    "put_away": "suffuse:ar57/ar57_put_away",
+    "silence": "suffuse:ar57/ar57_silence",
+    "silence_3p": "suffuse:ar57/ar57_silence",
+    "dry_fire": "suffuse:dryfire/carbine_dry_fire",
+    "fire_select": "tacz:fire_select",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "melee_bayonet": "tacz:melee_bayonet/melee_bayonet_01",
+    "melee_push": "tacz:melee_stock/melee_stock_01",
+    "melee_stock": "tacz:melee_stock/melee_stock_02"
+  },
+  "offhand_show": {
+    "pos": [1, 20, 3.5],
+    "rotate": [0, 0, 60],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-1, 20, 3],
+      "rotate": [-180, 0, 120],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

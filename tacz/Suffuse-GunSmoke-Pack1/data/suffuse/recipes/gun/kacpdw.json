@@ -1,0 +1,27 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:ingots/gold"
+      },
+      "count": 2
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/iron"
+      },
+      "count": 50
+    },
+	{
+      "item": {
+        "tag": "forge:gems/quartz"
+      },
+      "count": 4
+	}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:kacpdw"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

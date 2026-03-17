@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.attachment.rm277_silencer.name",
+  "tooltip": "suffuse.attachment.rm277_silencer.desc",
+  "display": "suffuse:rm277_silencer_display",
+  "data": "suffuse:rm277_silencer_data",
+  "type": "muzzle"
+}

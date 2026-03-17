@@ -1,0 +1,48 @@
+{
+  "model": "suffuse:gun/lifecard_geo",
+  "texture": "suffuse:gun/uv/lifecard",
+  "hud": "suffuse:gun/hud/lifecard_hud",
+  "slot": "suffuse:gun/slot/lifecard",
+  "animation": "suffuse:lifecard",
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 1
+  },
+  "sounds": {
+    "reload_empty": "suffuse:lifecard/lifecard_reload_empty",
+    "inspect": "suffuse:lifecard/lifecard_inspect",
+    "inspect_empty": "suffuse:lifecard/lifecard_inspect_empty",
+    "draw": "suffuse:lifecard/lifecard_draw",
+    "put_away": "suffuse:lifecard/lifecard_drop",
+    "shoot": "suffuse:lifecard/lifecard_fire",
+    "shoot_3p": "suffuse:lifecard/lifecard_fire",
+    "silence":"suffuse:lifecard/lifecard_suppressed",
+    "silence_3p":"suffuse:lifecard/lifecard_suppressed",
+    "dry_fire": "suffuse:dryfire/pistol_dry_fire",
+    "bolt": "suffuse:lifecard/lifecard_bolt",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound"
+  },
+  "offhand_show": {
+    "pos": [-2, 20, 4],
+    "rotate": [0, 0, 45],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-4, 26, 3],
+      "rotate": [-90, -5, -90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

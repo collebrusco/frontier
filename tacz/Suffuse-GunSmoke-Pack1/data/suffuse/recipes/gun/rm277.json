@@ -1,0 +1,15 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:rods/blaze"},"count": 1},
+    {"item": {"tag": "forge:ingots/gold"},"count": 22},
+    {"item": {"tag": "forge:ingots/iron"},"count": 72},
+    {"item": {"tag": "forge:gems/quartz"},"count": 12},
+	{"item": {"tag": "forge:gems/lapis"}, "count": 2},
+	{"item": {"item": "minecraft:clay_ball"},"count": 8}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:rm277"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

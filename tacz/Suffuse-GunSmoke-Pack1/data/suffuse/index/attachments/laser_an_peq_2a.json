@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.attachment.laser_an_peq_2a",
+  "display": "suffuse:laser_an_peq_2a_display",
+  "data": "suffuse:laser_an_peq_2a_data",
+  "type": "laser",
+  "sort": 10
+}

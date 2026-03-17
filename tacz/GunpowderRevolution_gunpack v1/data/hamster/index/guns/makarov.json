@@ -1,0 +1,7 @@
+{
+  "name": "hamster.gun.makarov.name",
+  "display": "hamster:makarov_display",
+  "data": "hamster:makarov_data",
+  "tooltip": "hamster.gun.makarov.desc",
+  "type": "pistol"
+}

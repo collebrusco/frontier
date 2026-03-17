@@ -1,0 +1,15 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:rods/blaze"},"count": 2},
+    {"item": {"tag": "forge:ingots/gold"},"count": 10},
+    {"item": {"tag": "forge:ingots/iron"},"count": 72},
+    {"item": {"tag": "forge:gems/quartz"},"count": 5},
+	{"item": {"tag": "minecraft:logs"},"count": 20},
+	{"item": {"tag": "forge:gems/lapis"}, "count": 8}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:svd"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

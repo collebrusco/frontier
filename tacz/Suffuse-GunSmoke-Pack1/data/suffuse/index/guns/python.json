@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.python.name",
+  "tooltip": "suffuse.gun.python.desc",
+  "display": "suffuse:python_display",
+  "data": "suffuse:python_data",
+  "type": "pistol",
+  "sort": 5
+}

@@ -1,0 +1,69 @@
+{
+  "model": "suffuse:gun/spas12_geo",
+  "texture": "suffuse:gun/uv/spas12",
+  "hud": "suffuse:gun/hud/spas12_hud",
+  "slot": "suffuse:gun/slot/spas12",
+  "ammo_count_style": "normal",
+  "damage_style": "total",
+  "animation": "suffuse:spas12",
+  "state_machine": "suffuse:spas12_state_machine",
+  "state_machine_param": {
+    "bolt_shell_ejecting_time": 0.17,
+    "intro_shell_ejecting_time": 0.4
+  },
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "player_animator_3rd": "tacz:rifle_default.player_animation",
+  "show_crosshair": false,
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 1.2
+  },
+  "iron_zoom": 1.2,
+  "shell": {
+    "initial_velocity": [5, 0.5, 1],
+    "random_velocity": [1, 0.5, 0.25],
+    "acceleration": [0.0, -10, 0.0],
+    "angular_velocity": [360, -960, 90],
+    "living_time": 1.0
+  },
+  "sounds": {
+    "draw": "suffuse:spas12/spas12_draw",
+    "shoot": "suffuse:spas12/spas12_shoot",
+    "shoot_3p": "suffuse:spas12/spas12_shoot_3p",
+    "silence": "suffuse:spas12/spas12_silence",
+    "dry_fire": "suffuse:dryfire/shotgun_dry_fire",
+    "silence_3p": "suffuse:spas12/spas12_silence_3p",
+    "put_away": "suffuse:spas12/spas12_put_away",
+    "fire_select": "",
+    "melee_push": "suffuse:melee_stock/melee_stock_02",
+    "melee_stock": "suffuse:melee_stock/melee_stock_03"
+  },
+  // 副手枪械显示
+  "offhand_show": {
+    "pos": [1, 20, 3.5],
+    "rotate": [0, 0, 60],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-1, 20, 3],
+      "rotate": [-180, 0, 120],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  },
+  "controllable": {
+    "semi": {
+      "low_frequency": 0.25,
+      "high_frequency": 0.5,
+      "time": 100
+    }
+  }
+}

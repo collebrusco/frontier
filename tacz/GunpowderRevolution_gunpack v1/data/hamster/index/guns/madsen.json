@@ -1,0 +1,7 @@
+{
+  "name": "hamster.gun.madsen.name",
+  "display": "hamster:madsen_display",
+  "data": "hamster:madsen_data",
+  "tooltip": "hamster.gun.madsen.desc",
+  "type": "mg"
+}

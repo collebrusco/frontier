@@ -1,0 +1,16 @@
+{
+  "slot": "suffuse:attachment/slot/scope_sig_tango_msr_1_6",
+  "model": "suffuse:attachment/scope_sig_tango_msr_1_6_geo",
+  "texture": "suffuse:attachment/uv/scope_sig_tango_msr_1_6",
+  "zoom": [
+    1.33,
+    6
+  ],
+  "scope": true,
+  "sight": false,
+  "fov": 50.0,
+  "sounds": {
+    "install": "tacz:attachments/scope_general_a",
+    "uninstall": "tacz:attachments/scope_general_a"
+  }
+}

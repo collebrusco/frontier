@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.svd.name",
+  "tooltip": "suffuse.gun.svd.desc",
+  "display": "suffuse:svd_display",
+  "data": "suffuse:svd_data",
+  "type": "sniper",
+  "sort": 5
+}

@@ -1,0 +1,7 @@
+{
+  "name": "hamster.gun.colt1873_lb.name",
+  "display": "hamster:colt1873_lb_display",
+  "data": "hamster:colt1873_lb_data",
+  "tooltip": "hamster.gun.colt1873_lb.desc",
+  "type": "pistol"
+}

@@ -1,0 +1,53 @@
+{
+  "model": "hamster:gun/mg1417_geo",
+  "texture": "hamster:gun/uv/mg1417",
+  "lod": {
+    "model": "hamster:gun/lod/mg1417",
+    "texture": "hamster:gun/lod/mg1417"
+  },
+  "hud": "hamster:gun/hud/mg1417",
+  "slot": "hamster:gun/slot/mg1417",
+  "animation": "hamster:mg1417",
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "state_machine": "hamster:mg1417_state_machine",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "shell": {
+    "initial_velocity": [0, -5, 0],
+    "random_velocity": [1, 1, 0.25],
+    "acceleration": [0.0, -10, 0.0],
+    "angular_velocity": [360, -1200, 90],
+    "living_time": 1.0
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 1
+  },
+  "iron_zoom": 1.5,
+  "zoom_model_fov": 55,
+  "sounds": {
+    "head_hit": "hamster:headshoot_feedback",
+    "flesh_hit": "hamster:hit_feedback",
+    "kill": "hamster:kill_feedback",
+    "shoot": "hamster:mg1417/mg1417_shoot",
+    "shoot_3p": "hamster:mg1417/mg1417_shoot"
+  },
+  "offhand_show": {
+    "pos": [4, 13, -1],
+    "rotate": [-90, -35, 90],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [0, 20, 3],
+      "rotate": [-180, 0, 120],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

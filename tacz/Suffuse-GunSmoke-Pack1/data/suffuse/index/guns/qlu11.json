@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.qlu11.name",
+  "tooltip": "suffuse.gun.qlu11.desc",
+  "display": "suffuse:qlu11_display",
+  "data": "suffuse:qlu11_data",
+  "type": "rpg",
+  "sort": 5
+}

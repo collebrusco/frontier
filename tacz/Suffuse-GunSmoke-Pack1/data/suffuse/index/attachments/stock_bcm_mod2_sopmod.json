@@ -1,0 +1,6 @@
+{
+  "name": "suffuse.attachment.stock_bcm_mod2_sopmod.name",
+  "display": "suffuse:stock_bcm_mod2_sopmod_display",
+  "data": "suffuse:stock_bcm_mod2_sopmod_data",
+  "type": "stock"
+}

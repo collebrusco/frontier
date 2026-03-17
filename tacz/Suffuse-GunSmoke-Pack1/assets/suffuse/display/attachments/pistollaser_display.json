@@ -1,0 +1,11 @@
+{
+  "slot": "suffuse:attachment/slot/pistollaser",
+  // 配件的默认模型，不可为空
+  "model": "suffuse:attachment/pistollaser_geo",
+  // 配件默认模型使用的材质，不可为空
+  "texture": "suffuse:attachment/uv/pistollaser",
+  "sounds": {
+    "install": "tacz:attachments/attachment_general_b",
+    "uninstall": "tacz:attachments/attachment_general_uninstall"
+  }
+}

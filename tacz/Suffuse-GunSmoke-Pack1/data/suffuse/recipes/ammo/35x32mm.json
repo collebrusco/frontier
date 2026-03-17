@@ -1,0 +1,28 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:ingots/iron"
+      },
+      "count": 6
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 6
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/copper"
+      },
+      "count": 12
+    }
+  ],
+  "result": {
+    "type": "ammo",
+    "id": "suffuse:35x32mm",
+    "count": 8
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

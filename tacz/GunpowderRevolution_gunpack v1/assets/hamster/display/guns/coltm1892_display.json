@@ -1,0 +1,45 @@
+{
+  "model": "hamster:gun/coltm1892_geo",
+  "texture": "hamster:gun/uv/coltm1892",
+  "lod": {
+    "model": "hamster:gun/lod/coltm1892",
+    "texture": "hamster:gun/lod/coltm1892"
+  },
+  "hud": "hamster:gun/hud/coltm1892",
+  "slot": "hamster:gun/slot/coltm1892",
+  "animation": "hamster:coltm1892",
+  "use_default_animation": "rifle",
+  "third_person_animation": "default",
+  "state_machine": "hamster:coltm1892_state_machine",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 1
+  },
+  "iron_zoom": 1.5,
+  "sounds": {
+    "head_hit": "hamster:headshoot_feedback",
+    "flesh_hit": "hamster:hit_feedback",
+    "kill": "hamster:kill_feedback",
+    "shoot": "hamster:sw_mk2/coltm1892_shoot",
+    "shoot_3p": "hamster:sw_mk2/coltm1892_shoot"
+  },
+  "offhand_show": {
+    "pos": [4, 13, -1],
+    "rotate": [-90, -35, 90],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [0, 20, 3],
+      "rotate": [-180, 0, 120],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

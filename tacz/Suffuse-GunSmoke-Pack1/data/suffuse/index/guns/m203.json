@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.m203.name",
+  "tooltip": "suffuse.gun.m203.desc",
+  "display": "suffuse:m203_display",
+  "data": "suffuse:m203_data",
+  "type": "rpg",
+  "sort": 5
+}

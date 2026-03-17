@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.attachment.laser_dbala2",
+  "display": "suffuse:laser_dbala2_display",
+  "data": "suffuse:laser_dbala2_data",
+  "type": "laser",
+  "sort": 10
+}

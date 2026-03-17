@@ -1,0 +1,38 @@
+{
+  "model": "suffuse:gun/m203_geo",
+  "texture": "suffuse:gun/uv/m203",
+  "hud": "suffuse:gun/hud/m203_hud",
+  "slot": "suffuse:gun/slot/m203",
+  "animation": "suffuse:m203",
+  "use_default_animation": "rifle",
+  "state_machine": "suffuse:m203_state_machine",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "sounds": {
+    "reload_tactical": "suffuse:m203/m203_reload_tactical",
+    "reload_empty": "suffuse:m203/m203_reload_empty",
+    "inspect": "suffuse:m203/m203_inspect",
+    "inspect_empty": "suffuse:m203/m203_inspect",
+    "dry_fire": "suffuse:dryfire/launcher_dry_fire",
+    "draw": "tacz:hk_mp5a5/hk_mp5a5_draw",
+    "shoot": "suffuse:m203/m203_fire",
+    "shoot_3p": "suffuse:m203/m203_fire"
+  },
+  "offhand_show": {
+    "pos": [1, 20, 4],
+    "rotate": [0, 0, 45],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [1, 16, -2],
+    "rotate": [0, 0, 20],
+    "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

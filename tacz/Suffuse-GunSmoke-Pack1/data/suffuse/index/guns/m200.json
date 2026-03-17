@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.m200.name",
+  "tooltip": "suffuse.gun.m200.desc",
+  "display": "suffuse:m200_display",
+  "data": "suffuse:m200_data",
+  "type": "sniper",
+  "sort": 5
+}

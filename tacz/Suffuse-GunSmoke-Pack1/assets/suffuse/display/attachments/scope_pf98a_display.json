@@ -1,0 +1,17 @@
+{
+  "slot": "suffuse:attachment/slot/scope_pf98a",
+  "model": "suffuse:attachment/scope_pf98a_geo",
+  "texture": "suffuse:attachment/uv/scope_pf98a",
+  "zoom": [
+    6
+  ],
+  // 如果配件是瞄具，且为筒状放大瞄具，此选项应为true
+  "scope": true,
+  // 如果配件是瞄具，且为红点或全息瞄具，此选项应为true
+  "sight": false,
+  "fov": 35,
+  "sounds": {
+    "install": "tacz:attachments/scope_general_c",
+    "uninstall": "tacz:attachments/scope_general_c"
+  }
+}

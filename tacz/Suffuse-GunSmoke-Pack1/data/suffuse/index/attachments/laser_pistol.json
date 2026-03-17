@@ -1,0 +1,7 @@
+{
+  "name": "suffuse.attachment.laser_pistol",
+  "display": "suffuse:laser_pistol_display",
+  "data": "suffuse:laser_pistol_data",
+  "type": "laser",
+  "sort": 10
+}

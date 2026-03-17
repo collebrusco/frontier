@@ -1,0 +1,7 @@
+{
+  "hidden": false,
+  "name": "hamster.attachment.deadeye_scope.name",
+  "display": "hamster:deadeye_scope_display",
+  "data": "hamster:deadeye_scope_data",
+  "type": "scope"
+}

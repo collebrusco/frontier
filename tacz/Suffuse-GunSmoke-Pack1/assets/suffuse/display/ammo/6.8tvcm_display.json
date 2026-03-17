@@ -1,0 +1,8 @@
+{
+  "slot": "suffuse:ammo/slot/6.8tvcm",
+  "tracer_color": "#FF8888",
+  "shell": {
+    "model": "suffuse:shell/6.8tvcm_shell",
+    "texture": "suffuse:shell/6.8tvcm_shell"
+  }
+}

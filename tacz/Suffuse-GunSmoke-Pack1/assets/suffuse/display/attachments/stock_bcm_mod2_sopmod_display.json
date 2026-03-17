@@ -1,0 +1,10 @@
+{
+  "slot": "suffuse:attachment/slot/stock_bcm_mod2_sopmod",
+  "model": "suffuse:attachment/stock_bcm_mod2_sopmod_geo",
+  "texture": "suffuse:attachment/uv/stock_bcm_mod2_sopmod",
+  "adapter": "ar_stock_adapter",
+  "sounds": {
+    "install": "tacz:attachments/attachment_general_a",
+    "uninstall": "tacz:attachments/attachment_general_uninstall"
+  }
+}

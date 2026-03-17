@@ -1,0 +1,39 @@
+{
+  "model": "suffuse:gun/pf98a_geo",
+  "texture": "suffuse:gun/uv/pf98a",
+  "hud": "suffuse:gun/hud/pf98a_hud",
+  "slot": "suffuse:gun/slot/pf98a",
+  "animation": "suffuse:pf98a",
+  "use_default_animation": "rifle",
+  "transform": {
+    "scale": {
+      "thirdperson": [1, 1, 1],
+      "ground": [1, 1, 1],
+      "fixed": [1.5, 1.5, 1.5]
+    }
+  },
+  "sounds": {
+    "reload_empty": "suffuse:pf98a/pf98a_reload_empty",
+    "inspect": "suffuse:pf98a/pf98a_inspect",
+    "inspect_empty": "suffuse:pf98a/pf98a_inspect",
+    "draw": "suffuse:pf98a/pf98a_draw",
+    "put_away": "tacz:rpg7/rpg7_put_away",
+    "dry_fire": "suffuse:dryfire/launcher_dry_fire",
+    "shoot": "suffuse:pf98a/pf98a_shoot",
+    "shoot_3p": "suffuse:pf98a/pf98a_shoot",
+    "melee_push": "tacz:melee_stock/melee_stock_02",
+    "melee_stock": "tacz:melee_stock/melee_stock_03"
+  },
+  "offhand_show": {
+    "pos": [0, 20, 5],
+    "rotate": [-20, 0, 30],
+    "scale": [0.5, 0.5, 0.5]
+  },
+  "hotbar_show": {
+    "0": {
+      "pos": [-4, 24, 4],
+      "rotate": [-90, -5, -90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "suffuse.attachment.stock_colt_plus.name",
+  "display": "suffuse:stock_colt_plus_display",
+  "data": "suffuse:stock_colt_plus_data",
+  "type": "stock"
+}

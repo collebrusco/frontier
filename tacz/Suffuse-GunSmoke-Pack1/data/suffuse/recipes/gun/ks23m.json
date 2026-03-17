@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:ingots/gold"
+      },
+      "count": 2
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/iron"
+      },
+      "count": 45
+    },
+    {
+      "item": {
+        "tag": "forge:gems/quartz"
+      },
+      "count": 5
+    },
+    {
+      "item": {
+        "tag": "minecraft:logs"
+      },
+      "count": 20
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:ks23m"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

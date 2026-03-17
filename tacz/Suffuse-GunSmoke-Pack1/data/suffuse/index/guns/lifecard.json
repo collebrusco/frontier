@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.lifecard.name",
+  "tooltip": "suffuse.gun.lifecard.desc",
+  "display": "suffuse:lifecard_display",
+  "data": "suffuse:lifecard_data",
+  "type": "pistol",
+  "sort": 5
+}

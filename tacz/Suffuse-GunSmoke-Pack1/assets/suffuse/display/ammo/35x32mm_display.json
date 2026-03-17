@@ -1,0 +1,8 @@
+{
+  "slot": "suffuse:ammo/slot/35x32mm",
+  "tracer_color": "#FF8888",
+  "shell": {
+    "model": "suffuse:shell/35x32mm_shell",
+    "texture": "suffuse:shell/35x32mm_shell"
+  }
+}

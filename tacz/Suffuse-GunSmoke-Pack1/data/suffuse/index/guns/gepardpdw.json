@@ -1,0 +1,12 @@
+{
+    // 枪械的显示名称，支持本地化
+    "name": "suffuse.gun.gepardpdw.name",
+    "tooltip": "suffuse.gun.gepardpdw.desc",
+    // 枪械效果文件
+    "display": "suffuse:gepardpdw_display",
+    // 枪械参数文件
+    "data": "suffuse:gepardpdw_data",
+    // 枪械种类，用于创造标签栏归类。
+    "type": "smg",
+    "sort": 5
+}

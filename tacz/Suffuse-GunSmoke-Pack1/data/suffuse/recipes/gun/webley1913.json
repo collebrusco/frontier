@@ -1,0 +1,12 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:ingots/iron"}, "count": 22},
+    {"item": {"tag": "forge:ingots/gold"}, "count": 4},
+    {"item": {"tag": "minecraft:logs"}, "count": 8}
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:webley1913"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

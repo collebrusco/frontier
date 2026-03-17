@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:ingots/gold"
+      },
+      "count": 1
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/iron"
+      },
+      "count": 52
+    },
+    {
+      "item": {
+        "tag": "forge:gems/quartz"
+      },
+      "count": 4
+    },
+    {
+      "item": {
+        "item": "minecraft:clay_ball"
+      },
+      "count": 8
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:qbz192"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

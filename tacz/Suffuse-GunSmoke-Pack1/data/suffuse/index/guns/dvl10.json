@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.dvl10.name",
+  "tooltip": "suffuse.gun.dvl10.desc",
+  "display": "suffuse:dvl10_display",
+  "data": "suffuse:dvl10_data",
+  "type": "sniper",
+  "sort": 5
+}

@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.m1895.name",
+  "tooltip": "suffuse.gun.m1895.desc",
+  "display": "suffuse:m1895_display",
+  "data": "suffuse:m1895_data",
+  "type": "rifle",
+  "sort": 5
+}

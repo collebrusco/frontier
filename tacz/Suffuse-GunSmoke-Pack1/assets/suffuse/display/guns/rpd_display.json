@@ -1,0 +1,56 @@
+{
+  "model": "suffuse:gun/rpd_geo",
+  "texture": "suffuse:gun/uv/rpd",
+  "hud": "suffuse:gun/hud/rpd_hud",
+  "slot": "suffuse:gun/slot/rpd",
+  "animation": "suffuse:rpd",
+  "use_default_animation": "rifle",
+  "third_person_animation": "pistol",
+  "state_machine": "suffuse:rpd_state_machine",
+  "transform": {
+    "scale": {
+      "thirdperson": [0.6, 0.6, 0.6],
+      "ground": [0.6, 0.6, 0.6],
+      "fixed": [1.2, 1.2, 1.2]
+    }
+  },
+  "muzzle_flash": {
+    "texture": "tacz:flash/common_muzzle_flash",
+    "scale": 0.75
+  },
+  "sounds": {
+    "shoot": "suffuse:rpd/pkp_fire",
+    "shoot_3p": "suffuse:rpd/pkp_fire",
+    "reload_empty": "suffuse:rpd/rpd_reload_empty",
+    "reload_tactical": "suffuse:rpd/rpd_reload_tactical",
+    "inspect": "suffuse:rpd/rpd_inspect",
+    "inspect_empty": "suffuse:rpd/rpd_inspect",
+    "draw": "suffuse:rpd/rpd_darw",
+    "dry_fire": "suffuse:dryfire/lmg_dry_fire",
+    "put_away": "tacz:m249/m249_put_away",
+    "silence": "tacz:m249/m249_silence_3p",
+    "flesh_hit": "suffuse:hitsounds/hit_indication",
+    "head_hit": "suffuse:hitsounds/hit_marker",
+    "kill": "suffuse:hitsounds/killsound",
+    "silence_3p": "tacz:m249/m249_silence_3p"
+  },
+  "offhand_show": {
+    "pos": [0, 18, 5],
+    "rotate": [-20, 0, 30],
+    "scale": [0.5, 0.5, 0.5]
+  },
+      "shell": {
+        "initial_velocity": [5, -1, 1],
+        "random_velocity": [1, 0, 0.25],
+        "acceleration": [0.0, 2, 0.0],
+        "angular_velocity": [-360, -800, -90],
+        "living_time": 1.0
+    },
+  "hotbar_show": {
+    "0": {
+      "pos": [-4, 24, 4],
+      "rotate": [-90, -5, -90],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  }
+}

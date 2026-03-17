@@ -1,0 +1,8 @@
+{
+  "name": "suffuse.gun.axsr.name",
+  "tooltip": "suffuse.gun.axsr.desc",
+  "display": "suffuse:axsr_display",
+  "data": "suffuse:axsr_data",
+  "type": "sniper",
+  "sort": 5
+}

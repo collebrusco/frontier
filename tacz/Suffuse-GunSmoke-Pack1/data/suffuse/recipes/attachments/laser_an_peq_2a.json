@@ -1,0 +1,12 @@
+{
+  "materials": [
+    {"item": {"tag": "forge:ingots/iron"},"count": 8},
+	{"item": {"tag": "forge:dusts/redstone"},"count": 4},
+	{"item": {"tag": "forge:gems/amethyst"},"count": 1}
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "suffuse:laser_an_peq_2a"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}
