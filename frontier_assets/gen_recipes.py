@@ -2,10 +2,21 @@
 Generates TACZ gun/ammo/attachment crafting recipes for all gunpacks.
 
 Usage:
-    python frontier_assets/gen_recipes.py               # write balanced recipes
+    python frontier_assets/gen_recipes.py               # write recipes from CSV
     python frontier_assets/gen_recipes.py --uncraftable # every recipe costs 1 bedrock
+    python frontier_assets/gen_recipes.py --export-csv  # write frontier_assets/recipes.csv from built-in defaults
 
 Run from repo root.
+
+CSV format (frontier_assets/recipes.csv):
+    One row per recipe. Columns: pack, type, id, yield, <material>...
+    - pack:    hamster | tacz | suffuse
+    - type:    gun | ammo | attachment
+    - id:      registry ID without namespace (e.g. "flaregun", "9mm")
+    - yield:   ammo only — how many rounds per craft (leave blank for guns/attachments)
+    - materials: one column per ingredient, value = count (blank or 0 = not used)
+    - notes:   optional, ignored by script — use for tier labels, comments, etc.
+    Lines where pack starts with # are skipped (section headers in the sheet).
 
 Key format note:
     IE items MUST use {"item": "immersiveengineering:..."} not {"tag": "..."}.
@@ -13,6 +24,7 @@ Key format note:
 """
 
 import argparse
+import csv
 import json
 import os
 
@@ -23,571 +35,568 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument("--uncraftable", action="store_true",
                     help="Set every recipe to require 1 bedrock (disables all crafting)")
+parser.add_argument("--export-csv", action="store_true",
+                    help="Write the built-in default recipes to frontier_assets/recipes.csv then exit")
 args = parser.parse_args()
 
-UNCRAFTABLE = args.uncraftable
+UNCRAFTABLE  = args.uncraftable
+EXPORT_CSV   = args.export_csv
 
 # ---------------------------------------------------------------------------
-# Material constructors
+# Material registry
+# Maps CSV column name → function(count) → TACZ material dict
+# IE/Create items use "item" refs; forge/vanilla tags use "tag" refs.
 # ---------------------------------------------------------------------------
 
-def by_item(item_id, count=1):
-    """Specific item by registry ID. Required for IE/Create items."""
-    return {"item": {"item": item_id}, "count": count}
+MATERIAL_DEFS = {
+    # IE plates / rods / components (specific item IDs — must NOT use tag)
+    "steel_plate":  lambda n: {"item": {"item": "immersiveengineering:plate_steel"},    "count": n},
+    "iron_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_iron"},     "count": n},
+    "alum_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_aluminum"}, "count": n},
+    "gold_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_gold"},     "count": n},
+    "steel_rod":    lambda n: {"item": {"item": "immersiveengineering:stick_steel"},    "count": n},
+    "iron_comp":    lambda n: {"item": {"item": "immersiveengineering:component_iron"}, "count": n},
+    "steel_comp":   lambda n: {"item": {"item": "immersiveengineering:component_steel"},"count": n},
+    # Create items (specific item IDs — must NOT use tag)
+    "andesite":     lambda n: {"item": {"item": "create:andesite_alloy"},  "count": n},
+    "brass":        lambda n: {"item": {"item": "create:brass_ingot"},     "count": n},
+    # Forge / vanilla tags (tag refs work fine)
+    "uranium":      lambda n: {"item": {"tag": "forge:ingots/uranium"},    "count": n},
+    "logs":         lambda n: {"item": {"tag": "minecraft:logs"},          "count": n},
+    "clay":         lambda n: {"item": {"tag": "minecraft:clay"},          "count": n},
+    "glass":        lambda n: {"item": {"tag": "forge:glass"},             "count": n},
+    "copper":       lambda n: {"item": {"tag": "forge:ingots/copper"},     "count": n},
+    "iron_nugget":  lambda n: {"item": {"tag": "forge:nuggets/iron"},      "count": n},
+    "gunpowder":    lambda n: {"item": {"tag": "forge:gunpowder"},         "count": n},
+    "blaze_rod":    lambda n: {"item": {"tag": "forge:rods/blaze"},        "count": n},
+    "lapis":        lambda n: {"item": {"tag": "forge:gems/lapis"},        "count": n},
+    "redstone":     lambda n: {"item": {"tag": "forge:dusts/redstone"},    "count": n},
+    "leather":      lambda n: {"item": {"tag": "forge:leather"},           "count": n},
+    "anvil":        lambda n: {"item": {"tag": "minecraft:anvil"},         "count": n},
+    # Specific vanilla items
+    "lever":        lambda n: {"item": {"item": "minecraft:lever"},        "count": n},
+    "paper":        lambda n: {"item": {"item": "minecraft:paper"},        "count": n},
+    "flint":        lambda n: {"item": {"item": "minecraft:flint"},        "count": n},
+}
 
-def by_tag(tag_name, count=1):
-    """Items matching a forge/vanilla tag. Works for forge-standard tags."""
-    return {"item": {"tag": tag_name}, "count": count}
-
-# Uncraftable sentinel
-def BEDROCK(n=1): return by_item("minecraft:bedrock", n)
-
-# ------ IE items (must use by_item) ------
-def STEEL_PLATE(n):   return by_item("immersiveengineering:plate_steel", n)
-def IRON_PLATE(n):    return by_item("immersiveengineering:plate_iron", n)
-def ALUM_PLATE(n):    return by_item("immersiveengineering:plate_aluminum", n)
-def GOLD_PLATE(n):    return by_item("immersiveengineering:plate_gold", n)
-def STEEL_ROD(n):     return by_item("immersiveengineering:stick_steel", n)
-def IRON_COMP(n):     return by_item("immersiveengineering:component_iron", n)
-def STEEL_COMP(n):    return by_item("immersiveengineering:component_steel", n)
-
-# ------ Create items (must use by_item) ------
-def ANDESITE(n):      return by_item("create:andesite_alloy", n)   # early structural metal
-def BRASS(n):         return by_item("create:brass_ingot", n)      # precision parts, revolvers
-
-# ------ Forge/vanilla tags (by_tag works fine) ------
-def URANIUM(n=1):     return by_tag("forge:ingots/uranium", n)     # IE uranium — end-game gate
-def LOGS(n):          return by_tag("minecraft:logs", n)           # wood stocks
-def CLAY(n):          return by_tag("minecraft:clay", n)           # polymer frame stand-in
-def GLASS(n):         return by_tag("forge:glass", n)              # optics
-def COPPER(n):        return by_tag("forge:ingots/copper", n)      # ammo casings
-def IRON_NUGGET(n):   return by_tag("forge:nuggets/iron", n)       # bullet material
-def GUNPOWDER(n):     return by_tag("forge:gunpowder", n)          # propellant
-def BLAZE_ROD(n):     return by_tag("forge:rods/blaze", n)         # incendiary / exotic rounds
-def LAPIS(n):         return by_tag("forge:gems/lapis", n)         # propellant additive
-def REDSTONE(n):      return by_tag("forge:dusts/redstone", n)     # electronics
-def LEATHER(n):       return by_tag("forge:leather", n)            # grips
-def ANVIL(n=1):       return by_tag("minecraft:anvil", n)          # heavy machining
-def LEVER(n=1):       return by_item("minecraft:lever", n)         # trigger mechanism
-def PAPER(n):         return by_item("minecraft:paper", n)         # paper cartridge
-def FLINT(n):         return by_item("minecraft:flint", n)         # flintlock / wadding
+MATERIAL_COLS = list(MATERIAL_DEFS.keys())
 
 # ---------------------------------------------------------------------------
-# Writers
+# Pack → recipe directory
 # ---------------------------------------------------------------------------
 
-def _write(filepath, result, materials):
-    mats = [BEDROCK()] if UNCRAFTABLE else materials
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    recipe = {
-        "materials": mats,
-        "result": result,
-        "type": "tacz:gun_smith_table_crafting"
-    }
-    with open(filepath, "w") as f:
-        json.dump(recipe, f, indent=2)
+PACK_PATHS = {
+    "hamster": "tacz/GunpowderRevolution_gunpack v1/data/hamster/recipes",
+    "tacz":    "tacz/tacz_default_gun/data/tacz/recipes",
+    "suffuse": "tacz/Suffuse-GunSmoke-Pack1/data/suffuse/recipes",
+}
 
-def write_gun(base_dir, namespace, gun_id, materials):
-    path = os.path.join(base_dir, "gun", f"{gun_id}.json")
-    _write(path, {"type": "gun", "id": f"{namespace}:{gun_id}"}, materials)
+CSV_PATH = os.path.join(os.path.dirname(__file__), "recipes.csv")
 
-def write_ammo(base_dir, namespace, ammo_id, materials, yield_count):
-    path = os.path.join(base_dir, "ammo", f"{ammo_id}.json")
-    _write(path, {"type": "ammo", "id": f"{namespace}:{ammo_id}", "count": yield_count}, materials)
+# ---------------------------------------------------------------------------
+# Recipe writing
+# ---------------------------------------------------------------------------
 
-def write_attachment(base_dir, namespace, attach_id, materials):
-    path = os.path.join(base_dir, "attachments", f"{attach_id}.json")
-    _write(path, {"type": "attachment", "id": f"{namespace}:{attach_id}"}, materials)
+def _row_to_materials(row):
+    mats = []
+    for col in MATERIAL_COLS:
+        val = row.get(col, "").strip()
+        if val and val != "0":
+            mats.append(MATERIAL_DEFS[col](int(val)))
+    return mats
 
+def _write_recipe(base_dir, rec_type, namespace, item_id, materials, yield_count=None):
+    if rec_type == "gun":
+        subdir = "gun"
+        result = {"type": "gun", "id": f"{namespace}:{item_id}"}
+    elif rec_type == "ammo":
+        subdir = "ammo"
+        result = {"type": "ammo", "id": f"{namespace}:{item_id}", "count": yield_count or 1}
+    elif rec_type == "attachment":
+        subdir = "attachments"
+        result = {"type": "attachment", "id": f"{namespace}:{item_id}"}
+    else:
+        raise ValueError(f"Unknown type: {rec_type}")
+
+    mats = [{"item": {"item": "minecraft:bedrock"}, "count": 1}] if UNCRAFTABLE else materials
+    path = os.path.join(base_dir, subdir, f"{item_id}.json")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump({"materials": mats, "result": result, "type": "tacz:gun_smith_table_crafting"}, f, indent=2)
+
+# ---------------------------------------------------------------------------
+# CSV reading — main mode
+# ---------------------------------------------------------------------------
+
+def run_from_csv():
+    if not os.path.exists(CSV_PATH):
+        print(f"ERROR: {CSV_PATH} not found. Run with --export-csv to generate it first.")
+        raise SystemExit(1)
+
+    counts = {}
+    with open(CSV_PATH, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            pack = row.get("pack", "").strip()
+            if not pack or pack.startswith("#"):
+                continue
+            rec_type    = row.get("type", "").strip()
+            item_id     = row.get("id",   "").strip()
+            yield_str   = row.get("yield","").strip()
+            yield_count = int(yield_str) if yield_str else None
+
+            base_dir = PACK_PATHS.get(pack)
+            if not base_dir:
+                print(f"  WARNING: unknown pack '{pack}', skipping '{item_id}'")
+                continue
+
+            materials = _row_to_materials(row)
+            if not materials:
+                print(f"  WARNING: no materials for {pack}:{item_id}, skipping")
+                continue
+
+            _write_recipe(base_dir, rec_type, pack, item_id, materials, yield_count)
+            counts[rec_type] = counts.get(rec_type, 0) + 1
+
+    mode = " (UNCRAFTABLE)" if UNCRAFTABLE else ""
+    g, a, t = counts.get("gun", 0), counts.get("ammo", 0), counts.get("attachment", 0)
+    print(f"Done{mode}: {g} guns, {a} ammo, {t} attachments ({g+a+t} total)")
 
 # ===========================================================================
-# PACK 1 — GunpowderRevolution  (hamster namespace)
-# Historical firearms 1840s–1945. Cheapest guns — the entry point.
-# Progression: primitive → early cartridge → bolt-action → WWI → WWII
+# Bootstrap data — used only by --export-csv
+# Edit frontier_assets/recipes.csv instead of this section.
 # ===========================================================================
 
-HAMSTER = "tacz/GunpowderRevolution_gunpack v1/data/hamster/recipes"
+def _bootstrap_data():
+    """Returns list of (pack, type, id, yield_count, materials_dict) tuples."""
+    rows = []
 
-print("=== GunpowderRevolution (hamster) ===")
+    def g(pack, gun_id, mats):
+        rows.append((pack, "gun", gun_id, None, mats))
+    def a(pack, ammo_id, mats, yld):
+        rows.append((pack, "ammo", ammo_id, yld, mats))
+    def t(pack, att_id, mats):
+        rows.append((pack, "attachment", att_id, None, mats))
 
-# --- Guns ---
+    # -----------------------------------------------------------------------
+    # PACK 1 — GunpowderRevolution  (hamster)
+    # Historical firearms 1840s–1945
+    # -----------------------------------------------------------------------
 
-hamster_guns = {
-    # Tier 1: Muzzle-loader / Percussion cap (1840s–1860s)
-    # Simplest guns. Steel + iron plates + wood. No components yet.
-    "flaregun":               [STEEL_PLATE(20), IRON_PLATE(8),  LOGS(6)],
-    "one_barrel":             [STEEL_PLATE(25), IRON_PLATE(10), LOGS(8),  STEEL_ROD(2)],
-    "coltm1851":              [STEEL_PLATE(30), IRON_PLATE(12), LOGS(4),  STEEL_ROD(2),  BRASS(8)],
-    "coltm1851_chain":        [STEEL_PLATE(40), IRON_PLATE(14), LOGS(4),  STEEL_ROD(3),  BRASS(10)],
-    "sharps":                 [STEEL_PLATE(35), IRON_PLATE(14), LOGS(12), STEEL_ROD(2)],
-    "martinihenry":           [STEEL_PLATE(40), IRON_PLATE(16), LOGS(14), STEEL_ROD(3)],
+    # Guns — Tier 1: Muzzle-loader / Percussion cap (1840s–1860s)
+    g("hamster", "flaregun",            dict(steel_plate=20, iron_plate=8,  logs=6))
+    g("hamster", "one_barrel",          dict(steel_plate=25, iron_plate=10, logs=8,  steel_rod=2))
+    g("hamster", "coltm1851",           dict(steel_plate=30, iron_plate=12, logs=4,  steel_rod=2,  brass=8))
+    g("hamster", "coltm1851_chain",     dict(steel_plate=40, iron_plate=14, logs=4,  steel_rod=3,  brass=10))
+    g("hamster", "sharps",              dict(steel_plate=35, iron_plate=14, logs=12, steel_rod=2))
+    g("hamster", "martinihenry",        dict(steel_plate=40, iron_plate=16, logs=14, steel_rod=3))
+    # Guns — Tier 2: Early cartridge (1865–1885)
+    g("hamster", "gras1874",            dict(steel_plate=50, iron_plate=20, logs=16, steel_rod=4))
+    g("hamster", "colt1873",            dict(steel_plate=48, iron_comp=6,   logs=6,  steel_rod=3,  brass=12))
+    g("hamster", "colt1873_lb",         dict(steel_plate=56, iron_comp=8,   logs=8,  steel_rod=4,  brass=12))
+    g("hamster", "win1873",             dict(steel_plate=60, iron_comp=8,   logs=16, steel_rod=4))
+    g("hamster", "m1879revolver",       dict(steel_plate=44, iron_comp=6,   logs=5,  steel_rod=3,  brass=10))
+    g("hamster", "sw_mk2",              dict(steel_plate=46, iron_comp=7,   logs=5,  steel_rod=3,  brass=10))
+    # Guns — Tier 3: Military bolt-action / repeater (1880s–1900s)
+    g("hamster", "berthier",            dict(steel_plate=75,  iron_comp=8,  logs=16, steel_rod=4))
+    g("hamster", "krag",                dict(steel_plate=80,  iron_comp=8,  logs=14, steel_rod=4))
+    g("hamster", "lebel1886",           dict(steel_plate=78,  iron_comp=8,  logs=16, steel_rod=4))
+    g("hamster", "lebel1886_07c",       dict(steel_plate=85,  iron_comp=10, logs=16, steel_rod=5))
+    g("hamster", "smle_mk3",            dict(steel_plate=90,  iron_comp=10, logs=16, steel_rod=5))
+    g("hamster", "gew98",               dict(steel_plate=95,  iron_comp=12, logs=18, steel_rod=5))
+    g("hamster", "nagantm1895",         dict(steel_plate=60,  iron_comp=8,  logs=5,  steel_rod=4,  brass=12))
+    g("hamster", "nagantcarbine",       dict(steel_plate=72,  iron_comp=10, logs=12, steel_rod=4,  brass=10))
+    g("hamster", "coltm1892",          dict(steel_plate=58,  iron_comp=8,  logs=5,  steel_rod=4,  brass=12))
+    g("hamster", "coltm1892pair",       dict(steel_plate=116, iron_comp=16, logs=10, steel_rod=8,  brass=24))
+    g("hamster", "win1894",             dict(steel_plate=78,  iron_comp=10, logs=16, steel_rod=5))
+    g("hamster", "m1887",               dict(steel_plate=80,  iron_comp=10, logs=20, steel_rod=5))
+    g("hamster", "m1887_hc",            dict(steel_plate=88,  iron_comp=12, logs=20, steel_rod=5))
+    g("hamster", "webley",              dict(steel_plate=64,  iron_comp=9,  logs=5,  steel_rod=4,  brass=14))
+    # Guns — Tier 4: WWI era (1900–1918)
+    g("hamster", "luger1906",           dict(steel_plate=85,  iron_comp=12, logs=4,  steel_rod=5,  brass=16))
+    g("hamster", "lugerp08",            dict(steel_plate=90,  iron_comp=12, logs=4,  steel_rod=5,  brass=16))
+    g("hamster", "lugerp08_artillerie", dict(steel_plate=100, iron_comp=14, logs=8,  steel_rod=6,  brass=18))
+    g("hamster", "auto5",               dict(steel_plate=110, steel_comp=14, logs=18, steel_rod=6, alum_plate=16))
+    g("hamster", "mp18",                dict(steel_plate=130, steel_comp=20, logs=12, steel_rod=8))
+    g("hamster", "madsen",              dict(steel_plate=180, steel_comp=32, logs=14, steel_rod=10, alum_plate=24))
+    g("hamster", "mg1417",              dict(steel_plate=220, steel_comp=40, logs=14, steel_rod=12, alum_plate=32))
+    # Guns — Tier 5: Interwar / WWII (1919–1945)
+    g("hamster", "m1903",               dict(steel_plate=110, steel_comp=16, logs=16, steel_rod=6,  alum_plate=20))
+    g("hamster", "mosin91",             dict(steel_plate=100, steel_comp=14, logs=16, steel_rod=6))
+    g("hamster", "mosin9130",           dict(steel_plate=110, steel_comp=16, logs=16, steel_rod=6))
+    g("hamster", "type99",              dict(steel_plate=115, steel_comp=18, logs=16, steel_rod=6,  alum_plate=16))
+    g("hamster", "makarov",             dict(steel_plate=80,  steel_comp=10, logs=4,  steel_rod=5,  brass=12))
+    g("hamster", "m1garand",            dict(steel_plate=150, steel_comp=24, logs=14, steel_rod=8,  alum_plate=28))
+    g("hamster", "sks",                 dict(steel_plate=140, steel_comp=20, logs=12, steel_rod=7,  alum_plate=20))
+    g("hamster", "uppercut",            dict(steel_plate=130, steel_comp=18, logs=12, steel_rod=7,  alum_plate=20))
 
-    # Tier 2: Early cartridge (1865–1885)
-    "gras1874":               [STEEL_PLATE(50), IRON_PLATE(20), LOGS(16), STEEL_ROD(4)],
-    "colt1873":               [STEEL_PLATE(48), IRON_COMP(6),   LOGS(6),  STEEL_ROD(3),  BRASS(12)],
-    "colt1873_lb":            [STEEL_PLATE(56), IRON_COMP(8),   LOGS(8),  STEEL_ROD(4),  BRASS(12)],
-    "win1873":                [STEEL_PLATE(60), IRON_COMP(8),   LOGS(16), STEEL_ROD(4)],
-    "m1879revolver":          [STEEL_PLATE(44), IRON_COMP(6),   LOGS(5),  STEEL_ROD(3),  BRASS(10)],
-    "sw_mk2":                 [STEEL_PLATE(46), IRON_COMP(7),   LOGS(5),  STEEL_ROD(3),  BRASS(10)],
+    # Ammo
+    a("hamster", "compact_ammo", dict(copper=12, gunpowder=2),                         50)
+    a("hamster", "medium_ammo",  dict(copper=16, gunpowder=3),                         48)
+    a("hamster", "long_ammo",    dict(copper=22, gunpowder=5, lapis=1),                36)
+    a("hamster", "flares_ammo",  dict(copper=8,  gunpowder=2, redstone=4),             6)
+    a("hamster", "12g",          dict(copper=14, gunpowder=3, iron_nugget=9),          24)
 
-    # Tier 3: Military bolt-action / repeater (1880s–1900s)
-    # Steel components appear — more complex mechanisms.
-    "berthier":               [STEEL_PLATE(75),  IRON_COMP(8),  LOGS(16), STEEL_ROD(4)],
-    "krag":                   [STEEL_PLATE(80),  IRON_COMP(8),  LOGS(14), STEEL_ROD(4)],
-    "lebel1886":              [STEEL_PLATE(78),  IRON_COMP(8),  LOGS(16), STEEL_ROD(4)],
-    "lebel1886_07c":          [STEEL_PLATE(85),  IRON_COMP(10), LOGS(16), STEEL_ROD(5)],
-    "smle_mk3":               [STEEL_PLATE(90),  IRON_COMP(10), LOGS(16), STEEL_ROD(5)],
-    "gew98":                  [STEEL_PLATE(95),  IRON_COMP(12), LOGS(18), STEEL_ROD(5)],
-    "nagantm1895":            [STEEL_PLATE(60),  IRON_COMP(8),  LOGS(5),  STEEL_ROD(4),  BRASS(12)],
-    "nagantcarbine":          [STEEL_PLATE(72),  IRON_COMP(10), LOGS(12), STEEL_ROD(4),  BRASS(10)],
-    "coltm1892":              [STEEL_PLATE(58),  IRON_COMP(8),  LOGS(5),  STEEL_ROD(4),  BRASS(12)],
-    "coltm1892pair":          [STEEL_PLATE(116), IRON_COMP(16), LOGS(10), STEEL_ROD(8),  BRASS(24)],
-    "win1894":                [STEEL_PLATE(78),  IRON_COMP(10), LOGS(16), STEEL_ROD(5)],
-    "m1887":                  [STEEL_PLATE(80),  IRON_COMP(10), LOGS(20), STEEL_ROD(5)],
-    "m1887_hc":               [STEEL_PLATE(88),  IRON_COMP(12), LOGS(20), STEEL_ROD(5)],
-    "webley":                 [STEEL_PLATE(64),  IRON_COMP(9),  LOGS(5),  STEEL_ROD(4),  BRASS(14)],
+    # Attachments — bayonets
+    t("hamster", "bayonet9805",   dict(steel_plate=32, steel_rod=4))
+    t("hamster", "bayonetm1886",  dict(steel_plate=32, steel_rod=4))
+    t("hamster", "bayonetp1903",  dict(steel_plate=32, steel_rod=4))
+    t("hamster", "bayonettype30", dict(steel_plate=32, steel_rod=4))
+    t("hamster", "m9130_bayonet", dict(steel_plate=32, steel_rod=4))
+    t("hamster", "sks_bayonet",   dict(steel_plate=28, steel_rod=4))
+    # Attachments — optics
+    t("hamster", "aperture_sight", dict(steel_plate=12, glass=2))
+    t("hamster", "deadeye_scope",  dict(steel_plate=20, glass=6,  steel_comp=4))
+    t("hamster", "gew98_scope",    dict(steel_plate=18, glass=6,  iron_comp=4))
+    t("hamster", "lebel_scope",    dict(steel_plate=18, glass=6,  iron_comp=4))
+    t("hamster", "ppco_scope",     dict(steel_plate=22, glass=8,  steel_comp=4))
+    t("hamster", "puscope",        dict(steel_plate=20, glass=6,  steel_comp=4))
+    t("hamster", "unertl_scope",   dict(steel_plate=28, glass=10, steel_comp=6))
+    # Attachments — magazines
+    t("hamster", "drum_mag",      dict(steel_plate=40, steel_rod=8))
+    t("hamster", "trench_mag",    dict(steel_plate=32, steel_rod=6))
+    t("hamster", "loading_pipe",  dict(steel_rod=6, iron_plate=4))
+    # Attachments — accessories
+    t("hamster", "rifle_bipod",   dict(steel_rod=8,  iron_plate=6))
+    t("hamster", "rifle_grip",    dict(steel_plate=12, logs=4))
+    t("hamster", "gas_tube",      dict(steel_rod=4,  iron_plate=4))
+    t("hamster", "speedloader",   dict(steel_plate=16, brass=8))
+    t("hamster", "whip",          dict(steel_rod=2,  leather=4))
 
-    # Tier 4: WWI era (1900–1918)
-    # Steel components required. Aluminum plates for semi/full-auto.
-    "luger1906":              [STEEL_PLATE(85),  IRON_COMP(12), LOGS(4),  STEEL_ROD(5),  BRASS(16)],
-    "lugerp08":               [STEEL_PLATE(90),  IRON_COMP(12), LOGS(4),  STEEL_ROD(5),  BRASS(16)],
-    "lugerp08_artillerie":    [STEEL_PLATE(100), IRON_COMP(14), LOGS(8),  STEEL_ROD(6),  BRASS(18)],
-    "auto5":                  [STEEL_PLATE(110), STEEL_COMP(14),LOGS(18), STEEL_ROD(6),  ALUM_PLATE(16)],
-    "mp18":                   [STEEL_PLATE(130), STEEL_COMP(20),LOGS(12), STEEL_ROD(8)],
-    "madsen":                 [STEEL_PLATE(180), STEEL_COMP(32),LOGS(14), STEEL_ROD(10), ALUM_PLATE(24)],
-    "mg1417":                 [STEEL_PLATE(220), STEEL_COMP(40),LOGS(14), STEEL_ROD(12), ALUM_PLATE(32)],
+    # -----------------------------------------------------------------------
+    # PACK 2 — tacz_default_gun  (tacz)
+    # Modern military firearms
+    # -----------------------------------------------------------------------
 
-    # Tier 5: Interwar / WWII (1919–1945)
-    # Semi-auto service rifles. Aluminum everywhere.
-    "m1903":                  [STEEL_PLATE(110), STEEL_COMP(16), LOGS(16), STEEL_ROD(6),  ALUM_PLATE(20)],
-    "mosin91":                [STEEL_PLATE(100), STEEL_COMP(14), LOGS(16), STEEL_ROD(6)],
-    "mosin9130":              [STEEL_PLATE(110), STEEL_COMP(16), LOGS(16), STEEL_ROD(6)],
-    "type99":                 [STEEL_PLATE(115), STEEL_COMP(18), LOGS(16), STEEL_ROD(6),  ALUM_PLATE(16)],
-    "makarov":                [STEEL_PLATE(80),  STEEL_COMP(10), LOGS(4),  STEEL_ROD(5),  BRASS(12)],
-    "m1garand":               [STEEL_PLATE(150), STEEL_COMP(24), LOGS(14), STEEL_ROD(8),  ALUM_PLATE(28)],
-    "sks":                    [STEEL_PLATE(140), STEEL_COMP(20), LOGS(12), STEEL_ROD(7),  ALUM_PLATE(20)],
-    "uppercut":               [STEEL_PLATE(130), STEEL_COMP(18), LOGS(12), STEEL_ROD(7),  ALUM_PLATE(20)],
-}
+    # Guns — Shotguns
+    g("tacz", "db_short",   dict(logs=80,  steel_plate=120, iron_comp=8,  steel_rod=4))
+    g("tacz", "db_long",    dict(logs=90,  steel_plate=130, iron_comp=8,  steel_rod=6))
+    g("tacz", "m870",       dict(steel_plate=160, iron_comp=24,  steel_rod=6,  alum_plate=32))
+    g("tacz", "m1014",      dict(steel_plate=190, steel_comp=32, steel_rod=8,  alum_plate=48))
+    g("tacz", "spas_12",    dict(steel_plate=210, steel_comp=36, steel_rod=8,  alum_plate=48, clay=48))
+    g("tacz", "aa12",       dict(uranium=1, steel_plate=280, steel_comp=64, steel_rod=12, alum_plate=48, clay=48))
+    # Guns — Pistols
+    g("tacz", "glock_17",      dict(steel_plate=80,  iron_comp=6,  steel_rod=2,  clay=32))
+    g("tacz", "m1911",         dict(steel_plate=90,  iron_comp=8,  steel_rod=3,  brass=16))
+    g("tacz", "cz75",          dict(steel_plate=95,  iron_comp=12, steel_comp=8, steel_rod=2))
+    g("tacz", "deagle",        dict(steel_plate=130, steel_comp=18, steel_rod=3, alum_plate=24))
+    g("tacz", "deagle_golden", dict(steel_plate=130, steel_comp=18, steel_rod=3, gold_plate=120))
+    g("tacz", "p320",          dict(uranium=1, steel_plate=100, iron_comp=10, steel_rod=2, clay=48))
+    g("tacz", "b93r",          dict(steel_plate=110, steel_comp=14, steel_rod=3, alum_plate=16, brass=16))
+    g("tacz", "timeless50",    dict(steel_plate=130, steel_comp=18, steel_rod=4, alum_plate=32, brass=20))
+    # Guns — SMGs
+    g("tacz", "hk_mp5a5", dict(uranium=1, steel_plate=160, steel_comp=36, steel_rod=4, alum_plate=96, clay=48))
+    g("tacz", "ump45",    dict(uranium=1, steel_plate=180, steel_comp=36, steel_rod=4, alum_plate=96, clay=48))
+    g("tacz", "uzi",      dict(uranium=1, steel_plate=175, steel_comp=36, steel_rod=3, alum_plate=96))
+    g("tacz", "vector45", dict(uranium=1, steel_plate=220, steel_comp=54, steel_rod=4, alum_plate=96, clay=48))
+    g("tacz", "p90",      dict(uranium=1, steel_plate=170, steel_comp=33, steel_rod=4, alum_plate=96, clay=48))
+    # Guns — Assault Rifles
+    g("tacz", "ak47",     dict(logs=48,  steel_plate=256, iron_comp=48, steel_rod=6))
+    g("tacz", "rpk",      dict(logs=64,  steel_plate=300, iron_comp=48, steel_rod=12))
+    g("tacz", "type_81",  dict(logs=36,  steel_plate=275, iron_comp=42, steel_rod=6))
+    g("tacz", "m16a1",    dict(steel_plate=200, steel_comp=48, steel_rod=5, alum_plate=96))
+    g("tacz", "m16a4",    dict(steel_plate=210, steel_comp=53, steel_rod=5, alum_plate=96))
+    g("tacz", "m4a1",     dict(uranium=1, steel_plate=200, steel_comp=33, steel_rod=5, alum_plate=64))
+    g("tacz", "hk416d",   dict(uranium=1, steel_plate=230, steel_comp=60, steel_rod=5, alum_plate=96, iron_plate=36))
+    g("tacz", "aug",      dict(steel_plate=220, steel_comp=48, steel_rod=6, alum_plate=48, glass=16, clay=48))
+    g("tacz", "hk_g3",    dict(uranium=1, steel_plate=240, iron_comp=18,  steel_rod=3))
+    g("tacz", "scar_l",   dict(uranium=1, steel_plate=220, steel_comp=66, steel_rod=5, alum_plate=96))
+    g("tacz", "scar_h",   dict(uranium=1, steel_plate=290, steel_comp=66, steel_rod=8, alum_plate=150))
+    g("tacz", "g36k",     dict(uranium=1, steel_plate=230, steel_comp=54, steel_rod=5, alum_plate=72, glass=10))
+    g("tacz", "fn_fal",   dict(uranium=1, steel_plate=260, steel_comp=60, steel_rod=6, alum_plate=72, iron_plate=24))
+    g("tacz", "qbz_95",   dict(uranium=1, steel_plate=210, steel_comp=45, steel_rod=5, alum_plate=72, clay=36))
+    g("tacz", "qbz_191",  dict(uranium=1, steel_plate=230, steel_comp=53, steel_rod=6, alum_plate=72))
+    # Guns — DMRs / Battle Rifles
+    g("tacz", "mk14",        dict(uranium=1, steel_plate=280, steel_comp=38, steel_rod=6, alum_plate=64))
+    g("tacz", "sks_tactical",dict(uranium=1, steel_plate=280, iron_comp=18,  steel_rod=8))
+    g("tacz", "m320",        dict(steel_plate=150, steel_comp=48, steel_rod=4))
+    g("tacz", "spr15hb",     dict(uranium=1, steel_plate=290, steel_comp=45, steel_rod=8, alum_plate=72))
+    g("tacz", "fn_evolys",   dict(uranium=1, steel_plate=360, steel_comp=105, steel_rod=18, alum_plate=96, iron_plate=36))
+    # Guns — LMGs
+    g("tacz", "m249",   dict(uranium=1, steel_plate=440, steel_comp=135, steel_rod=24, alum_plate=96,  iron_plate=36))
+    g("tacz", "minigun",dict(uranium=3, steel_plate=700, steel_comp=240, steel_rod=48, alum_plate=192, iron_plate=96))
+    # Guns — Bolt-action / Sniper
+    g("tacz", "m700",   dict(steel_plate=300, steel_comp=45,  steel_rod=9,  alum_plate=48, anvil=1))
+    g("tacz", "ai_awp", dict(steel_plate=400, steel_comp=72,  steel_rod=4,  anvil=1, lever=1))
+    g("tacz", "m95",    dict(steel_plate=500, steel_comp=100, steel_rod=24, anvil=5, lever=1))
+    g("tacz", "m107",   dict(uranium=1, steel_plate=480, steel_comp=90, steel_rod=20, alum_plate=64, anvil=3))
+    # Guns — Launchers / Other
+    g("tacz", "rpg7",           dict(logs=96,  steel_plate=350, steel_rod=48))
+    g("tacz", "springfield1873",dict(logs=64,  steel_plate=100, iron_comp=12, steel_rod=4))
 
-for gid, mats in hamster_guns.items():
-    write_gun(HAMSTER, "hamster", gid, mats)
+    # Ammo — Pistol calibers
+    a("tacz", "9mm",      dict(copper=12, gunpowder=2),                          50)
+    a("tacz", "45acp",    dict(copper=14, gunpowder=3),                          50)
+    a("tacz", "357mag",   dict(copper=16, gunpowder=4),                          50)
+    a("tacz", "50ae",     dict(copper=30, gunpowder=7, lapis=1),                 30)
+    a("tacz", "762x25",   dict(copper=14, gunpowder=3),                          50)
+    # Ammo — Intermediate / rifle
+    a("tacz", "545x39",   dict(copper=18, gunpowder=5),                          50)
+    a("tacz", "556x45",   dict(copper=18, gunpowder=5),                          50)
+    a("tacz", "762x39",   dict(copper=20, gunpowder=5),                          50)
+    a("tacz", "46x30",    dict(copper=14, gunpowder=3),                          50)
+    a("tacz", "57x28",    dict(copper=15, gunpowder=4),                          50)
+    a("tacz", "6x35mm",   dict(copper=15, gunpowder=4),                          50)
+    # Ammo — Full-power rifle
+    a("tacz", "308",      dict(copper=22, gunpowder=6, lapis=1),                 48)
+    a("tacz", "30_06",    dict(copper=24, gunpowder=6),                          48)
+    a("tacz", "762x54",   dict(copper=20, gunpowder=6),                          48)
+    a("tacz", "58x42",    dict(copper=28, gunpowder=8),                          30)
+    a("tacz", "68x51fury",dict(copper=24, gunpowder=7),                          40)
+    # Ammo — Sniper / heavy
+    a("tacz", "338",      dict(copper=26, gunpowder=7, lapis=1),                 36)
+    a("tacz", "45_70",    dict(copper=28, gunpowder=8),                          30)
+    a("tacz", "50bmg",    dict(copper=50, gunpowder=10, lapis=4, blaze_rod=1),   24)
+    # Ammo — Shotgun / Specialty
+    a("tacz", "12g",      dict(copper=15, gunpowder=4, iron_nugget=9),           24)
+    a("tacz", "40mm",     dict(copper=24, gunpowder=8, iron_plate=4),            4)
+    a("tacz", "rpg_rocket",dict(iron_plate=48, gunpowder=16, steel_rod=4),       1)
 
-# --- Ammo ---
-# compact = pistol/revolver, medium = rifle, long = large rifle
-hamster_ammo = {
-    "compact_ammo": ([COPPER(12), GUNPOWDER(2)],                         50),
-    "medium_ammo":  ([COPPER(16), GUNPOWDER(3)],                         48),
-    "long_ammo":    ([COPPER(22), GUNPOWDER(5), LAPIS(1)],               36),
-    "flares_ammo":  ([COPPER(8),  GUNPOWDER(2), REDSTONE(4)],            6),
-    "12g":          ([COPPER(14), GUNPOWDER(3), IRON_NUGGET(9)],         24),
-}
+    # Attachments — Sights (red dots / holos)
+    t("tacz", "sight_t1",                dict(steel_plate=6,  glass=4, redstone=4))
+    t("tacz", "sight_t2",                dict(steel_plate=6,  glass=4, redstone=4))
+    t("tacz", "sight_552",               dict(steel_plate=8,  glass=4, redstone=4))
+    t("tacz", "sight_coyote",            dict(steel_plate=8,  glass=4, redstone=4))
+    t("tacz", "sight_exp3",              dict(steel_plate=10, glass=6, redstone=4))
+    t("tacz", "sight_uh1",               dict(steel_plate=10, glass=6, redstone=4))
+    t("tacz", "sight_acro_pistol",       dict(steel_plate=6,  glass=4, redstone=4))
+    t("tacz", "sight_acro_rifle",        dict(steel_plate=8,  glass=4, redstone=4))
+    t("tacz", "sight_deltapoint_pistol", dict(steel_plate=6,  glass=4, redstone=4))
+    t("tacz", "sight_deltapoint_rifle",  dict(steel_plate=8,  glass=4, redstone=4))
+    t("tacz", "sight_fastfire_pistol",   dict(steel_plate=6,  glass=4, redstone=4))
+    t("tacz", "sight_fastfire_rifle",    dict(steel_plate=8,  glass=4, redstone=4))
+    t("tacz", "sight_rmr_dot",           dict(steel_plate=6,  glass=4, redstone=4))
+    t("tacz", "sight_sro_dot",           dict(steel_plate=6,  glass=4, redstone=4))
+    t("tacz", "sight_srs_02",            dict(steel_plate=8,  glass=6, redstone=4))
+    t("tacz", "sight_okp7",              dict(steel_plate=8,  glass=4, redstone=4))
+    t("tacz", "sight_pk06_pistol",       dict(steel_plate=6,  glass=4, redstone=4))
+    t("tacz", "sight_pk06_rifle",        dict(steel_plate=8,  glass=4, redstone=4))
+    # Attachments — Scopes
+    t("tacz", "scope_retro_2x",   dict(steel_plate=12, glass=6,  redstone=4))
+    t("tacz", "scope_1873_6x",    dict(steel_plate=16, glass=8,  iron_comp=4))
+    t("tacz", "scope_hamr",       dict(steel_plate=14, glass=6,  steel_comp=4, redstone=4))
+    t("tacz", "scope_acog_ta31",  dict(steel_plate=14, glass=6,  steel_comp=4, redstone=4))
+    t("tacz", "scope_elcan_4x",   dict(steel_plate=18, glass=8,  steel_comp=4, redstone=4))
+    t("tacz", "scope_lpvo_1_6",   dict(steel_plate=20, glass=8,  steel_comp=6, redstone=4))
+    t("tacz", "scope_qmk152",     dict(steel_plate=22, glass=10, steel_comp=6, redstone=4))
+    t("tacz", "scope_mk5hd",      dict(steel_plate=24, glass=10, steel_comp=6, redstone=4))
+    t("tacz", "scope_standard_8x",dict(steel_plate=22, glass=10, steel_comp=6, redstone=4))
+    t("tacz", "scope_contender",  dict(steel_plate=26, glass=12, steel_comp=8, redstone=4))
+    t("tacz", "scope_vudu",       dict(steel_plate=26, glass=12, steel_comp=8, redstone=4))
+    # Attachments — Grips
+    t("tacz", "grip_cobra",             dict(steel_plate=12, logs=4))
+    t("tacz", "grip_magpul_afg_2",      dict(steel_plate=14, logs=4, steel_rod=2))
+    t("tacz", "grip_osovets_black",     dict(steel_plate=12, logs=4))
+    t("tacz", "grip_rk0",               dict(steel_plate=12, logs=4))
+    t("tacz", "grip_rk1_b25u",          dict(steel_plate=14, logs=4))
+    t("tacz", "grip_rk6",               dict(steel_plate=14, logs=4))
+    t("tacz", "grip_se_5",              dict(steel_plate=12, logs=4))
+    t("tacz", "grip_td",                dict(steel_plate=12, logs=4, leather=4))
+    t("tacz", "grip_vertical_military", dict(steel_plate=14, logs=4, steel_rod=2))
+    t("tacz", "grip_vertical_ranger",   dict(steel_plate=14, logs=4, steel_rod=2))
+    t("tacz", "grip_vertical_talon",    dict(steel_plate=14, logs=4, steel_rod=2))
+    # Attachments — Stocks
+    t("tacz", "oem_stock_light",        dict(steel_plate=16, logs=6))
+    t("tacz", "oem_stock_heavy",        dict(steel_plate=24, logs=6, steel_rod=2))
+    t("tacz", "oem_stock_tactical",     dict(steel_plate=20, clay=16, steel_rod=2))
+    t("tacz", "stock_ak12",             dict(steel_plate=20, logs=6,  steel_rod=2))
+    t("tacz", "stock_carbon_bone_c5",   dict(steel_plate=24, clay=16, steel_rod=2))
+    t("tacz", "stock_heavy_spas_12",    dict(steel_plate=28, logs=6,  steel_rod=4))
+    t("tacz", "stock_tactical_spas_12", dict(steel_plate=24, clay=16, steel_rod=4))
+    t("tacz", "stock_hk_slim_line",     dict(steel_plate=20, clay=16, steel_rod=2))
+    t("tacz", "stock_m4ss",             dict(steel_plate=20, clay=16, steel_rod=2))
+    t("tacz", "stock_militech_b5",      dict(steel_plate=22, clay=16, steel_rod=2))
+    t("tacz", "stock_moe",              dict(steel_plate=20, logs=6))
+    t("tacz", "stock_ripstock",         dict(steel_plate=20, clay=16, steel_rod=2))
+    t("tacz", "stock_sba3",             dict(steel_plate=18, clay=12, steel_rod=2))
+    t("tacz", "stock_tactical_ar",      dict(steel_plate=22, clay=16, steel_rod=2))
+    # Attachments — Extended magazines
+    t("tacz", "extended_mag_1",        dict(steel_plate=20, steel_rod=4))
+    t("tacz", "extended_mag_2",        dict(steel_plate=32, steel_rod=6))
+    t("tacz", "extended_mag_3",        dict(steel_plate=48, steel_rod=8))
+    t("tacz", "light_extended_mag_1",  dict(steel_plate=16, steel_rod=4))
+    t("tacz", "light_extended_mag_2",  dict(steel_plate=24, steel_rod=6))
+    t("tacz", "light_extended_mag_3",  dict(steel_plate=36, steel_rod=8))
+    t("tacz", "sniper_extended_mag_1", dict(steel_plate=20, steel_rod=4))
+    t("tacz", "sniper_extended_mag_2", dict(steel_plate=32, steel_rod=6))
+    t("tacz", "sniper_extended_mag_3", dict(steel_plate=48, steel_rod=8))
+    t("tacz", "shotgun_extended_mag_1",dict(steel_plate=20, steel_rod=4))
+    t("tacz", "shotgun_extended_mag_2",dict(steel_plate=32, steel_rod=6))
+    t("tacz", "shotgun_extended_mag_3",dict(steel_plate=48, steel_rod=8))
+    # Attachments — Muzzle devices
+    t("tacz", "muzzle_brake_cthulhu",      dict(steel_plate=18, steel_rod=3))
+    t("tacz", "muzzle_brake_cyclone_d2",   dict(steel_plate=16, steel_rod=3))
+    t("tacz", "muzzle_brake_mastiff_sg",   dict(steel_plate=16, steel_rod=3))
+    t("tacz", "muzzle_brake_pioneer",      dict(steel_plate=16, steel_rod=3))
+    t("tacz", "muzzle_brake_timeless50",   dict(steel_plate=18, steel_rod=3))
+    t("tacz", "muzzle_brake_trex",         dict(steel_plate=16, steel_rod=3))
+    t("tacz", "muzzle_choke_sg",           dict(steel_plate=14, steel_rod=2))
+    t("tacz", "muzzle_compensator_trident",dict(steel_plate=16, steel_rod=3))
+    t("tacz", "muzzle_silencer_knight_qd", dict(steel_plate=40, steel_rod=8, steel_comp=4))
+    t("tacz", "muzzle_silencer_mirage",    dict(steel_plate=36, steel_rod=6, steel_comp=4))
+    t("tacz", "muzzle_silencer_phantom_s1",dict(steel_plate=40, steel_rod=8, steel_comp=4))
+    t("tacz", "muzzle_silencer_ptilopsis", dict(steel_plate=36, steel_rod=6, steel_comp=4))
+    t("tacz", "muzzle_silencer_sg",        dict(steel_plate=44, steel_rod=8, steel_comp=4))
+    t("tacz", "muzzle_silencer_ursus",     dict(steel_plate=38, steel_rod=7, steel_comp=4))
+    t("tacz", "muzzle_silencer_vulture",   dict(steel_plate=40, steel_rod=8, steel_comp=4))
+    # Attachments — Lasers
+    t("tacz", "laser_compact",   dict(redstone=6, gold_plate=6, glass=2))
+    t("tacz", "laser_lopro",     dict(redstone=6, gold_plate=6, glass=2))
+    t("tacz", "laser_nightstick",dict(redstone=8, gold_plate=8, glass=4))
+    # Attachments — Bayonets
+    t("tacz", "bayonet_6h3", dict(steel_plate=32, steel_rod=4))
+    t("tacz", "bayonet_m9",  dict(steel_plate=32, steel_rod=4))
+    # Attachments — Special barrel
+    t("tacz", "deagle_golden_long_barrel", dict(gold_plate=48, steel_plate=24, steel_rod=3))
+    # Attachments — Ammo modifications
+    t("tacz", "ammo_mod_fmj",  dict(steel_plate=8,  copper=16))
+    t("tacz", "ammo_mod_he",   dict(steel_plate=8,  gunpowder=8))
+    t("tacz", "ammo_mod_hp",   dict(copper=24,      iron_plate=4))
+    t("tacz", "ammo_mod_i",    dict(blaze_rod=4,    steel_plate=8))
+    t("tacz", "ammo_mod_slug", dict(iron_plate=8,   steel_plate=8))
 
-for aid, (mats, count) in hamster_ammo.items():
-    write_ammo(HAMSTER, "hamster", aid, mats, count)
+    # -----------------------------------------------------------------------
+    # PACK 3 — Suffuse GunSmoke  (suffuse)
+    # Contemporary / cutting-edge
+    # -----------------------------------------------------------------------
 
-# --- Attachments ---
-hamster_attachments = {
-    # Bayonets
-    "bayonet9805":     [STEEL_PLATE(32), STEEL_ROD(4)],
-    "bayonetm1886":    [STEEL_PLATE(32), STEEL_ROD(4)],
-    "bayonetp1903":    [STEEL_PLATE(32), STEEL_ROD(4)],
-    "bayonettype30":   [STEEL_PLATE(32), STEEL_ROD(4)],
-    "m9130_bayonet":   [STEEL_PLATE(32), STEEL_ROD(4)],
-    "sks_bayonet":     [STEEL_PLATE(28), STEEL_ROD(4)],
-    # Scopes / sights
-    "aperture_sight":  [STEEL_PLATE(12), GLASS(2)],
-    "deadeye_scope":   [STEEL_PLATE(20), GLASS(6),  STEEL_COMP(4)],
-    "gew98_scope":     [STEEL_PLATE(18), GLASS(6),  IRON_COMP(4)],
-    "lebel_scope":     [STEEL_PLATE(18), GLASS(6),  IRON_COMP(4)],
-    "ppco_scope":      [STEEL_PLATE(22), GLASS(8),  STEEL_COMP(4)],
-    "puscope":         [STEEL_PLATE(20), GLASS(6),  STEEL_COMP(4)],
-    "unertl_scope":    [STEEL_PLATE(28), GLASS(10), STEEL_COMP(6)],
-    # Magazines
-    "drum_mag":        [STEEL_PLATE(40), STEEL_ROD(8)],
-    "trench_mag":      [STEEL_PLATE(32), STEEL_ROD(6)],
-    "loading_pipe":    [STEEL_ROD(6),    IRON_PLATE(4)],
-    # Accessories
-    "rifle_bipod":     [STEEL_ROD(8),    IRON_PLATE(6)],
-    "rifle_grip":      [STEEL_PLATE(12), LOGS(4)],
-    "gas_tube":        [STEEL_ROD(4),    IRON_PLATE(4)],
-    "speedloader":     [STEEL_PLATE(16), BRASS(8)],
-    "whip":            [STEEL_ROD(2),    LEATHER(4)],
-}
+    # Guns — Pistols
+    g("suffuse", "tt33",        dict(steel_plate=60,  iron_comp=10, steel_rod=3, brass=12))
+    g("suffuse", "m1895",       dict(steel_plate=70,  iron_comp=12, steel_rod=3, brass=14, logs=8))
+    g("suffuse", "lifecard",    dict(steel_plate=45,  iron_comp=8,  steel_rod=2, brass=8))
+    g("suffuse", "tec9",        dict(steel_plate=80,  iron_comp=14, steel_rod=3, alum_plate=16))
+    g("suffuse", "python",      dict(steel_plate=90,  steel_comp=14, steel_rod=4, brass=20))
+    g("suffuse", "viper2011",   dict(steel_plate=100, steel_comp=16, steel_rod=4, brass=18))
+    g("suffuse", "tti2011",     dict(steel_plate=110, steel_comp=18, steel_rod=4, brass=22, alum_plate=16))
+    g("suffuse", "usp45",       dict(steel_plate=105, steel_comp=16, steel_rod=4, alum_plate=18, clay=24))
+    g("suffuse", "usp45_black", dict(steel_plate=105, steel_comp=16, steel_rod=4, alum_plate=18, clay=24))
+    g("suffuse", "webley1913",  dict(steel_plate=95,  steel_comp=14, steel_rod=4, brass=20, logs=6))
+    # Guns — SMGs
+    g("suffuse", "ump45",    dict(uranium=1, steel_plate=195, steel_comp=39, steel_rod=5, alum_plate=96, clay=48))
+    g("suffuse", "pp19",     dict(steel_plate=170, steel_comp=30, steel_rod=6, alum_plate=48, clay=24))
+    g("suffuse", "mas38",    dict(steel_plate=150, steel_comp=27, steel_rod=6, andesite=32, logs=16))
+    g("suffuse", "mpdr",     dict(steel_plate=180, steel_comp=33, steel_rod=6, alum_plate=48, brass=18))
+    g("suffuse", "kacpdw",   dict(uranium=1, steel_plate=210, steel_comp=42, steel_rod=6, alum_plate=72, clay=36))
+    g("suffuse", "gepardpdw",dict(uranium=1, steel_plate=195, steel_comp=36, steel_rod=6, alum_plate=72))
+    g("suffuse", "n4",       dict(steel_plate=145, steel_comp=27, steel_rod=6, alum_plate=36, brass=18))
+    # Guns — Shotguns / Launchers
+    g("suffuse", "trapper50cal", dict(steel_plate=50,  iron_plate=8,  logs=14, steel_rod=6))
+    g("suffuse", "spas12",       dict(steel_plate=240, steel_comp=45, steel_rod=10, alum_plate=48, clay=48))
+    g("suffuse", "ks23m",        dict(steel_plate=260, steel_comp=48, steel_rod=12, alum_plate=72, clay=48))
+    g("suffuse", "m79",          dict(steel_plate=180, steel_comp=36, steel_rod=8,  brass=24))
+    # Guns — Assault Rifles
+    g("suffuse", "an94",      dict(uranium=1, steel_plate=245, steel_comp=57, steel_rod=6, alum_plate=72))
+    g("suffuse", "qbz951",    dict(uranium=1, steel_plate=220, steel_comp=48, steel_rod=6, alum_plate=72, clay=30))
+    g("suffuse", "qbz951s",   dict(uranium=1, steel_plate=230, steel_comp=51, steel_rod=6, alum_plate=72, clay=30))
+    g("suffuse", "qbz191",    dict(uranium=1, steel_plate=240, steel_comp=54, steel_rod=6, alum_plate=96))
+    g("suffuse", "qbz192",    dict(uranium=1, steel_plate=225, steel_comp=48, steel_rod=6, alum_plate=72))
+    g("suffuse", "qbu191",    dict(uranium=1, steel_plate=260, steel_comp=60, steel_rod=8, alum_plate=96))
+    g("suffuse", "xm7",       dict(uranium=1, steel_plate=275, steel_comp=63, steel_rod=8, alum_plate=96))
+    g("suffuse", "ar57",      dict(uranium=1, steel_plate=215, steel_comp=45, steel_rod=6, alum_plate=72))
+    g("suffuse", "rm277",     dict(uranium=1, steel_plate=290, steel_comp=66, steel_rod=8, alum_plate=96))
+    g("suffuse", "saddam_golden_ak", dict(gold_plate=180, steel_plate=270, iron_comp=48, steel_rod=6, logs=36))
+    g("suffuse", "aks74u",    dict(steel_plate=190, steel_comp=33, steel_rod=6, alum_plate=36, andesite=32))
+    # Guns — Battle Rifles / DMRs
+    g("suffuse", "ash12", dict(uranium=1, steel_plate=300, steel_comp=66, steel_rod=9,  alum_plate=72, iron_plate=24))
+    g("suffuse", "svd",   dict(steel_plate=300, steel_comp=57, steel_rod=10, alum_plate=48, logs=12, anvil=1))
+    g("suffuse", "dvl10", dict(uranium=1, steel_plate=340, steel_comp=66, steel_rod=12, alum_plate=72, anvil=2))
+    g("suffuse", "np762", dict(uranium=1, steel_plate=330, steel_comp=63, steel_rod=12, alum_plate=48, anvil=2))
+    g("suffuse", "m203",  dict(steel_plate=195, steel_comp=42, steel_rod=8, alum_plate=36))
+    # Guns — LMGs
+    g("suffuse", "pkp",  dict(uranium=1, steel_plate=410, steel_comp=120, steel_rod=21, alum_plate=96,  iron_plate=48))
+    g("suffuse", "qlu11",dict(uranium=1, steel_plate=385, steel_comp=105, steel_rod=18, alum_plate=72,  iron_plate=36))
+    # Guns — Snipers / Anti-Material
+    g("suffuse", "m200", dict(uranium=1,  steel_plate=450, steel_comp=108, steel_rod=18, alum_plate=96,  anvil=3))
+    g("suffuse", "aw50", dict(uranium=2,  steel_plate=520, steel_comp=135, steel_rod=21, alum_plate=120, anvil=3))
+    g("suffuse", "gm6",  dict(uranium=2,  steel_plate=600, steel_comp=165, steel_rod=24, alum_plate=150, anvil=5))
+    g("suffuse", "axmc", dict(uranium=2,  steel_plate=560, steel_comp=143, steel_rod=21, alum_plate=120, anvil=4))
+    g("suffuse", "axsr", dict(uranium=2,  steel_plate=580, steel_comp=150, steel_rod=22, alum_plate=120, anvil=4))
+    # Guns — Special / Heavy
+    g("suffuse", "aiyasinrpg", dict(steel_plate=420, steel_comp=90,  steel_rod=30, iron_plate=48))
+    g("suffuse", "pf98a",      dict(uranium=1, steel_plate=450, steel_comp=98,  steel_rod=36, iron_plate=72))
+    g("suffuse", "ags30",      dict(uranium=1, steel_plate=500, steel_comp=135, steel_rod=30, alum_plate=96, iron_plate=72))
 
-for aid, mats in hamster_attachments.items():
-    write_attachment(HAMSTER, "hamster", aid, mats)
+    # Ammo
+    a("suffuse", "7.65x20mm",    dict(copper=10, gunpowder=2),                            60)
+    a("suffuse", "6x35mm",       dict(copper=15, gunpowder=4),                            50)
+    a("suffuse", "35x32mm",      dict(copper=30, gunpowder=6),                            20)
+    a("suffuse", "545x39",       dict(copper=18, gunpowder=5),                            50)
+    a("suffuse", "6.8tvcm",      dict(copper=22, gunpowder=6),                            40)
+    a("suffuse", "12.7x55",      dict(copper=40, gunpowder=8, lapis=1),                   20)
+    a("suffuse", "23mm",         dict(copper=48, gunpowder=10, iron_plate=4),             12)
+    a("suffuse", "120mm",        dict(iron_plate=64, gunpowder=16, steel_plate=16),        1)
+    a("suffuse", "boomstickshot",dict(paper=3, gunpowder=9, flint=9),                      6)
+    a("suffuse", ".22lr",        dict(copper=6,  gunpowder=3),                            64)
+    a("suffuse", ".22wmr",       dict(copper=8,  gunpowder=4),                            60)
+    a("suffuse", ".408ct",       dict(copper=80, gunpowder=14, lapis=2),                  30)
+    a("suffuse", ".600ne",       dict(copper=96, gunpowder=18, lapis=4, blaze_rod=1),     12)
 
+    # Attachments — Grips
+    t("suffuse", "grip_td",             dict(steel_plate=12, logs=4, leather=4))
+    t("suffuse", "grip_td_black",       dict(steel_plate=12, logs=4, leather=4))
+    t("suffuse", "grip_td_blue_grey",   dict(steel_plate=12, logs=4, leather=4))
+    t("suffuse", "grip_td_green",       dict(steel_plate=12, logs=4, leather=4))
+    t("suffuse", "grip_flashlight",     dict(steel_plate=14, logs=4, redstone=4, glass=2))
+    t("suffuse", "grip_m203",           dict(steel_plate=120, steel_comp=20, steel_rod=6))
+    # Attachments — Stocks
+    t("suffuse", "stock_n4",              dict(steel_plate=18, clay=12, steel_rod=2))
+    t("suffuse", "stock_bcm_mod2_sopmod", dict(steel_plate=22, clay=16, steel_rod=2))
+    t("suffuse", "stock_colt",            dict(steel_plate=18, logs=6))
+    t("suffuse", "stock_colt_plus",       dict(steel_plate=20, logs=6,  steel_rod=2))
+    t("suffuse", "stock_elf_ultralight",  dict(steel_plate=16, clay=12, steel_rod=2))
+    t("suffuse", "stock_sig_black",       dict(steel_plate=22, clay=16, steel_rod=2))
+    t("suffuse", "stock_sig_blue_grey",   dict(steel_plate=22, clay=16, steel_rod=2))
+    t("suffuse", "stock_sig_desert",      dict(steel_plate=22, clay=16, steel_rod=2))
+    t("suffuse", "stock_vltor_emod_black", dict(steel_plate=24, clay=16, steel_rod=2))
+    t("suffuse", "stock_vltor_emod_desert",dict(steel_plate=24, clay=16, steel_rod=2))
+    t("suffuse", "stock_vltor_emod_green", dict(steel_plate=24, clay=16, steel_rod=2))
+    # Attachments — Lasers
+    t("suffuse", "laser_an_peq_2a", dict(redstone=8, gold_plate=8, glass=4))
+    t("suffuse", "laser_dbala2",    dict(redstone=8, gold_plate=8, glass=4))
+    t("suffuse", "laser_pistol",    dict(redstone=6, gold_plate=6, glass=2))
+    t("suffuse", "pistollaser",     dict(redstone=6, gold_plate=6, glass=2))
+    # Attachments — Sights / Scopes
+    t("suffuse", "sight_cobra_ekp_818",       dict(steel_plate=8,  glass=4, redstone=4))
+    t("suffuse", "sight_dbala2",              dict(steel_plate=8,  glass=4, redstone=4))
+    t("suffuse", "scope_compm4",              dict(steel_plate=10, glass=6, redstone=4))
+    t("suffuse", "scope_ks23m",               dict(steel_plate=14, glass=6, steel_comp=4))
+    t("suffuse", "scope_qlu11s",              dict(steel_plate=20, glass=8, steel_comp=6, redstone=4))
+    t("suffuse", "scope_sig_tango_msr_1_6",   dict(steel_plate=22, glass=10, steel_comp=6, redstone=4))
+    # Attachments — Silencers
+    t("suffuse", "m7_silencer",   dict(steel_plate=36, steel_rod=6, steel_comp=4))
+    t("suffuse", "rm277_silencer",dict(steel_plate=40, steel_rod=8, steel_comp=4))
 
-# ===========================================================================
-# PACK 2 — tacz_default_gun  (tacz namespace)
-# Modern military firearms. Significantly more expensive than historicals.
-# Uranium gates the most capable weapons.
-# ===========================================================================
+    return rows
 
-TACZ = "tacz/tacz_default_gun/data/tacz/recipes"
+# ---------------------------------------------------------------------------
+# --export-csv mode
+# ---------------------------------------------------------------------------
 
-print("=== tacz_default_gun (tacz) ===")
+def export_csv():
+    rows = _bootstrap_data()
+    fieldnames = ["pack", "type", "id", "yield"] + MATERIAL_COLS + ["notes"]
+    with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        current_pack = None
+        for (pack, rec_type, item_id, yield_count, mats_dict) in rows:
+            if pack != current_pack:
+                # Section header row — pack starts with #, rest blank
+                writer.writerow({"pack": f"# --- {pack.upper()} ---"})
+                current_pack = pack
+            row = {"pack": pack, "type": rec_type, "id": item_id, "yield": yield_count or ""}
+            for col in MATERIAL_COLS:
+                row[col] = mats_dict.get(col, "")
+            row["notes"] = ""
+            writer.writerow(row)
+    print(f"Exported {len(rows)} recipes to {CSV_PATH}")
+    print("Open in Excel/LibreOffice Calc and edit freely. Blank cells = 0 (ingredient not used).")
 
-# --- Guns ---
-tacz_guns = {
-    # Shotguns
-    "db_short":         [LOGS(80),  STEEL_PLATE(120), IRON_COMP(8),  STEEL_ROD(4)],
-    "db_long":          [LOGS(90),  STEEL_PLATE(130), IRON_COMP(8),  STEEL_ROD(6)],
-    "m870":             [STEEL_PLATE(160), IRON_COMP(24),  STEEL_ROD(6),  ALUM_PLATE(32)],
-    "m1014":            [STEEL_PLATE(190), STEEL_COMP(32), STEEL_ROD(8),  ALUM_PLATE(48)],
-    "spas_12":          [STEEL_PLATE(210), STEEL_COMP(36), STEEL_ROD(8),  ALUM_PLATE(48), CLAY(48)],
-    "aa12":             [URANIUM(),  STEEL_PLATE(280), STEEL_COMP(64), STEEL_ROD(12), ALUM_PLATE(48), CLAY(48)],
-    # Pistols
-    "glock_17":         [STEEL_PLATE(80),  IRON_COMP(6),  STEEL_ROD(2),  CLAY(32)],
-    "m1911":            [STEEL_PLATE(90),  IRON_COMP(8),  STEEL_ROD(3),  BRASS(16)],
-    "cz75":             [STEEL_PLATE(95),  IRON_COMP(12), STEEL_COMP(8), STEEL_ROD(2)],
-    "deagle":           [STEEL_PLATE(130), STEEL_COMP(18),STEEL_ROD(3),  ALUM_PLATE(24)],
-    "deagle_golden":    [STEEL_PLATE(130), STEEL_COMP(18),STEEL_ROD(3),  GOLD_PLATE(120)],
-    "p320":             [URANIUM(),  STEEL_PLATE(100), IRON_COMP(10), STEEL_ROD(2),  CLAY(48)],
-    "b93r":             [STEEL_PLATE(110), STEEL_COMP(14),STEEL_ROD(3),  ALUM_PLATE(16), BRASS(16)],
-    "timeless50":       [STEEL_PLATE(130), STEEL_COMP(18),STEEL_ROD(4),  ALUM_PLATE(32), BRASS(20)],
-    # SMGs
-    "hk_mp5a5":         [URANIUM(), STEEL_PLATE(160), STEEL_COMP(36), STEEL_ROD(4), ALUM_PLATE(96), CLAY(48)],
-    "ump45":            [URANIUM(), STEEL_PLATE(180), STEEL_COMP(36), STEEL_ROD(4), ALUM_PLATE(96), CLAY(48)],
-    "uzi":              [URANIUM(), STEEL_PLATE(175), STEEL_COMP(36), STEEL_ROD(3), ALUM_PLATE(96)],
-    "vector45":         [URANIUM(), STEEL_PLATE(220), STEEL_COMP(54), STEEL_ROD(4), ALUM_PLATE(96), CLAY(48)],
-    "p90":              [URANIUM(), STEEL_PLATE(170), STEEL_COMP(33), STEEL_ROD(4), ALUM_PLATE(96), CLAY(48)],
-    # Assault Rifles
-    "ak47":             [LOGS(48),  STEEL_PLATE(256), IRON_COMP(48), STEEL_ROD(6)],
-    "rpk":              [LOGS(64),  STEEL_PLATE(300), IRON_COMP(48), STEEL_ROD(12)],
-    "type_81":          [LOGS(36),  STEEL_PLATE(275), IRON_COMP(42), STEEL_ROD(6)],
-    "m16a1":            [STEEL_PLATE(200), STEEL_COMP(48), STEEL_ROD(5), ALUM_PLATE(96)],
-    "m16a4":            [STEEL_PLATE(210), STEEL_COMP(53), STEEL_ROD(5), ALUM_PLATE(96)],
-    "m4a1":             [URANIUM(), STEEL_PLATE(200), STEEL_COMP(33), STEEL_ROD(5), ALUM_PLATE(64)],
-    "hk416d":           [URANIUM(), STEEL_PLATE(230), STEEL_COMP(60), STEEL_ROD(5), ALUM_PLATE(96), IRON_PLATE(36)],
-    "aug":              [STEEL_PLATE(220), STEEL_COMP(48), STEEL_ROD(6), ALUM_PLATE(48), GLASS(16), CLAY(48)],
-    "hk_g3":            [URANIUM(), STEEL_PLATE(240), IRON_COMP(18),  STEEL_ROD(3)],
-    "scar_l":           [URANIUM(), STEEL_PLATE(220), STEEL_COMP(66), STEEL_ROD(5), ALUM_PLATE(96)],
-    "scar_h":           [URANIUM(), STEEL_PLATE(290), STEEL_COMP(66), STEEL_ROD(8), ALUM_PLATE(150)],
-    "g36k":             [URANIUM(), STEEL_PLATE(230), STEEL_COMP(54), STEEL_ROD(5), ALUM_PLATE(72), GLASS(10)],
-    "fn_fal":           [URANIUM(), STEEL_PLATE(260), STEEL_COMP(60), STEEL_ROD(6), ALUM_PLATE(72), IRON_PLATE(24)],
-    "qbz_95":           [URANIUM(), STEEL_PLATE(210), STEEL_COMP(45), STEEL_ROD(5), ALUM_PLATE(72), CLAY(36)],
-    "qbz_191":          [URANIUM(), STEEL_PLATE(230), STEEL_COMP(53), STEEL_ROD(6), ALUM_PLATE(72)],
-    # DMRs / Battle Rifles
-    "mk14":             [URANIUM(), STEEL_PLATE(280), STEEL_COMP(38), STEEL_ROD(6), ALUM_PLATE(64)],
-    "sks_tactical":     [URANIUM(), STEEL_PLATE(280), IRON_COMP(18),  STEEL_ROD(8)],
-    "m320":             [STEEL_PLATE(150), STEEL_COMP(48), STEEL_ROD(4)],
-    "spr15hb":          [URANIUM(), STEEL_PLATE(290), STEEL_COMP(45), STEEL_ROD(8), ALUM_PLATE(72)],
-    "fn_evolys":        [URANIUM(), STEEL_PLATE(360), STEEL_COMP(105),STEEL_ROD(18), ALUM_PLATE(96), IRON_PLATE(36)],
-    # LMGs
-    "m249":             [URANIUM(),   STEEL_PLATE(440), STEEL_COMP(135), STEEL_ROD(24), ALUM_PLATE(96), IRON_PLATE(36)],
-    "minigun":          [URANIUM(3),  STEEL_PLATE(700), STEEL_COMP(240), STEEL_ROD(48), ALUM_PLATE(192), IRON_PLATE(96)],
-    # Bolt-action / Sniper
-    "m700":             [STEEL_PLATE(300), STEEL_COMP(45), STEEL_ROD(9),  ALUM_PLATE(48), ANVIL()],
-    "ai_awp":           [STEEL_PLATE(400), STEEL_COMP(72), STEEL_ROD(4),  ANVIL(),   LEVER()],
-    "m95":              [STEEL_PLATE(500), STEEL_COMP(100),STEEL_ROD(24), ANVIL(5),  LEVER()],
-    "m107":             [URANIUM(), STEEL_PLATE(480), STEEL_COMP(90), STEEL_ROD(20), ALUM_PLATE(64), ANVIL(3)],
-    # Launchers / Other
-    "rpg7":             [LOGS(96), STEEL_PLATE(350), STEEL_ROD(48)],
-    "springfield1873":  [LOGS(64), STEEL_PLATE(100), IRON_COMP(12), STEEL_ROD(4)],
-}
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 
-for gid, mats in tacz_guns.items():
-    write_gun(TACZ, "tacz", gid, mats)
-
-# --- Ammo ---
-# Caliber-appropriate cost: bigger/rarer rounds cost more copper + powder, yield less
-tacz_ammo = {
-    # Pistol calibers
-    "9mm":       ([COPPER(12), GUNPOWDER(2)],                           50),
-    "45acp":     ([COPPER(14), GUNPOWDER(3)],                           50),
-    "357mag":    ([COPPER(16), GUNPOWDER(4)],                           50),
-    "50ae":      ([COPPER(30), GUNPOWDER(7), LAPIS(1)],                 30),
-    "762x25":    ([COPPER(14), GUNPOWDER(3)],                           50),
-    # Intermediate / rifle
-    "545x39":    ([COPPER(18), GUNPOWDER(5)],                           50),
-    "556x45":    ([COPPER(18), GUNPOWDER(5)],                           50),
-    "762x39":    ([COPPER(20), GUNPOWDER(5)],                           50),
-    "46x30":     ([COPPER(14), GUNPOWDER(3)],                           50),
-    "57x28":     ([COPPER(15), GUNPOWDER(4)],                           50),
-    "6x35mm":    ([COPPER(15), GUNPOWDER(4)],                           50),
-    # Full-power rifle
-    "308":       ([COPPER(22), GUNPOWDER(6), LAPIS(1)],                 48),
-    "30_06":     ([COPPER(24), GUNPOWDER(6)],                           48),
-    "762x54":    ([COPPER(20), GUNPOWDER(6)],                           48),
-    "58x42":     ([COPPER(28), GUNPOWDER(8)],                           30),
-    "68x51fury": ([COPPER(24), GUNPOWDER(7)],                           40),
-    # Sniper / heavy
-    "338":       ([COPPER(26), GUNPOWDER(7), LAPIS(1)],                 36),
-    "45_70":     ([COPPER(28), GUNPOWDER(8)],                           30),
-    "50bmg":     ([COPPER(50), GUNPOWDER(10), LAPIS(4), BLAZE_ROD(1)], 24),
-    # Shotgun
-    "12g":       ([COPPER(15), GUNPOWDER(4), IRON_NUGGET(9)],           24),
-    # Specialty
-    "40mm":      ([COPPER(24), GUNPOWDER(8), IRON_PLATE(4)],            4),
-    "rpg_rocket":([IRON_PLATE(48), GUNPOWDER(16), STEEL_ROD(4)],        1),
-}
-
-for aid, (mats, count) in tacz_ammo.items():
-    write_ammo(TACZ, "tacz", aid, mats, count)
-
-# --- Attachments ---
-
-# Helper groups for attachments that share the same recipe
-def red_dot_small():  return [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)]
-def red_dot_medium(): return [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)]
-def red_dot_large():  return [STEEL_PLATE(10), GLASS(6), REDSTONE(4)]
-def scope_low():      return [STEEL_PLATE(12), GLASS(6), REDSTONE(4)]
-def scope_mid():      return [STEEL_PLATE(18), GLASS(8), STEEL_COMP(4), REDSTONE(4)]
-def scope_high():     return [STEEL_PLATE(24), GLASS(10), STEEL_COMP(6), REDSTONE(4)]
-def grip_simple():    return [STEEL_PLATE(12), LOGS(4)]
-def grip_tactical():  return [STEEL_PLATE(16), LOGS(4), STEEL_ROD(2)]
-def stock_light():    return [STEEL_PLATE(16), LOGS(6)]
-def stock_heavy():    return [STEEL_PLATE(24), LOGS(6), STEEL_ROD(2)]
-def stock_polymer():  return [STEEL_PLATE(20), CLAY(16), STEEL_ROD(2)]
-def mag_small():      return [STEEL_PLATE(20), STEEL_ROD(4)]
-def mag_medium():     return [STEEL_PLATE(32), STEEL_ROD(6)]
-def mag_large():      return [STEEL_PLATE(48), STEEL_ROD(8)]
-def silencer():       return [STEEL_PLATE(36), STEEL_ROD(6), STEEL_COMP(4)]
-def muzzle_brake():   return [STEEL_PLATE(16), STEEL_ROD(3)]
-def laser_small():    return [REDSTONE(6), GOLD_PLATE(6), GLASS(2)]
-def laser_large():    return [REDSTONE(8), GOLD_PLATE(8), GLASS(4)]
-
-tacz_attachments = {
-    # Sights — red dots / holos
-    "sight_t1":                [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)],
-    "sight_t2":                [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)],
-    "sight_552":               [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    "sight_coyote":            [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    "sight_exp3":              [STEEL_PLATE(10), GLASS(6), REDSTONE(4)],
-    "sight_uh1":               [STEEL_PLATE(10), GLASS(6), REDSTONE(4)],
-    "sight_acro_pistol":       [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)],
-    "sight_acro_rifle":        [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    "sight_deltapoint_pistol": [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)],
-    "sight_deltapoint_rifle":  [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    "sight_fastfire_pistol":   [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)],
-    "sight_fastfire_rifle":    [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    "sight_rmr_dot":           [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)],
-    "sight_sro_dot":           [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)],
-    "sight_srs_02":            [STEEL_PLATE(8),  GLASS(6), REDSTONE(4)],
-    "sight_okp7":              [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    "sight_pk06_pistol":       [STEEL_PLATE(6),  GLASS(4), REDSTONE(4)],
-    "sight_pk06_rifle":        [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    # Scopes
-    "scope_retro_2x":          [STEEL_PLATE(12), GLASS(6),  REDSTONE(4)],
-    "scope_1873_6x":           [STEEL_PLATE(16), GLASS(8),  IRON_COMP(4)],
-    "scope_hamr":              [STEEL_PLATE(14), GLASS(6),  STEEL_COMP(4), REDSTONE(4)],
-    "scope_acog_ta31":         [STEEL_PLATE(14), GLASS(6),  STEEL_COMP(4), REDSTONE(4)],
-    "scope_elcan_4x":          [STEEL_PLATE(18), GLASS(8),  STEEL_COMP(4), REDSTONE(4)],
-    "scope_lpvo_1_6":          [STEEL_PLATE(20), GLASS(8),  STEEL_COMP(6), REDSTONE(4)],
-    "scope_qmk152":            [STEEL_PLATE(22), GLASS(10), STEEL_COMP(6), REDSTONE(4)],
-    "scope_mk5hd":             [STEEL_PLATE(24), GLASS(10), STEEL_COMP(6), REDSTONE(4)],
-    "scope_standard_8x":       [STEEL_PLATE(22), GLASS(10), STEEL_COMP(6), REDSTONE(4)],
-    "scope_contender":         [STEEL_PLATE(26), GLASS(12), STEEL_COMP(8), REDSTONE(4)],
-    "scope_vudu":              [STEEL_PLATE(26), GLASS(12), STEEL_COMP(8), REDSTONE(4)],
-    # Grips
-    "grip_cobra":              [STEEL_PLATE(12), LOGS(4)],
-    "grip_magpul_afg_2":       [STEEL_PLATE(14), LOGS(4), STEEL_ROD(2)],
-    "grip_osovets_black":      [STEEL_PLATE(12), LOGS(4)],
-    "grip_rk0":                [STEEL_PLATE(12), LOGS(4)],
-    "grip_rk1_b25u":           [STEEL_PLATE(14), LOGS(4)],
-    "grip_rk6":                [STEEL_PLATE(14), LOGS(4)],
-    "grip_se_5":               [STEEL_PLATE(12), LOGS(4)],
-    "grip_td":                 [STEEL_PLATE(12), LOGS(4), LEATHER(4)],
-    "grip_vertical_military":  [STEEL_PLATE(14), LOGS(4), STEEL_ROD(2)],
-    "grip_vertical_ranger":    [STEEL_PLATE(14), LOGS(4), STEEL_ROD(2)],
-    "grip_vertical_talon":     [STEEL_PLATE(14), LOGS(4), STEEL_ROD(2)],
-    # Stocks
-    "oem_stock_light":         [STEEL_PLATE(16), LOGS(6)],
-    "oem_stock_heavy":         [STEEL_PLATE(24), LOGS(6), STEEL_ROD(2)],
-    "oem_stock_tactical":      [STEEL_PLATE(20), CLAY(16), STEEL_ROD(2)],
-    "stock_ak12":              [STEEL_PLATE(20), LOGS(6), STEEL_ROD(2)],
-    "stock_carbon_bone_c5":    [STEEL_PLATE(24), CLAY(16), STEEL_ROD(2)],
-    "stock_heavy_spas_12":     [STEEL_PLATE(28), LOGS(6), STEEL_ROD(4)],
-    "stock_tactical_spas_12":  [STEEL_PLATE(24), CLAY(16), STEEL_ROD(4)],
-    "stock_hk_slim_line":      [STEEL_PLATE(20), CLAY(16), STEEL_ROD(2)],
-    "stock_m4ss":              [STEEL_PLATE(20), CLAY(16), STEEL_ROD(2)],
-    "stock_militech_b5":       [STEEL_PLATE(22), CLAY(16), STEEL_ROD(2)],
-    "stock_moe":               [STEEL_PLATE(20), LOGS(6)],
-    "stock_ripstock":          [STEEL_PLATE(20), CLAY(16), STEEL_ROD(2)],
-    "stock_sba3":              [STEEL_PLATE(18), CLAY(12), STEEL_ROD(2)],
-    "stock_tactical_ar":       [STEEL_PLATE(22), CLAY(16), STEEL_ROD(2)],
-    # Extended magazines
-    "extended_mag_1":          [STEEL_PLATE(20), STEEL_ROD(4)],
-    "extended_mag_2":          [STEEL_PLATE(32), STEEL_ROD(6)],
-    "extended_mag_3":          [STEEL_PLATE(48), STEEL_ROD(8)],
-    "light_extended_mag_1":    [STEEL_PLATE(16), STEEL_ROD(4)],
-    "light_extended_mag_2":    [STEEL_PLATE(24), STEEL_ROD(6)],
-    "light_extended_mag_3":    [STEEL_PLATE(36), STEEL_ROD(8)],
-    "sniper_extended_mag_1":   [STEEL_PLATE(20), STEEL_ROD(4)],
-    "sniper_extended_mag_2":   [STEEL_PLATE(32), STEEL_ROD(6)],
-    "sniper_extended_mag_3":   [STEEL_PLATE(48), STEEL_ROD(8)],
-    "shotgun_extended_mag_1":  [STEEL_PLATE(20), STEEL_ROD(4)],
-    "shotgun_extended_mag_2":  [STEEL_PLATE(32), STEEL_ROD(6)],
-    "shotgun_extended_mag_3":  [STEEL_PLATE(48), STEEL_ROD(8)],
-    # Muzzle devices
-    "muzzle_brake_cthulhu":    [STEEL_PLATE(18), STEEL_ROD(3)],
-    "muzzle_brake_cyclone_d2": [STEEL_PLATE(16), STEEL_ROD(3)],
-    "muzzle_brake_mastiff_sg": [STEEL_PLATE(16), STEEL_ROD(3)],
-    "muzzle_brake_pioneer":    [STEEL_PLATE(16), STEEL_ROD(3)],
-    "muzzle_brake_timeless50": [STEEL_PLATE(18), STEEL_ROD(3)],
-    "muzzle_brake_trex":       [STEEL_PLATE(16), STEEL_ROD(3)],
-    "muzzle_choke_sg":         [STEEL_PLATE(14), STEEL_ROD(2)],
-    "muzzle_compensator_trident": [STEEL_PLATE(16), STEEL_ROD(3)],
-    "muzzle_silencer_knight_qd":  [STEEL_PLATE(40), STEEL_ROD(8), STEEL_COMP(4)],
-    "muzzle_silencer_mirage":     [STEEL_PLATE(36), STEEL_ROD(6), STEEL_COMP(4)],
-    "muzzle_silencer_phantom_s1": [STEEL_PLATE(40), STEEL_ROD(8), STEEL_COMP(4)],
-    "muzzle_silencer_ptilopsis":  [STEEL_PLATE(36), STEEL_ROD(6), STEEL_COMP(4)],
-    "muzzle_silencer_sg":         [STEEL_PLATE(44), STEEL_ROD(8), STEEL_COMP(4)],
-    "muzzle_silencer_ursus":      [STEEL_PLATE(38), STEEL_ROD(7), STEEL_COMP(4)],
-    "muzzle_silencer_vulture":    [STEEL_PLATE(40), STEEL_ROD(8), STEEL_COMP(4)],
-    # Lasers
-    "laser_compact":   [REDSTONE(6), GOLD_PLATE(6),  GLASS(2)],
-    "laser_lopro":     [REDSTONE(6), GOLD_PLATE(6),  GLASS(2)],
-    "laser_nightstick":[REDSTONE(8), GOLD_PLATE(8),  GLASS(4)],
-    # Bayonets
-    "bayonet_6h3":     [STEEL_PLATE(32), STEEL_ROD(4)],
-    "bayonet_m9":      [STEEL_PLATE(32), STEEL_ROD(4)],
-    # Special barrel
-    "deagle_golden_long_barrel": [GOLD_PLATE(48), STEEL_PLATE(24), STEEL_ROD(3)],
-    # Ammo modifications
-    "ammo_mod_fmj":    [STEEL_PLATE(8),  COPPER(16)],
-    "ammo_mod_he":     [STEEL_PLATE(8),  GUNPOWDER(8)],
-    "ammo_mod_hp":     [COPPER(24),      IRON_PLATE(4)],
-    "ammo_mod_i":      [BLAZE_ROD(4),    STEEL_PLATE(8)],
-    "ammo_mod_slug":   [IRON_PLATE(8),   STEEL_PLATE(8)],
-}
-
-for aid, mats in tacz_attachments.items():
-    write_attachment(TACZ, "tacz", aid, mats)
-
-
-# ===========================================================================
-# PACK 3 — Suffuse GunSmoke  (suffuse namespace)
-# Contemporary / cutting-edge. Matches or exceeds tacz_default_gun cost.
-# ===========================================================================
-
-SUFFUSE = "tacz/Suffuse-GunSmoke-Pack1/data/suffuse/recipes"
-
-print("=== Suffuse GunSmoke (suffuse) ===")
-
-# --- Guns ---
-suffuse_guns = {
-    # Pistols
-    "tt33":             [STEEL_PLATE(60),  IRON_COMP(10), STEEL_ROD(3),  BRASS(12)],
-    "m1895":            [STEEL_PLATE(70),  IRON_COMP(12), STEEL_ROD(3),  BRASS(14), LOGS(8)],
-    "lifecard":         [STEEL_PLATE(45),  IRON_COMP(8),  STEEL_ROD(2),  BRASS(8)],
-    "tec9":             [STEEL_PLATE(80),  IRON_COMP(14), STEEL_ROD(3),  ALUM_PLATE(16)],
-    "python":           [STEEL_PLATE(90),  STEEL_COMP(14),STEEL_ROD(4),  BRASS(20)],
-    "viper2011":        [STEEL_PLATE(100), STEEL_COMP(16),STEEL_ROD(4),  BRASS(18)],
-    "tti2011":          [STEEL_PLATE(110), STEEL_COMP(18),STEEL_ROD(4),  BRASS(22), ALUM_PLATE(16)],
-    "usp45":            [STEEL_PLATE(105), STEEL_COMP(16),STEEL_ROD(4),  ALUM_PLATE(18), CLAY(24)],
-    "usp45_black":      [STEEL_PLATE(105), STEEL_COMP(16),STEEL_ROD(4),  ALUM_PLATE(18), CLAY(24)],
-    "webley1913":       [STEEL_PLATE(95),  STEEL_COMP(14),STEEL_ROD(4),  BRASS(20), LOGS(6)],
-    # SMGs
-    "ump45":            [URANIUM(), STEEL_PLATE(195), STEEL_COMP(39), STEEL_ROD(5), ALUM_PLATE(96), CLAY(48)],
-    "pp19":             [STEEL_PLATE(170), STEEL_COMP(30), STEEL_ROD(6), ALUM_PLATE(48), CLAY(24)],
-    "mas38":            [STEEL_PLATE(150), STEEL_COMP(27), STEEL_ROD(6), ANDESITE(32), LOGS(16)],
-    "mpdr":             [STEEL_PLATE(180), STEEL_COMP(33), STEEL_ROD(6), ALUM_PLATE(48), BRASS(18)],
-    "kacpdw":           [URANIUM(), STEEL_PLATE(210), STEEL_COMP(42), STEEL_ROD(6), ALUM_PLATE(72), CLAY(36)],
-    "gepardpdw":        [URANIUM(), STEEL_PLATE(195), STEEL_COMP(36), STEEL_ROD(6), ALUM_PLATE(72)],
-    "n4":               [STEEL_PLATE(145), STEEL_COMP(27), STEEL_ROD(6), ALUM_PLATE(36), BRASS(18)],
-    # Shotguns / Launchers
-    "trapper50cal":     [STEEL_PLATE(50),  IRON_PLATE(8),  LOGS(14), STEEL_ROD(6)],
-    "spas12":           [STEEL_PLATE(240), STEEL_COMP(45), STEEL_ROD(10), ALUM_PLATE(48), CLAY(48)],
-    "ks23m":            [STEEL_PLATE(260), STEEL_COMP(48), STEEL_ROD(12), ALUM_PLATE(72), CLAY(48)],
-    "m79":              [STEEL_PLATE(180), STEEL_COMP(36), STEEL_ROD(8),  BRASS(24)],
-    # Assault Rifles
-    "an94":             [URANIUM(), STEEL_PLATE(245), STEEL_COMP(57), STEEL_ROD(6),  ALUM_PLATE(72)],
-    "qbz951":           [URANIUM(), STEEL_PLATE(220), STEEL_COMP(48), STEEL_ROD(6),  ALUM_PLATE(72), CLAY(30)],
-    "qbz951s":          [URANIUM(), STEEL_PLATE(230), STEEL_COMP(51), STEEL_ROD(6),  ALUM_PLATE(72), CLAY(30)],
-    "qbz191":           [URANIUM(), STEEL_PLATE(240), STEEL_COMP(54), STEEL_ROD(6),  ALUM_PLATE(96)],
-    "qbz192":           [URANIUM(), STEEL_PLATE(225), STEEL_COMP(48), STEEL_ROD(6),  ALUM_PLATE(72)],
-    "qbu191":           [URANIUM(), STEEL_PLATE(260), STEEL_COMP(60), STEEL_ROD(8),  ALUM_PLATE(96)],
-    "xm7":              [URANIUM(), STEEL_PLATE(275), STEEL_COMP(63), STEEL_ROD(8),  ALUM_PLATE(96)],
-    "ar57":             [URANIUM(), STEEL_PLATE(215), STEEL_COMP(45), STEEL_ROD(6),  ALUM_PLATE(72)],
-    "rm277":            [URANIUM(), STEEL_PLATE(290), STEEL_COMP(66), STEEL_ROD(8),  ALUM_PLATE(96)],
-    "saddam_golden_ak": [GOLD_PLATE(180), STEEL_PLATE(270), IRON_COMP(48), STEEL_ROD(6), LOGS(36)],
-    "aks74u":           [STEEL_PLATE(190), STEEL_COMP(33), STEEL_ROD(6),  ALUM_PLATE(36), ANDESITE(32)],
-    # Battle Rifles / DMRs
-    "ash12":            [URANIUM(), STEEL_PLATE(300), STEEL_COMP(66), STEEL_ROD(9),  ALUM_PLATE(72), IRON_PLATE(24)],
-    "svd":              [STEEL_PLATE(300), STEEL_COMP(57), STEEL_ROD(10), ALUM_PLATE(48), LOGS(12), ANVIL()],
-    "dvl10":            [URANIUM(), STEEL_PLATE(340), STEEL_COMP(66), STEEL_ROD(12), ALUM_PLATE(72), ANVIL(2)],
-    "np762":            [URANIUM(), STEEL_PLATE(330), STEEL_COMP(63), STEEL_ROD(12), ALUM_PLATE(48), ANVIL(2)],
-    "m203":             [STEEL_PLATE(195), STEEL_COMP(42), STEEL_ROD(8),  ALUM_PLATE(36)],
-    # LMGs
-    "pkp":              [URANIUM(), STEEL_PLATE(410), STEEL_COMP(120), STEEL_ROD(21), ALUM_PLATE(96), IRON_PLATE(48)],
-    "qlu11":            [URANIUM(), STEEL_PLATE(385), STEEL_COMP(105), STEEL_ROD(18), ALUM_PLATE(72), IRON_PLATE(36)],
-    # Snipers / Anti-Material
-    "m200":             [URANIUM(),   STEEL_PLATE(450), STEEL_COMP(108), STEEL_ROD(18), ALUM_PLATE(96), ANVIL(3)],
-    "aw50":             [URANIUM(2),  STEEL_PLATE(520), STEEL_COMP(135), STEEL_ROD(21), ALUM_PLATE(120), ANVIL(3)],
-    "gm6":              [URANIUM(2),  STEEL_PLATE(600), STEEL_COMP(165), STEEL_ROD(24), ALUM_PLATE(150), ANVIL(5)],
-    "axmc":             [URANIUM(2),  STEEL_PLATE(560), STEEL_COMP(143), STEEL_ROD(21), ALUM_PLATE(120), ANVIL(4)],
-    "axsr":             [URANIUM(2),  STEEL_PLATE(580), STEEL_COMP(150), STEEL_ROD(22), ALUM_PLATE(120), ANVIL(4)],
-    # Special / Heavy
-    "aiyasinrpg":       [STEEL_PLATE(420), STEEL_COMP(90),  STEEL_ROD(30), IRON_PLATE(48)],
-    "pf98a":            [URANIUM(), STEEL_PLATE(450), STEEL_COMP(98),  STEEL_ROD(36), IRON_PLATE(72)],
-    "ags30":            [URANIUM(), STEEL_PLATE(500), STEEL_COMP(135), STEEL_ROD(30), ALUM_PLATE(96), IRON_PLATE(72)],
-}
-
-for gid, mats in suffuse_guns.items():
-    write_gun(SUFFUSE, "suffuse", gid, mats)
-
-# --- Ammo ---
-suffuse_ammo = {
-    "7.65x20mm":  ([COPPER(10), GUNPOWDER(2)],                           60),  # MAS38 pistol round
-    "6x35mm":     ([COPPER(15), GUNPOWDER(4)],                           50),
-    "35x32mm":    ([COPPER(30), GUNPOWDER(6)],                           20),
-    "545x39":     ([COPPER(18), GUNPOWDER(5)],                           50),
-    "6.8tvcm":    ([COPPER(22), GUNPOWDER(6)],                           40),
-    "12.7x55":    ([COPPER(40), GUNPOWDER(8), LAPIS(1)],                 20),  # Russian antimat
-    "23mm":       ([COPPER(48), GUNPOWDER(10), IRON_PLATE(4)],           12),
-    "120mm":      ([IRON_PLATE(64), GUNPOWDER(16), STEEL_PLATE(16)],     1),   # tank round
-    "boomstickshot": ([PAPER(3), GUNPOWDER(9), FLINT(9)],               6),   # keep original feel
-    ".22lr":         ([COPPER(6),  GUNPOWDER(3)],                           64),  # rimfire — cheapest centerfire
-    ".22wmr":        ([COPPER(8),  GUNPOWDER(4)],                           60),  # rimfire magnum
-    ".408ct":        ([COPPER(80), GUNPOWDER(14), LAPIS(2)],               30),  # CheyTac — heavy sniper round
-    ".600ne":        ([COPPER(96), GUNPOWDER(18), LAPIS(4), BLAZE_ROD(1)], 12),  # .600 Nitro Express — extreme big bore
-}
-
-for aid, (mats, count) in suffuse_ammo.items():
-    write_ammo(SUFFUSE, "suffuse", aid, mats, count)
-
-# --- Attachments ---
-suffuse_attachments = {
-    # Grips
-    "grip_td":              [STEEL_PLATE(12), LOGS(4), LEATHER(4)],
-    "grip_td_black":        [STEEL_PLATE(12), LOGS(4), LEATHER(4)],
-    "grip_td_blue_grey":    [STEEL_PLATE(12), LOGS(4), LEATHER(4)],
-    "grip_td_green":        [STEEL_PLATE(12), LOGS(4), LEATHER(4)],
-    "grip_flashlight":      [STEEL_PLATE(14), LOGS(4), REDSTONE(4), GLASS(2)],
-    "grip_m203":            [STEEL_PLATE(120), STEEL_COMP(20), STEEL_ROD(6)],  # underbarrel GL
-    # Stocks
-    "stock_n4":             [STEEL_PLATE(18), CLAY(12), STEEL_ROD(2)],
-    "stock_bcm_mod2_sopmod":[STEEL_PLATE(22), CLAY(16), STEEL_ROD(2)],
-    "stock_colt":           [STEEL_PLATE(18), LOGS(6)],
-    "stock_colt_plus":      [STEEL_PLATE(20), LOGS(6),  STEEL_ROD(2)],
-    "stock_elf_ultralight": [STEEL_PLATE(16), CLAY(12), STEEL_ROD(2)],
-    "stock_sig_black":      [STEEL_PLATE(22), CLAY(16), STEEL_ROD(2)],
-    "stock_sig_blue_grey":  [STEEL_PLATE(22), CLAY(16), STEEL_ROD(2)],
-    "stock_sig_desert":     [STEEL_PLATE(22), CLAY(16), STEEL_ROD(2)],
-    "stock_vltor_emod_black":  [STEEL_PLATE(24), CLAY(16), STEEL_ROD(2)],
-    "stock_vltor_emod_desert": [STEEL_PLATE(24), CLAY(16), STEEL_ROD(2)],
-    "stock_vltor_emod_green":  [STEEL_PLATE(24), CLAY(16), STEEL_ROD(2)],
-    # Lasers
-    "laser_an_peq_2a":      [REDSTONE(8), GOLD_PLATE(8), GLASS(4)],
-    "laser_dbala2":         [REDSTONE(8), GOLD_PLATE(8), GLASS(4)],
-    "laser_pistol":         [REDSTONE(6), GOLD_PLATE(6), GLASS(2)],
-    "pistollaser":          [REDSTONE(6), GOLD_PLATE(6), GLASS(2)],
-    # Sights / Scopes
-    "sight_cobra_ekp_818":  [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    "sight_dbala2":         [STEEL_PLATE(8),  GLASS(4), REDSTONE(4)],
-    "scope_compm4":         [STEEL_PLATE(10), GLASS(6), REDSTONE(4)],
-    "scope_ks23m":          [STEEL_PLATE(14), GLASS(6), STEEL_COMP(4)],
-    "scope_qlu11s":         [STEEL_PLATE(20), GLASS(8), STEEL_COMP(6), REDSTONE(4)],
-    "scope_sig_tango_msr_1_6": [STEEL_PLATE(22), GLASS(10), STEEL_COMP(6), REDSTONE(4)],
-    # Silencers
-    "m7_silencer":          [STEEL_PLATE(36), STEEL_ROD(6), STEEL_COMP(4)],
-    "rm277_silencer":       [STEEL_PLATE(40), STEEL_ROD(8), STEEL_COMP(4)],
-}
-
-for aid, mats in suffuse_attachments.items():
-    write_attachment(SUFFUSE, "suffuse", aid, mats)
-
-
-print(f"\nDone. {'(UNCRAFTABLE MODE)' if UNCRAFTABLE else ''}")
+if EXPORT_CSV:
+    export_csv()
+else:
+    run_from_csv()
