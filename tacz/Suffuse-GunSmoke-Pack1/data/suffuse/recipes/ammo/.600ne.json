@@ -1,0 +1,16 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "minecraft:bedrock"
+      },
+      "count": 1
+    }
+  ],
+  "result": {
+    "type": "ammo",
+    "id": "suffuse:.600ne",
+    "count": 12
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

@@ -1,0 +1,15 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "minecraft:bedrock"
+      },
+      "count": 1
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "hamster:sw_mk2_41"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

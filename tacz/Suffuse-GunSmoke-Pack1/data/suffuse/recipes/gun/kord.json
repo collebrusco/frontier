@@ -1,0 +1,15 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "minecraft:bedrock"
+      },
+      "count": 1
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:kord"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}
