@@ -88,9 +88,9 @@ PROFILES = {
                        "alum_plate": 0.15, "iron_comp": 0.15},
     # Modern
     "modern_steel":   {"steel_plate": 0.35, "steel_comp": 0.25, "steel_rod": 0.10,
-                       "alum_plate": 0.20, "iron_plate": 0.10},
-    "modern_polymer": {"steel_plate": 0.30, "steel_comp": 0.20, "steel_rod": 0.10,
-                       "alum_plate": 0.20, "clay": 0.20},
+                       "alum_plate": 0.20, "iron_plate": 0.05, "pmech": 0.05},
+    "modern_polymer": {"steel_plate": 0.15, "steel_comp": 0.20, "steel_rod": 0.10,
+                       "alum_plate": 0.15, "plastic": 0.30, "pmech": 0.1},
     # Special
     "heavy_steel":    {"steel_plate": 0.35, "steel_comp": 0.20, "steel_rod": 0.10,
                        "alum_plate": 0.15, "iron_plate": 0.20},

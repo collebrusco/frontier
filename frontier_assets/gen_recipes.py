@@ -60,6 +60,9 @@ MATERIAL_DEFS = {
     # Create items (specific item IDs — must NOT use tag)
     "andesite":     lambda n: {"item": {"item": "create:andesite_alloy"},  "count": n},
     "brass":        lambda n: {"item": {"item": "create:brass_ingot"},     "count": n},
+    "pmech":        lambda n: {"item": {"item": "create:precision_mechanism"},     "count": n},
+    # tfmg
+    "plastic":      lambda n: {"item": {"item": "tfmg:plastic_sheet"},      "count": n},
     # Forge / vanilla tags (tag refs work fine)
     "uranium":      lambda n: {"item": {"tag": "forge:ingots/uranium"},    "count": n},
     "logs":         lambda n: {"item": {"tag": "minecraft:logs"},          "count": n},
