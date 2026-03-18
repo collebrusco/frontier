@@ -39,6 +39,8 @@ import math
 import os
 import re
 
+from recipe_common import MATERIAL_COLS, PACK_DATA_DIRS
+
 SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
 BALANCE_CSV = os.path.join(SCRIPT_DIR, "balance.csv")
 RECIPES_CSV = os.path.join(SCRIPT_DIR, "recipes.csv")
@@ -52,27 +54,19 @@ GLOBAL_SCALE    = 15.0   # Multiplier on budget (higher = everything costs more)
 GLOBAL_EXPONENT = 0.7    # Range compression (< 1 compresses the cheap/expensive gap)
 
 # ---------------------------------------------------------------------------
-# Pack configuration — where to find gun _data.json files
+# Pack configuration — default profile per pack
+# Data directories come from recipe_common.PACK_DATA_DIRS.
 # ---------------------------------------------------------------------------
 
-PACKS = {
-    "hamster": {
-        "data_dir": "tacz/GunpowderRevolution_gunpack v1/data/hamster/data/guns",
-        "default_profile": "old_wood",
-    },
-    "tacz": {
-        "data_dir": "tacz/tacz_default_gun/data/tacz/data/guns",
-        "default_profile": "modern_steel",
-    },
-    "suffuse": {
-        "data_dir": "tacz/Suffuse-GunSmoke-Pack1/data/suffuse/data/guns",
-        "default_profile": "modern_steel",
-    },
+PACK_DEFAULTS = {
+    "hamster": "old_wood",
+    "tacz":    "modern_steel",
+    "suffuse": "modern_steel",
 }
 
 # ---------------------------------------------------------------------------
 # Material profiles
-# Keys are material column names from gen_recipes.py.
+# Keys are material column names from recipe_common.
 # Weights MUST sum to 1.0. Validated at startup.
 # ---------------------------------------------------------------------------
 
@@ -97,15 +91,6 @@ PROFILES = {
     "launcher":       {"steel_plate": 0.30, "steel_rod": 0.25, "iron_plate": 0.25,
                        "steel_comp": 0.20},
 }
-
-# Material column order — must match gen_recipes.py
-MATERIAL_COLS = [
-    "steel_plate", "iron_plate", "alum_plate", "gold_plate", "steel_rod",
-    "iron_comp", "steel_comp", "andesite", "brass", "uranium",
-    "logs", "clay", "glass", "copper", "iron_nugget",
-    "gunpowder", "blaze_rod", "lapis", "redstone", "leather",
-    "anvil", "lever", "paper", "flint",
-]
 
 BALANCE_FIELDS = [
     "pack", "type", "id", "profile", "mult", "offset", "extras",
@@ -244,8 +229,7 @@ def _load_commented_json(filepath):
 def discover_guns():
     """Find all gun _data.json files. Returns {(pack, gun_id): parsed_data}."""
     guns = {}
-    for pack_name, pack_cfg in PACKS.items():
-        data_dir = pack_cfg["data_dir"]
+    for pack_name, data_dir in PACK_DATA_DIRS.items():
         if not os.path.isdir(data_dir):
             print(f"  WARNING: data dir not found: {data_dir}")
             continue
@@ -327,7 +311,7 @@ def scan_mode():
             expensive = score
             row = {
                 "pack": pack, "type": "gun", "id": gun_id,
-                "profile": PACKS[pack]["default_profile"],
+                "profile": PACK_DEFAULTS.get(pack, "modern_steel"),
                 "mult": "1", "offset": "0", "extras": "",
                 "power_score": score,
                 "expensive_score": round(expensive, 2),

@@ -28,6 +28,8 @@ import csv
 import json
 import os
 
+from recipe_common import MATERIAL_DEFS, MATERIAL_COLS, PACK_PATHS
+
 # ---------------------------------------------------------------------------
 # Args
 # ---------------------------------------------------------------------------
@@ -41,58 +43,6 @@ args = parser.parse_args()
 
 UNCRAFTABLE  = args.uncraftable
 EXPORT_CSV   = args.export_csv
-
-# ---------------------------------------------------------------------------
-# Material registry
-# Maps CSV column name → function(count) → TACZ material dict
-# IE/Create items use "item" refs; forge/vanilla tags use "tag" refs.
-# ---------------------------------------------------------------------------
-
-MATERIAL_DEFS = {
-    # IE plates / rods / components (specific item IDs — must NOT use tag)
-    "steel_plate":  lambda n: {"item": {"item": "immersiveengineering:plate_steel"},    "count": n},
-    "iron_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_iron"},     "count": n},
-    "alum_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_aluminum"}, "count": n},
-    "gold_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_gold"},     "count": n},
-    "steel_rod":    lambda n: {"item": {"item": "immersiveengineering:stick_steel"},    "count": n},
-    "iron_comp":    lambda n: {"item": {"item": "immersiveengineering:component_iron"}, "count": n},
-    "steel_comp":   lambda n: {"item": {"item": "immersiveengineering:component_steel"},"count": n},
-    # Create items (specific item IDs — must NOT use tag)
-    "andesite":     lambda n: {"item": {"item": "create:andesite_alloy"},  "count": n},
-    "brass":        lambda n: {"item": {"item": "create:brass_ingot"},     "count": n},
-    "pmech":        lambda n: {"item": {"item": "create:precision_mechanism"},     "count": n},
-    # tfmg
-    "plastic":      lambda n: {"item": {"item": "tfmg:plastic_sheet"},      "count": n},
-    # Forge / vanilla tags (tag refs work fine)
-    "uranium":      lambda n: {"item": {"tag": "forge:ingots/uranium"},    "count": n},
-    "logs":         lambda n: {"item": {"tag": "minecraft:logs"},          "count": n},
-    "clay":         lambda n: {"item": {"tag": "minecraft:clay"},          "count": n},
-    "glass":        lambda n: {"item": {"tag": "forge:glass"},             "count": n},
-    "copper":       lambda n: {"item": {"tag": "forge:ingots/copper"},     "count": n},
-    "iron_nugget":  lambda n: {"item": {"tag": "forge:nuggets/iron"},      "count": n},
-    "gunpowder":    lambda n: {"item": {"tag": "forge:gunpowder"},         "count": n},
-    "blaze_rod":    lambda n: {"item": {"tag": "forge:rods/blaze"},        "count": n},
-    "lapis":        lambda n: {"item": {"tag": "forge:gems/lapis"},        "count": n},
-    "redstone":     lambda n: {"item": {"tag": "forge:dusts/redstone"},    "count": n},
-    "leather":      lambda n: {"item": {"tag": "forge:leather"},           "count": n},
-    "anvil":        lambda n: {"item": {"tag": "minecraft:anvil"},         "count": n},
-    # Specific vanilla items
-    "lever":        lambda n: {"item": {"item": "minecraft:lever"},        "count": n},
-    "paper":        lambda n: {"item": {"item": "minecraft:paper"},        "count": n},
-    "flint":        lambda n: {"item": {"item": "minecraft:flint"},        "count": n},
-}
-
-MATERIAL_COLS = list(MATERIAL_DEFS.keys())
-
-# ---------------------------------------------------------------------------
-# Pack → recipe directory
-# ---------------------------------------------------------------------------
-
-PACK_PATHS = {
-    "hamster": "tacz/GunpowderRevolution_gunpack v1/data/hamster/recipes",
-    "tacz":    "tacz/tacz_default_gun/data/tacz/recipes",
-    "suffuse": "tacz/Suffuse-GunSmoke-Pack1/data/suffuse/recipes",
-}
 
 CSV_PATH = os.path.join(os.path.dirname(__file__), "recipes.csv")
 
