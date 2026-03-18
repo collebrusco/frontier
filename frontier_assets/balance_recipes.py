@@ -50,8 +50,8 @@ RECIPES_CSV = os.path.join(SCRIPT_DIR, "recipes.csv")
 # Adjust these to shift the overall economy up/down or compress the range.
 # ---------------------------------------------------------------------------
 
-GLOBAL_SCALE    = 15.0   # Multiplier on budget (higher = everything costs more)
-GLOBAL_EXPONENT = 0.7    # Range compression (< 1 compresses the cheap/expensive gap)
+GLOBAL_SCALE    = 100.0   # Multiplier on budget (higher = everything costs more)
+GLOBAL_EXPONENT = 0.8    # Range compression (< 1 compresses the cheap/expensive gap)
 
 # ---------------------------------------------------------------------------
 # Pack configuration — default profile per pack
@@ -70,6 +70,20 @@ PACK_DEFAULTS = {
 # Weights MUST sum to 1.0. Validated at startup.
 # ---------------------------------------------------------------------------
 
+# Profile multipliers — applied to the budget before distributing materials.
+# Use this to make entire eras cheaper/more expensive (e.g. old guns = early progression).
+PROFILE_MULT = {
+    "old_wood":       0.5,
+    "old_brass":      0.5,
+    "mid_wood":       0.75,
+    "mid_steel":      0.75,
+    "modern_steel":   1.0,
+    "modern_polymer": 1.0,
+    "heavy_steel":    1.0,
+    "launcher":       1.0,
+}
+
+# Profile material distributions — weights MUST sum to 1.0. Validated at startup.
 PROFILES = {
     # Historical (pre-WWI, WWI, WWII)
     "old_wood":       {"steel_plate": 0.50, "iron_plate": 0.15, "logs": 0.25, "steel_rod": 0.10},
@@ -199,9 +213,10 @@ def compute_materials(profile_name, total_budget, extras_str=""):
     if not profile:
         return None
 
+    adjusted_budget = total_budget * PROFILE_MULT.get(profile_name, 1.0)
     mats = {}
     for mat, weight in profile.items():
-        count = int(total_budget * weight)
+        count = int(adjusted_budget * weight)
         if count > 0:
             mats[mat] = count
 
