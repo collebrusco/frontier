@@ -122,7 +122,7 @@ PROFILES = {
 
 BALANCE_FIELDS = [
     "pack", "type", "id", "profile", "mult", "offset", "extras",
-    "power_score", "expensive_score", "total_budget", "notes",
+    "power_score", "notes",
 ]
 
 ## RECIPES_FIELDS imported from recipe_common
@@ -338,21 +338,13 @@ def scan_mode():
             # Preserve user edits (profile, mult, offset, extras, notes)
             row = dict(existing_index[key])
             row["power_score"] = score
-            mult   = float(row.get("mult", 1) or 1)
-            offset = float(row.get("offset", 0) or 0)
-            expensive = mult * score + offset
-            row["expensive_score"] = round(expensive, 2)
-            row["total_budget"]    = score_to_budget(expensive)
         else:
             # New gun — defaults
-            expensive = score
             row = {
                 "pack": pack, "type": "gun", "id": gun_id,
                 "profile": PACK_DEFAULTS.get(pack, "modern_steel"),
                 "mult": "1", "offset": "0", "extras": "",
                 "power_score": score,
-                "expensive_score": round(expensive, 2),
-                "total_budget": score_to_budget(expensive),
                 "notes": "",
             }
             new_count += 1
