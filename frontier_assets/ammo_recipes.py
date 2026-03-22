@@ -34,10 +34,10 @@ RECIPES_CSV = os.path.join(SCRIPT_DIR, "recipes.csv")
 # Global tuning knobs
 # ---------------------------------------------------------------------------
 
-AMMO_SCALE    = 14.0    # Multiplier on material budget (higher = everything costs more)
-AMMO_EXPONENT = 0.72    # Range compression (< 1 compresses cheap/expensive gap)
+AMMO_SCALE    = 24.0    # Multiplier on material budget (higher = everything costs more)
+AMMO_EXPONENT = 0.6    # Range compression (< 1 compresses cheap/expensive gap)
 
-YIELD_BASE     = 55      # Yield for a power=1.0 round
+YIELD_BASE     = 16      # Yield for a power=1.0 round
 YIELD_EXPONENT = 0.35    # How steeply yield drops with power (< 1 = gentle slope)
 
 # ---------------------------------------------------------------------------
@@ -46,9 +46,10 @@ YIELD_EXPONENT = 0.35    # How steeply yield drops with power (< 1 = gentle slop
 # ---------------------------------------------------------------------------
 
 AMMO_PROFILES = {
-    "brass":     {"copper": 0.80, "gunpowder": 0.20},
-    "shotshell": {"iron_nugget": 0.45, "gunpowder": 0.35, "paper": 0.20},
-    "explosive": {"iron_plate": 0.50, "gunpowder": 0.40, "steel_rod": 0.10},
+    "pistol":     {"brass": 0.25, "lead": 0.40, "gunpowder": 0.35},
+    "rifle":     {"brass": 0.25, "lead": 0.35, "gunpowder": 0.40},
+    "shotshell": {"paper": 0.15, "lead": 0.40, "gunpowder": 0.30, "iron_nugget": 0.15},
+    "explosive": {"iron_plate": 0.35, "tnt": 0.30, "gunpowder": 0.25, "steel_rod": 0.10},
 }
 
 # ---------------------------------------------------------------------------
@@ -65,10 +66,10 @@ CALIBERS = {
     # Pistol
     "7.65x20mm":  0.6,
     "9mm":        1.0,
-    "45acp":      1.3,
+    "45acp":      1.5,
     "762x25":     1.0,
     "357mag":     1.5,
-    "50ae":       2.8,
+    "50ae":       2.2,
     # PDW
     "46x30":      0.8,
     "57x28":      0.9,
@@ -111,45 +112,51 @@ CALIBERS = {
 # Each entry: (pack, id, caliber, profile, mult, offset, yield_override, extras)
 #
 #   caliber        — key into CALIBERS table
-#   profile        — key into AMMO_PROFILES ("brass", "shotshell", "explosive")
+#   profile        — key into AMMO_PROFILES ("pistol", "rifle", "shotshell", "explosive")
 #   mult / offset  — per-entry tuning: effective_power = caliber_power * mult + offset
 #   yield_override — None = auto-compute, or int to force a specific yield
 #   extras         — "material:count,..." added on top of computed materials
 # ---------------------------------------------------------------------------
 
+# egs of extras
+
+    # ("suffuse", "12.7x55",       "12.7x55",    "rifle",     1.0, 0, None, "lapis:1"),
+    # ("suffuse", "23mm",          "23mm",        "rifle",     1.0, 0, 12,   "iron_plate:4"),
+
 AMMO_ENTRIES = [
     # --- HAMSTER (GunpowderRevolution) ---
     # Abstract names: compact=pistol, medium=intermediate, long=rifle
-    ("hamster", "compact_ammo",  "9mm",       "brass",     1.0, 0, 50, ""),
-    ("hamster", "medium_ammo",   "45acp",     "brass",     1.0, 0, 48, ""),
-    ("hamster", "long_ammo",     "308",       "brass",     1.0, 0, 36, "lapis:1"),
-    ("hamster", "flares_ammo",   "flare",     "brass",     1.0, 0, 6,  "redstone:4"),
-    ("hamster", "12g",           "12g",       "shotshell", 1.0, 0, 24, ""),
+    ("hamster", "compact_ammo",  "9mm",       "pistol",    1.0, 0, None, ""),
+    ("hamster", "medium_ammo",   "45acp",     "pistol",    1.0, 0, None, ""),
+    ("hamster", "long_ammo",     "308",       "rifle",     1.0, 0, None, ""),
+    ("hamster", "flares_ammo",   "flare",     "pistol",    1.0, 0, None,  ""),
+    ("hamster", "12g",           "12g",       "shotshell", 1.0, 0, None, ""),
 
     # --- TACZ (tacz_default_gun) ---
     # Pistol calibers
-    ("tacz", "9mm",        "9mm",       "brass", 1.0, 0, None, ""),
-    ("tacz", "45acp",      "45acp",     "brass", 1.0, 0, None, ""),
-    ("tacz", "357mag",     "357mag",    "brass", 1.0, 0, None, ""),
-    ("tacz", "50ae",       "50ae",      "brass", 1.0, 0, None, "lapis:1"),
-    ("tacz", "762x25",     "762x25",    "brass", 1.0, 0, None, ""),
+    ("tacz", "9mm",        "9mm",       "pistol", 1.0, 0, None, ""),
+    ("tacz", "45acp",      "45acp",     "pistol", 1.0, 0, None, ""),
+    ("tacz", "357mag",     "357mag",    "pistol", 1.0, 0, None, ""),
+    ("tacz", "50ae",       "50ae",      "pistol", 1.0, 0, None, ""),
+    ("tacz", "762x25",     "762x25",    "pistol", 1.0, 0, None, ""),
+    # PDW
+    ("tacz", "46x30",      "46x30",     "pistol", 1.0, 0, None, ""),
+    ("tacz", "57x28",      "57x28",     "pistol", 1.0, 0, None, ""),
     # Intermediate
-    ("tacz", "545x39",     "545x39",    "brass", 1.0, 0, None, ""),
-    ("tacz", "556x45",     "556x45",    "brass", 1.0, 0, None, ""),
-    ("tacz", "762x39",     "762x39",    "brass", 1.0, 0, None, ""),
-    ("tacz", "46x30",      "46x30",     "brass", 1.0, 0, None, ""),
-    ("tacz", "57x28",      "57x28",     "brass", 1.0, 0, None, ""),
-    ("tacz", "6x35mm",     "6x35mm",    "brass", 1.0, 0, None, ""),
+    ("tacz", "545x39",     "545x39",    "rifle",  1.0, 0, None, ""),
+    ("tacz", "556x45",     "556x45",    "rifle",  1.0, 0, None, ""),
+    ("tacz", "762x39",     "762x39",    "rifle",  1.0, 0, None, ""),
+    ("tacz", "6x35mm",     "6x35mm",    "rifle",  1.0, 0, None, ""),
     # Full-power rifle
-    ("tacz", "308",        "308",       "brass", 1.0, 0, None, "lapis:1"),
-    ("tacz", "30_06",      "30_06",     "brass", 1.0, 0, None, ""),
-    ("tacz", "762x54",     "762x54",    "brass", 1.0, 0, None, ""),
-    ("tacz", "58x42",      "58x42",     "brass", 1.0, 0, None, ""),
-    ("tacz", "68x51fury",  "68x51fury", "brass", 1.0, 0, None, ""),
+    ("tacz", "308",        "308",       "rifle",  1.0, 0, None, ""),
+    ("tacz", "30_06",      "30_06",     "rifle",  1.0, 0, None, ""),
+    ("tacz", "762x54",     "762x54",    "rifle",  1.0, 0, None, ""),
+    ("tacz", "58x42",      "58x42",     "rifle",  1.0, 0, None, ""),
+    ("tacz", "68x51fury",  "68x51fury", "rifle",  1.0, 0, None, ""),
     # Heavy / sniper
-    ("tacz", "338",        "338",       "brass", 1.0, 0, None, "lapis:1"),
-    ("tacz", "45_70",      "45_70",     "brass", 1.0, 0, None, ""),
-    ("tacz", "50bmg",      "50bmg",     "brass", 1.0, 0, None, "lapis:4,blaze_rod:1"),
+    ("tacz", "338",        "338",       "rifle",  1.0, 0, None, ""),
+    ("tacz", "45_70",      "45_70",     "rifle",  1.0, 0, None, ""),
+    ("tacz", "50bmg",      "50bmg",     "rifle",  1.0, 0, None, ""),
     # Shotgun
     ("tacz", "12g",        "12g",       "shotshell", 1.0, 0, 24, ""),
     # Explosive / launcher
@@ -157,19 +164,19 @@ AMMO_ENTRIES = [
     ("tacz", "rpg_rocket", "rpg",       "explosive", 1.0, 0, 1,  ""),
 
     # --- SUFFUSE (GunSmoke) ---
-    ("suffuse", "7.65x20mm",     "7.65x20mm",  "brass",     1.0, 0, None, ""),
-    ("suffuse", "6x35mm",        "6x35mm",     "brass",     1.0, 0, None, ""),
+    ("suffuse", "7.65x20mm",     "7.65x20mm",  "pistol",    1.0, 0, None, ""),
+    ("suffuse", "6x35mm",        "6x35mm",     "rifle",     1.0, 0, None, ""),
     ("suffuse", "35x32mm",       "35x32mm",    "explosive", 1.0, 0, 20,   ""),
-    ("suffuse", "545x39",        "545x39",     "brass",     1.0, 0, None, ""),
-    ("suffuse", "6.8tvcm",       "6.8tvcm",    "brass",     1.0, 0, None, ""),
-    ("suffuse", "12.7x55",       "12.7x55",    "brass",     1.0, 0, None, "lapis:1"),
-    ("suffuse", "23mm",          "23mm",        "brass",     1.0, 0, 12,   "iron_plate:4"),
+    ("suffuse", "545x39",        "545x39",     "rifle",     1.0, 0, None, ""),
+    ("suffuse", "6.8tvcm",       "6.8tvcm",    "rifle",     1.0, 0, None, ""),
+    ("suffuse", "12.7x55",       "12.7x55",    "rifle",     1.0, 0, None, ""),
+    ("suffuse", "23mm",          "23mm",        "rifle",     1.0, 0, 12,   ""),
     ("suffuse", "120mm",         "120mm",       "explosive", 1.0, 0, 1,    ""),
     ("suffuse", "boomstickshot", "boomstick",   "shotshell", 1.0, 0, 6,    ""),
-    ("suffuse", ".22lr",         ".22lr",       "brass",     1.0, 0, None, ""),
-    ("suffuse", ".22wmr",        ".22wmr",      "brass",     1.0, 0, None, ""),
-    ("suffuse", ".408ct",        ".408ct",      "brass",     1.0, 0, None, "lapis:2"),
-    ("suffuse", ".600ne",        ".600ne",      "brass",     1.0, 0, None, "lapis:4,blaze_rod:1"),
+    ("suffuse", ".22lr",         ".22lr",       "pistol",    1.0, 0, None, ""),
+    ("suffuse", ".22wmr",        ".22wmr",      "pistol",    1.0, 0, None, ""),
+    ("suffuse", ".408ct",        ".408ct",      "rifle",     1.0, 0, None, ""),
+    ("suffuse", ".600ne",        ".600ne",      "rifle",     1.0, 0, None, ""),
 ]
 
 # ---------------------------------------------------------------------------

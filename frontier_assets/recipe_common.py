@@ -31,6 +31,7 @@ MATERIAL_DEFS = {
     # TFMG
     "plastic":      lambda n: {"item": {"item": "tfmg:plastic_sheet"},         "count": n},
     # Forge / vanilla tags
+    "lead":         lambda n: {"item": {"tag": "forge:ingots/lead"},      "count": n},
     "uranium":      lambda n: {"item": {"tag": "forge:ingots/uranium"},    "count": n},
     "logs":         lambda n: {"item": {"tag": "minecraft:logs"},          "count": n},
     "clay":         lambda n: {"item": {"tag": "minecraft:clay"},          "count": n},
@@ -44,6 +45,7 @@ MATERIAL_DEFS = {
     "leather":      lambda n: {"item": {"tag": "forge:leather"},           "count": n},
     "anvil":        lambda n: {"item": {"tag": "minecraft:anvil"},         "count": n},
     # Specific vanilla items
+    "tnt":          lambda n: {"item": {"item": "minecraft:tnt"},          "count": n},
     "lever":        lambda n: {"item": {"item": "minecraft:lever"},        "count": n},
     "paper":        lambda n: {"item": {"item": "minecraft:paper"},        "count": n},
     "flint":        lambda n: {"item": {"item": "minecraft:flint"},        "count": n},
