@@ -54,6 +54,20 @@ GLOBAL_SCALE    = 100.0   # Multiplier on budget (higher = everything costs more
 GLOBAL_EXPONENT = 0.8    # Range compression (< 1 compresses the cheap/expensive gap)
 
 # ---------------------------------------------------------------------------
+# Power score tuning knobs
+# ---------------------------------------------------------------------------
+
+DPS_WEIGHT      = 0.7     # How much sustained DPS matters (vs alpha)
+ALPHA_WEIGHT    = 0.3     # How much one-shot damage matters (vs DPS)
+SEMI_RPM_CAP    = 360     # Max effective RPM for semi-auto (~6 clicks/sec)
+MAG_REFERENCE   = 30      # Magazine size that gives factor = 1.0
+MAG_WEIGHT      = 0.35    # Exponent on magazine factor (lower = gentler curve)
+PELLET_EXP      = 0.3     # Exponent on bullet_amount for shotguns (lower = less credit)
+ARMOR_WEIGHT    = 0.3     # How much armor_ignore contributes (situational advantage)
+HS_WEIGHT       = 0.3     # How much headshot multiplier contributes (situational)
+PIERCE_BONUS    = 0.2     # Per pierce level, applied via log2 (sublinear)
+
+# ---------------------------------------------------------------------------
 # Pack configuration — default profile per pack
 # Data directories come from recipe_common.PACK_DATA_DIRS.
 # ---------------------------------------------------------------------------
@@ -137,8 +151,9 @@ _validate_profiles()
 def compute_power_score(data):
     """Compute a composite power score from gun _data.json fields.
 
-    Uses geometric mean of sustained DPS and per-shot alpha damage,
-    so both high-RPM weapons and high-damage weapons score well.
+    Weighted geometric mean of DPS and per-shot alpha, so damage and fire rate
+    contribute independently (no double-counting). Semi-auto RPM is capped to
+    model human click speed. Magazine factor uses a gentle log curve.
     """
     bullet = data.get("bullet", {})
     damage = bullet.get("damage", 1)
@@ -162,27 +177,34 @@ def compute_power_score(data):
     ammo  = data.get("ammo_amount", 100)  # default 100 for inventory-based (minigun)
     modes = data.get("fire_mode", ["semi"])
 
-    # Shotgun pellets: sqrt models that not all pellets hit at range
-    pellet_factor = math.sqrt(bullet_amount) if bullet_amount > 1 else 1.0
+    # Shotgun pellets: bullet_amount^PELLET_EXP (less generous than sqrt)
+    pellet_factor = bullet_amount ** PELLET_EXP if bullet_amount > 1 else 1.0
 
     # Per-shot effective damage
-    shot_damage = damage * pellet_factor * (1 + armor_ignore) * (headshot / 1.5)
+    # Armor ignore and headshot are situational — diminished contribution
+    base_damage = damage * pellet_factor
+    armor_bonus = 1 + ARMOR_WEIGHT * armor_ignore
+    hs_bonus = 1 + HS_WEIGHT * max(0, headshot / 1.5 - 1)
+    shot_damage = base_damage * armor_bonus * hs_bonus
 
-    # Sustain: DPS-like measure
-    sustain = shot_damage * rpm / 60.0
+    # Effective RPM: semi-auto capped by human click speed, auto uses full RPM
+    effective_rpm = rpm if "auto" in modes else min(rpm, SEMI_RPM_CAP)
 
-    # Alpha: per-shot lethality (pierce gives modest bonus)
-    pierce_factor = 1 + 0.15 * max(0, pierce - 1)
+    # DPS — damage and fire rate contribute equally here
+    dps = shot_damage * effective_rpm / 60.0
+
+    # Alpha — per-shot lethality, pierce bonus grows sublinearly
+    pierce_factor = 1 + PIERCE_BONUS * math.log2(max(pierce, 1))
     alpha = shot_damage * pierce_factor
 
-    # Geometric mean — rewards both high sustain and high alpha
-    combined = math.sqrt(max(sustain, 0.01) * max(alpha, 0.01))
+    # Weighted geometric mean — DPS and alpha as independent axes
+    # (avoids double-counting damage, unlike sqrt(dps * alpha))
+    combined = (max(dps, 0.01) ** DPS_WEIGHT) * (max(alpha, 0.01) ** ALPHA_WEIGHT)
 
-    # Modifiers
-    auto_bonus = 1.3 if "auto" in modes else 1.0
-    mag_factor = math.log2(max(ammo, 1) + 1) / math.log2(31)
+    # Magazine factor — gentle log curve, MAG_REFERENCE rounds = 1.0
+    mag_factor = (math.log(max(ammo, 1) + 1) / math.log(MAG_REFERENCE + 1)) ** MAG_WEIGHT
 
-    return round(combined * auto_bonus * mag_factor, 2)
+    return round(combined * mag_factor, 2)
 
 # ---------------------------------------------------------------------------
 # Budget and material computation
