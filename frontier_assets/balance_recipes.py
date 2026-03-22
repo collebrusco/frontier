@@ -50,8 +50,9 @@ RECIPES_CSV = os.path.join(SCRIPT_DIR, "recipes.csv")
 # Adjust these to shift the overall economy up/down or compress the range.
 # ---------------------------------------------------------------------------
 
-GLOBAL_SCALE    = 100.0   # Multiplier on budget (higher = everything costs more)
-GLOBAL_EXPONENT = 0.8    # Range compression (< 1 compresses the cheap/expensive gap)
+GLOBAL_SCALE    = 60.0    # Multiplier on budget (higher = everything costs more)
+GLOBAL_EXPONENT = 0.36    # Range compression (< 1 compresses the cheap/expensive gap)
+GLOBAL_OFFSET   = 12       # Added to every expensive_score before budget computation
 
 # ---------------------------------------------------------------------------
 # Power score tuning knobs
@@ -87,14 +88,14 @@ PACK_DEFAULTS = {
 # Profile multipliers — applied to the budget before distributing materials.
 # Use this to make entire eras cheaper/more expensive (e.g. old guns = early progression).
 PROFILE_MULT = {
-    "old_wood":       0.5,
-    "old_brass":      0.5,
-    "mid_wood":       0.75,
-    "mid_steel":      0.75,
-    "modern_steel":   1.0,
-    "modern_polymer": 1.0,
-    "heavy_steel":    1.0,
-    "launcher":       1.0,
+    "old_wood":       0.66,
+    "old_brass":      0.75,
+    "mid_wood":       1.0,
+    "mid_steel":      1.0,
+    "modern_steel":   1.33,
+    "modern_polymer": 1.66,
+    "heavy_steel":    1.5,
+    "launcher":       1.5,
 }
 
 # Profile material distributions — weights MUST sum to 1.0. Validated at startup.
@@ -110,9 +111,9 @@ PROFILES = {
                        "alum_plate": 0.15, "iron_comp": 0.15},
     # Modern
     "modern_steel":   {"steel_plate": 0.35, "steel_comp": 0.25, "steel_rod": 0.10,
-                       "alum_plate": 0.20, "iron_plate": 0.05, "pmech": 0.05},
+                       "alum_plate": 0.20, "iron_plate": 0.08, "pmech": 0.02},
     "modern_polymer": {"steel_plate": 0.15, "steel_comp": 0.20, "steel_rod": 0.10,
-                       "alum_plate": 0.15, "plastic": 0.30, "pmech": 0.1},
+                       "alum_plate": 0.15, "plastic": 0.37, "pmech": 0.03},
     # Special
     "heavy_steel":    {"steel_plate": 0.35, "steel_comp": 0.20, "steel_rod": 0.10,
                        "alum_plate": 0.15, "iron_plate": 0.20},
@@ -212,7 +213,8 @@ def compute_power_score(data):
 
 def score_to_budget(expensive_score):
     """Convert expensive score → total material budget."""
-    return int(GLOBAL_SCALE * (max(expensive_score, 0.01) ** GLOBAL_EXPONENT))
+    shifted = max(expensive_score + GLOBAL_OFFSET, 0.01)
+    return int(GLOBAL_SCALE * (shifted ** GLOBAL_EXPONENT))
 
 def parse_extras(extras_str):
     """Parse 'uranium:1,brass:4' → {'uranium': 1, 'brass': 4}."""
@@ -375,7 +377,7 @@ def scores_mode():
     for score, pack, gun_id in scored:
         budget = score_to_budget(score)
         print(f"{score:>8.1f}  {budget:>7}  {pack:<10} {gun_id}")
-    print(f"\n{len(scored)} guns total  |  SCALE={GLOBAL_SCALE}  EXPONENT={GLOBAL_EXPONENT}")
+    print(f"\n{len(scored)} guns total  |  SCALE={GLOBAL_SCALE}  EXPONENT={GLOBAL_EXPONENT}  OFFSET={GLOBAL_OFFSET}")
 
 # ---------------------------------------------------------------------------
 # --preview: show full breakdown without writing
@@ -492,12 +494,68 @@ def balance_mode():
 # Entry point
 # ---------------------------------------------------------------------------
 
+def graph_mode():
+    """Write graph.csv with all scalar scores for easy graphing."""
+    balance = read_balance_csv()
+    guns = discover_guns()
+
+    if not balance:
+        print("No balance.csv found. Run --scan first.")
+        return
+
+    graph_path = os.path.join(SCRIPT_DIR, "graph.csv")
+    fields = ["pack", "id", "profile", "mult", "offset",
+              "power_score", "expensive_score", "total_budget", "profile_mult", "adjusted_budget"]
+
+    rows = []
+    for row in balance:
+        pack = row.get("pack", "").strip()
+        if not pack or pack.startswith("#"):
+            continue
+        gun_id  = row.get("id", "").strip()
+        profile = row.get("profile", "").strip()
+        mult    = float(row.get("mult", 1) or 1)
+        offset  = float(row.get("offset", 0) or 0)
+
+        key = (pack, gun_id)
+        score = compute_power_score(guns[key]) if key in guns else float(row.get("power_score", 0) or 0)
+        expensive = mult * score + offset
+        budget = score_to_budget(expensive)
+        pmult = PROFILE_MULT.get(profile, 1.0)
+        adjusted = int(budget * pmult)
+
+        rows.append({
+            "pack": pack, "id": gun_id, "profile": profile,
+            "mult": mult, "offset": offset,
+            "power_score": round(score, 2),
+            "expensive_score": round(expensive, 2),
+            "total_budget": budget,
+            "profile_mult": pmult,
+            "adjusted_budget": adjusted,
+        })
+
+    rows.sort(key=lambda r: r["power_score"], reverse=True)
+
+    with open(graph_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        for r in rows:
+            writer.writerow(r)
+
+    print(f"Wrote {len(rows)} rows to {graph_path}")
+    print(f"  Columns: {', '.join(fields)}")
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="TACZ recipe balancer")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--scan",    action="store_true", help="Discover guns, create/update balance.csv")
     group.add_argument("--scores",  action="store_true", help="Print ranked power scores")
     group.add_argument("--preview", action="store_true", help="Show breakdown without writing")
+    group.add_argument("--graph",   action="store_true", help="Write graph.csv with all scores for graphing")
     args = parser.parse_args()
 
     if args.scan:
@@ -506,5 +564,7 @@ if __name__ == "__main__":
         scores_mode()
     elif args.preview:
         preview_mode()
+    elif args.graph:
+        graph_mode()
     else:
         balance_mode()
