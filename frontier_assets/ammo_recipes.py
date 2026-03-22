@@ -93,7 +93,7 @@ CALIBERS = {
     "50bmg":      7.0,
     ".600ne":     9.0,
     # Shotgun
-    "12g":        1.8,
+    "12g":        2.5,
     # Autocannon
     "23mm":       12.0,
     # Grenades / rockets
@@ -158,15 +158,15 @@ AMMO_ENTRIES = [
     ("tacz", "45_70",      "45_70",     "rifle",  1.0, 0, None, ""),
     ("tacz", "50bmg",      "50bmg",     "rifle",  1.0, 0, None, ""),
     # Shotgun
-    ("tacz", "12g",        "12g",       "shotshell", 1.0, 0, 24, ""),
+    ("tacz", "12g",        "12g",       "shotshell", 1.0, 0, None, ""),
     # Explosive / launcher
-    ("tacz", "40mm",       "40mm",      "explosive", 1.0, 0, 4,  ""),
-    ("tacz", "rpg_rocket", "rpg",       "explosive", 1.0, 0, 1,  ""),
+    ("tacz", "40mm",       "40mm",      "explosive", 1.0, 0, None,  ""),
+    ("tacz", "rpg_rocket", "rpg",       "explosive", 1.0, 0, 3,  ""),
 
     # --- SUFFUSE (GunSmoke) ---
     ("suffuse", "7.65x20mm",     "7.65x20mm",  "pistol",    1.0, 0, None, ""),
     ("suffuse", "6x35mm",        "6x35mm",     "rifle",     1.0, 0, None, ""),
-    ("suffuse", "35x32mm",       "35x32mm",    "explosive", 1.0, 0, 20,   ""),
+    ("suffuse", "35x32mm",       "35x32mm",    "explosive", 1.0, 0, 10,   ""),
     ("suffuse", "545x39",        "545x39",     "rifle",     1.0, 0, None, ""),
     ("suffuse", "6.8tvcm",       "6.8tvcm",    "rifle",     1.0, 0, None, ""),
     ("suffuse", "12.7x55",       "12.7x55",    "rifle",     1.0, 0, None, ""),
