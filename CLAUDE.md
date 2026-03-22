@@ -43,6 +43,62 @@ A tkinter GUI app (~970 lines, single file) that wraps git operations so non-tec
 
 - **Build** — `Makefile` uses PyInstaller to produce `FrontierLauncher.exe` (single-file, no console window). The built exe lives at the repo root for easy download.
 
+## TACZ Recipe Generation System
+
+Generates balanced crafting recipes for all TACZ gunpack weapons, ammo, and attachments. Lives in `frontier_assets/`.
+
+### Architecture
+
+Four Python files:
+
+- **`recipe_common.py`** — Shared config: material definitions (CSV column → TACZ JSON), pack paths, CSV field lists. Both balance scripts import from here.
+- **`balance_recipes.py`** — **Gun** recipe balancer. Reads gun `_data.json` stats, computes power scores, applies material profiles, writes gun rows to `recipes.csv`.
+- **`ammo_recipes.py`** — **Ammo** recipe balancer. Caliber power table + global knobs → computes ammo material costs and yields, writes ammo rows to `recipes.csv`.
+- **`gen_recipes.py`** — Final stage. Reads `recipes.csv` and writes the actual JSON recipe files into each gunpack's directory.
+
+### Pipeline
+
+```
+# Guns: scan stats → edit balance.csv → compute recipes
+python3 frontier_assets/balance_recipes.py --scan     # discover guns, populate balance.csv
+# (edit balance.csv — assign profiles, tweak mult/offset/extras)
+python3 frontier_assets/balance_recipes.py            # compute gun recipes → recipes.csv
+
+# Ammo: all config is in ammo_recipes.py (no CSV input)
+python3 frontier_assets/ammo_recipes.py               # compute ammo recipes → recipes.csv
+
+# Write JSON files from recipes.csv
+python3 frontier_assets/gen_recipes.py                # write JSON to tacz/*/recipes/
+```
+
+### Gun balance flow
+
+1. `--scan` reads `*_data.json` files, computes power scores (geometric mean of sustained DPS × alpha damage), writes `balance.csv`
+2. User edits `balance.csv`: assigns material profiles (`old_wood`, `modern_steel`, etc.), tunes per-gun `mult`/`offset`/`extras`
+3. Default mode reads `balance.csv`, computes `budget = GLOBAL_SCALE * expensive_score ^ GLOBAL_EXPONENT`, distributes across profile materials
+
+### Ammo balance flow
+
+All config lives as Python globals in `ammo_recipes.py`:
+- **`CALIBERS`** dict — base power per caliber (9mm=1.0 baseline), shared across packs
+- **`AMMO_PROFILES`** — material distributions: `brass` (copper+gunpowder), `shotshell` (iron_nugget+gunpowder+paper), `explosive` (iron_plate+gunpowder+steel_rod)
+- **`AMMO_ENTRIES`** — registry mapping (pack, ammo_id) → caliber + profile + per-entry mult/offset/yield_override/extras
+- **Global knobs**: `AMMO_SCALE`, `AMMO_EXPONENT` (cost curve), `YIELD_BASE`, `YIELD_EXPONENT` (rounds per craft curve)
+
+Preview without writing: `python3 frontier_assets/ammo_recipes.py --preview`
+
+### Other useful modes
+
+- `balance_recipes.py --scores` — print ranked power scores for all guns
+- `balance_recipes.py --preview` — show full gun breakdown without writing
+- `gen_recipes.py --uncraftable` — set every recipe to 1 bedrock (testing)
+
+### Key data files
+
+- `frontier_assets/balance.csv` — gun balance tuning (profiles, mult, offset, extras)
+- `frontier_assets/recipes.csv` — intermediate: all recipes in flat CSV, read by gen_recipes.py
+- `tacz/*/data/*/recipes/{gun,ammo,attachments}/*.json` — output JSON recipes
+
 ## Key paths
 
 - `mods/` — All mod JARs (force-added to git)

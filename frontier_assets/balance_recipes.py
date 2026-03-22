@@ -39,7 +39,7 @@ import math
 import os
 import re
 
-from recipe_common import MATERIAL_COLS, PACK_DATA_DIRS
+from recipe_common import MATERIAL_COLS, RECIPES_FIELDS, PACK_DATA_DIRS
 
 SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
 BALANCE_CSV = os.path.join(SCRIPT_DIR, "balance.csv")
@@ -111,7 +111,7 @@ BALANCE_FIELDS = [
     "power_score", "expensive_score", "total_budget", "notes",
 ]
 
-RECIPES_FIELDS = ["pack", "type", "id", "yield"] + MATERIAL_COLS + ["notes"]
+## RECIPES_FIELDS imported from recipe_common
 
 # ---------------------------------------------------------------------------
 # Startup validation

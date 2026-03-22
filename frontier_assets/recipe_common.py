@@ -52,6 +52,9 @@ MATERIAL_DEFS = {
 # Derived — column order for CSV files
 MATERIAL_COLS = list(MATERIAL_DEFS.keys())
 
+# Shared field list for recipes.csv (used by balance_recipes.py and ammo_recipes.py)
+RECIPES_FIELDS = ["pack", "type", "id", "yield"] + MATERIAL_COLS + ["notes"]
+
 # ---------------------------------------------------------------------------
 # Pack paths — maps pack name → recipe output directory
 # ---------------------------------------------------------------------------
