@@ -50,9 +50,9 @@ RECIPES_CSV = os.path.join(SCRIPT_DIR, "recipes.csv")
 # Adjust these to shift the overall economy up/down or compress the range.
 # ---------------------------------------------------------------------------
 
-GLOBAL_SCALE    = 60.0    # Multiplier on budget (higher = everything costs more)
-GLOBAL_EXPONENT = 0.36    # Range compression (< 1 compresses the cheap/expensive gap)
-GLOBAL_OFFSET   = 12       # Added to every expensive_score before budget computation
+GLOBAL_SCALE    = 66.0    # Multiplier on budget (higher = everything costs more)
+GLOBAL_EXPONENT = 0.51    # Range compression (< 1 compresses the cheap/expensive gap)
+GLOBAL_OFFSET   = 2       # Added to every expensive_score before budget computation
 
 # ---------------------------------------------------------------------------
 # Power score tuning knobs
@@ -85,17 +85,28 @@ PACK_DEFAULTS = {
 # Weights MUST sum to 1.0. Validated at startup.
 # ---------------------------------------------------------------------------
 
-# Profile multipliers — applied to the budget before distributing materials.
-# Use this to make entire eras cheaper/more expensive (e.g. old guns = early progression).
+# Profile multipliers and exponents — applied to the budget before distributing materials.
+# adjusted = mult * budget ^ exponent
+# Use mult to shift eras cheaper/more expensive, exponent to control how steeply cost scales.
 PROFILE_MULT = {
-    "old_wood":       0.66,
-    "old_brass":      0.75,
+    "old_wood":       0.64,
+    "old_brass":      0.72,
     "mid_wood":       1.0,
     "mid_steel":      1.0,
-    "modern_steel":   1.33,
-    "modern_polymer": 1.66,
+    "modern_steel":   1.5,
+    "modern_polymer": 1.72,
     "heavy_steel":    1.5,
     "launcher":       1.5,
+}
+PROFILE_EXPONENT = {
+    "old_wood":       1.0,
+    "old_brass":      1.0,
+    "mid_wood":       1.0,
+    "mid_steel":      1.0,
+    "modern_steel":   0.99,
+    "modern_polymer": 0.98,
+    "heavy_steel":    1.0,
+    "launcher":       1.0,
 }
 
 # Profile material distributions — weights MUST sum to 1.0. Validated at startup.
@@ -112,8 +123,8 @@ PROFILES = {
     # Modern
     "modern_steel":   {"steel_plate": 0.35, "steel_comp": 0.25, "steel_rod": 0.10,
                        "alum_plate": 0.20, "iron_plate": 0.08, "pmech": 0.02},
-    "modern_polymer": {"steel_plate": 0.15, "steel_comp": 0.20, "steel_rod": 0.10,
-                       "alum_plate": 0.15, "plastic": 0.37, "pmech": 0.03},
+    "modern_polymer": {"steel_plate": 0.24, "steel_comp": 0.20, "steel_rod": 0.10,
+                       "alum_plate": 0.15, "plastic": 0.28, "pmech": 0.03},
     # Special
     "heavy_steel":    {"steel_plate": 0.35, "steel_comp": 0.20, "steel_rod": 0.10,
                        "alum_plate": 0.15, "iron_plate": 0.20},
@@ -237,7 +248,8 @@ def compute_materials(profile_name, total_budget, extras_str=""):
     if not profile:
         return None
 
-    adjusted_budget = total_budget * PROFILE_MULT.get(profile_name, 1.0)
+    exp = PROFILE_EXPONENT.get(profile_name, 1.0)
+    adjusted_budget = PROFILE_MULT.get(profile_name, 1.0) * (total_budget ** exp)
     mats = {}
     for mat, weight in profile.items():
         count = int(adjusted_budget * weight)
@@ -505,7 +517,7 @@ def graph_mode():
 
     graph_path = os.path.join(SCRIPT_DIR, "graph.csv")
     fields = ["pack", "id", "profile", "mult", "offset",
-              "power_score", "expensive_score", "total_budget", "profile_mult", "adjusted_budget"]
+              "power_score", "expensive_score", "total_budget", "profile_mult", "profile_exp", "adjusted_budget"]
 
     rows = []
     for row in balance:
@@ -522,7 +534,8 @@ def graph_mode():
         expensive = mult * score + offset
         budget = score_to_budget(expensive)
         pmult = PROFILE_MULT.get(profile, 1.0)
-        adjusted = int(budget * pmult)
+        pexp = PROFILE_EXPONENT.get(profile, 1.0)
+        adjusted = int(pmult * (budget ** pexp))
 
         rows.append({
             "pack": pack, "id": gun_id, "profile": profile,
@@ -531,6 +544,7 @@ def graph_mode():
             "expensive_score": round(expensive, 2),
             "total_budget": budget,
             "profile_mult": pmult,
+            "profile_exp": pexp,
             "adjusted_budget": adjusted,
         })
 
