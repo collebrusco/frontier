@@ -28,6 +28,7 @@ MATERIAL_DEFS = {
     "andesite":     lambda n: {"item": {"item": "create:andesite_alloy"},       "count": n},
     "brass":        lambda n: {"item": {"item": "create:brass_ingot"},          "count": n},
     "pmech":        lambda n: {"item": {"item": "create:precision_mechanism"},  "count": n},
+    "electron_tube":lambda n: {"item": {"item": "create:electron_tube"},       "count": n},
     # TFMG
     "plastic":      lambda n: {"item": {"item": "tfmg:plastic_sheet"},         "count": n},
     # Forge / vanilla tags
