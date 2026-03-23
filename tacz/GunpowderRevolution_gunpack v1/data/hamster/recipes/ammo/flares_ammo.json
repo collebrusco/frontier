@@ -2,15 +2,27 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "create:brass_ingot"
       },
-      "count": 1
+      "count": 2
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/lead"
+      },
+      "count": 4
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 3
     }
   ],
   "result": {
     "type": "ammo",
     "id": "hamster:flares_ammo",
-    "count": 6
+    "count": 24
   },
   "type": "tacz:gun_smith_table_crafting"
 }

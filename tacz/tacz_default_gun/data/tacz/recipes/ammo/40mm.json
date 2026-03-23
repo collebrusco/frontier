@@ -2,15 +2,33 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_iron"
       },
-      "count": 1
+      "count": 22
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 6
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 15
+    },
+    {
+      "item": {
+        "item": "minecraft:tnt"
+      },
+      "count": 18
     }
   ],
   "result": {
     "type": "ammo",
     "id": "tacz:40mm",
-    "count": 4
+    "count": 9
   },
   "type": "tacz:gun_smith_table_crafting"
 }

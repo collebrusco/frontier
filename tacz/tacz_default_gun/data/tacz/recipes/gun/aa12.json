@@ -2,9 +2,33 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_steel"
       },
-      "count": 1
+      "count": 486
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_iron"
+      },
+      "count": 278
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_aluminum"
+      },
+      "count": 208
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 139
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 278
     }
   ],
   "result": {

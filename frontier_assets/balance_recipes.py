@@ -89,8 +89,8 @@ PACK_DEFAULTS = {
 # adjusted = mult * budget ^ exponent
 # Use mult to shift eras cheaper/more expensive, exponent to control how steeply cost scales.
 PROFILE_MULT = {
-    "old_wood":       0.64,
-    "old_brass":      0.72,
+    "old_wood":       0.52,
+    "old_brass":      0.62,
     "mid_wood":       1.0,
     "mid_steel":      1.0,
     "modern_steel":   1.5,

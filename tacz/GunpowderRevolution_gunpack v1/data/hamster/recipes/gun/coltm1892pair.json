@@ -2,9 +2,39 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_steel"
       },
-      "count": 1
+      "count": 93
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_iron"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_iron"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "item": "create:brass_ingot"
+      },
+      "count": 53
+    },
+    {
+      "item": {
+        "tag": "minecraft:logs"
+      },
+      "count": 39
     }
   ],
   "result": {

@@ -2,15 +2,33 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_iron"
       },
-      "count": 1
+      "count": 33
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 9
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 23
+    },
+    {
+      "item": {
+        "item": "minecraft:tnt"
+      },
+      "count": 28
     }
   ],
   "result": {
     "type": "ammo",
     "id": "tacz:rpg_rocket",
-    "count": 1
+    "count": 3
   },
   "type": "tacz:gun_smith_table_crafting"
 }

@@ -2,9 +2,21 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "tag": "forge:ingots/lead"
       },
-      "count": 1
+      "count": 30
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/copper"
+      },
+      "count": 48
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 30
     }
   ],
   "result": {

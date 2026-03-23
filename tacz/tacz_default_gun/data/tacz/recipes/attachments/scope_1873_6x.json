@@ -2,9 +2,27 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_steel"
       },
-      "count": 1
+      "count": 32
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "item": "create:brass_ingot"
+      },
+      "count": 19
+    },
+    {
+      "item": {
+        "tag": "forge:glass"
+      },
+      "count": 52
     }
   ],
   "result": {

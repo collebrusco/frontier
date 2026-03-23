@@ -2,7 +2,25 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "tag": "forge:ingots/lead"
+      },
+      "count": 3
+    },
+    {
+      "item": {
+        "tag": "forge:nuggets/iron"
+      },
+      "count": 1
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 2
+    },
+    {
+      "item": {
+        "item": "minecraft:paper"
       },
       "count": 1
     }

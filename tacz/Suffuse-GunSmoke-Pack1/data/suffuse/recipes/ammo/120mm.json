@@ -2,9 +2,27 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_iron"
       },
-      "count": 1
+      "count": 50
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 14
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 36
+    },
+    {
+      "item": {
+        "item": "minecraft:tnt"
+      },
+      "count": 43
     }
   ],
   "result": {

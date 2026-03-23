@@ -2,15 +2,27 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "create:brass_ingot"
       },
-      "count": 1
+      "count": 11
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/lead"
+      },
+      "count": 16
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 18
     }
   ],
   "result": {
     "type": "ammo",
     "id": "hamster:long_ammo",
-    "count": 36
+    "count": 10
   },
   "type": "tacz:gun_smith_table_crafting"
 }

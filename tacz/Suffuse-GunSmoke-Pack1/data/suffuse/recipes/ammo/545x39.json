@@ -2,15 +2,27 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "create:brass_ingot"
       },
-      "count": 1
+      "count": 8
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/lead"
+      },
+      "count": 11
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 13
     }
   ],
   "result": {
     "type": "ammo",
     "id": "suffuse:545x39",
-    "count": 50
+    "count": 13
   },
   "type": "tacz:gun_smith_table_crafting"
 }

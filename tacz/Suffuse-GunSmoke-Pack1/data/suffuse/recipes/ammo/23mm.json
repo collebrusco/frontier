@@ -2,9 +2,21 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "create:brass_ingot"
       },
-      "count": 1
+      "count": 26
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/lead"
+      },
+      "count": 37
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 42
     }
   ],
   "result": {

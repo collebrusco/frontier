@@ -2,9 +2,21 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_steel"
       },
-      "count": 1
+      "count": 79
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 33
+    },
+    {
+      "item": {
+        "item": "create:andesite_alloy"
+      },
+      "count": 19
     }
   ],
   "result": {

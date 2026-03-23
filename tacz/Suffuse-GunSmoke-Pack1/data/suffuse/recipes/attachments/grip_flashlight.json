@@ -2,7 +2,31 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 17
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 25
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 1
+    },
+    {
+      "item": {
+        "item": "tfmg:plastic_sheet"
+      },
+      "count": 43
+    },
+    {
+      "item": {
+        "tag": "forge:glass"
       },
       "count": 1
     }

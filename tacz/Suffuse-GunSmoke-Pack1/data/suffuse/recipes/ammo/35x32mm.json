@@ -2,15 +2,33 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_iron"
       },
-      "count": 1
+      "count": 16
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 4
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 11
+    },
+    {
+      "item": {
+        "item": "minecraft:tnt"
+      },
+      "count": 13
     }
   ],
   "result": {
     "type": "ammo",
     "id": "suffuse:35x32mm",
-    "count": 20
+    "count": 10
   },
   "type": "tacz:gun_smith_table_crafting"
 }

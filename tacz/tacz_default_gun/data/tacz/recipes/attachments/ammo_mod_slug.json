@@ -2,9 +2,27 @@
   "materials": [
     {
       "item": {
-        "item": "minecraft:bedrock"
+        "item": "immersiveengineering:plate_iron"
       },
-      "count": 1
+      "count": 4
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/lead"
+      },
+      "count": 30
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/copper"
+      },
+      "count": 40
+    },
+    {
+      "item": {
+        "tag": "forge:gunpowder"
+      },
+      "count": 30
     }
   ],
   "result": {
