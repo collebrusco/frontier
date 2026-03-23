@@ -1,0 +1,21 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:false"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:blasting",
+        "ingredient": {
+          "item": "minecraft:iron_ingot"
+        },
+        "result": "magistuarmory:steel_ingot",
+        "experience": 0.5,
+        "cookingtime": 40
+      }
+    }
+  ]
+}

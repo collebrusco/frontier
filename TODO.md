@@ -32,4 +32,17 @@
 - fix gun recipes
     - the gun mod (tacz) is still not in because their recipe format changed. was having trouble fixing it..
 
+- remove Epic Knights (magistuarmory) iron→steel blasting recipe
+    - the mod adds a trivially easy recipe: iron ingot in blast furnace → steel ingot (2 sec). no config to disable it. breaks progression for other mods that use steel.
+    - the mod has TWO copies of this recipe in the jar:
+        - `magistuarmory:steel_ingot_blasting`
+        - `magistuarmory:furnace/steel_ingot_blasting`
+    - fix: datapack override using `forge:conditional` with `forge:false` to disable both
+    - datapack files already created at `global_packs/data/frontier-overrides/`
+    - remaining steps:
+        1. **Server (priority):** copy `global_packs/data/frontier-overrides/` into the server world's `datapacks/` directory and restart. this works with no extra mods.
+        2. **Singleplayer (nice to have):** add the Open Loader mod (`open-loader`) to `mods/`. it reads `global_packs/data/` and applies datapacks to all worlds automatically. without it, the `global_packs/` dir does nothing client-side.
+        3. **Git tracking:** add `global_packs/` to `.gitignore` whitelist so the datapack ships with the modpack
+        4. **Test:** verify the recipe is gone in-game (check blast furnace with iron ingot, check recipe viewer like JEI)
+
 
