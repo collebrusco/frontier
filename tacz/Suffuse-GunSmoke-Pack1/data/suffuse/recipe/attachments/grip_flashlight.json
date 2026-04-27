@@ -1,0 +1,39 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 17
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 25
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 1
+    },
+    {
+      "item": {
+        "item": "tfmg:plastic_sheet"
+      },
+      "count": 43
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 1
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "suffuse:grip_flashlight"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

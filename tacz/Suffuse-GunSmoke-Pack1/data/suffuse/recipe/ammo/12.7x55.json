@@ -1,0 +1,28 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "create:brass_ingot"
+      },
+      "count": 13
+    },
+    {
+      "item": {
+        "tag": "c:ingots/lead"
+      },
+      "count": 19
+    },
+    {
+      "item": {
+        "tag": "c:gunpowders"
+      },
+      "count": 22
+    }
+  ],
+  "result": {
+    "type": "ammo",
+    "id": "suffuse:12.7x55",
+    "count": 9
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

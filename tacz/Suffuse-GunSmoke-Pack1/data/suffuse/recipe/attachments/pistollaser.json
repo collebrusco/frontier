@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_gold"
+      },
+      "count": 20
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 30
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 20
+    },
+    {
+      "item": {
+        "tag": "c:dusts/redstone"
+      },
+      "count": 30
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "suffuse:pistollaser"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

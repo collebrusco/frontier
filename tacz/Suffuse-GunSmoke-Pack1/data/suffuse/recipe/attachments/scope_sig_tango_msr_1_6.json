@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 41
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 51
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 51
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 62
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "suffuse:scope_sig_tango_msr_1_6"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

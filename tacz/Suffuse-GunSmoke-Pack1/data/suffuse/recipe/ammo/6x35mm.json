@@ -1,0 +1,28 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "create:brass_ingot"
+      },
+      "count": 7
+    },
+    {
+      "item": {
+        "tag": "c:ingots/lead"
+      },
+      "count": 10
+    },
+    {
+      "item": {
+        "tag": "c:gunpowders"
+      },
+      "count": 12
+    }
+  ],
+  "result": {
+    "type": "ammo",
+    "id": "suffuse:6x35mm",
+    "count": 13
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

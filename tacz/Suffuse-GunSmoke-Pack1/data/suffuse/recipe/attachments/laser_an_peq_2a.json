@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_gold"
+      },
+      "count": 27
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 41
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 27
+    },
+    {
+      "item": {
+        "tag": "c:dusts/redstone"
+      },
+      "count": 41
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "suffuse:laser_an_peq_2a"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

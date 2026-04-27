@@ -1,0 +1,39 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 146
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_aluminum"
+      },
+      "count": 55
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 36
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_iron"
+      },
+      "count": 55
+    },
+    {
+      "item": {
+        "tag": "minecraft:logs"
+      },
+      "count": 73
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:svd"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

@@ -63,9 +63,9 @@ RECIPES_FIELDS = ["pack", "type", "id", "yield"] + MATERIAL_COLS + ["notes"]
 # ---------------------------------------------------------------------------
 
 PACK_PATHS = {
-    "hamster": "tacz/GunpowderRevolution_gunpack v1/data/hamster/recipes",
+    "hamster": "tacz/GunpowderRevolution_gunpack v1/data/hamster/recipe",
     "tacz":    "tacz/tacz_default_gun/data/tacz/recipe",
-    "suffuse": "tacz/Suffuse-GunSmoke-Pack1/data/suffuse/recipes",
+    "suffuse": "tacz/Suffuse-GunSmoke-Pack1/data/suffuse/recipe",
 }
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,45 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 399
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_iron"
+      },
+      "count": 91
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_aluminum"
+      },
+      "count": 228
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 114
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 285
+    },
+    {
+      "item": {
+        "item": "create:precision_mechanism"
+      },
+      "count": 22
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "suffuse:axmc"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}
