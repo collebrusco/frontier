@@ -1,0 +1,18 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:tag_empty",
+      "tag": "minecraft:logs"
+    }
+  ],
+  "type": "create:mixing",
+  "heat_requirement": "heated",
+  "ingredients": [
+    {"tag": "c:ingots/iron"},
+    {"tag": "c:ingots/iron"},
+    {"tag": "minecraft:coals"}
+  ],
+  "results": [
+    {"count": 2, "id": "createbigcannons:steel_ingot"}
+  ]
+}
