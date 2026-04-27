@@ -5,7 +5,7 @@ Add new materials here. Both scripts import from this module,
 so they stay in sync automatically.
 
 Key format note:
-    IE/Create items MUST use {"item": "mod:item_id"} — never {"tag": "..."}.
+    Create/IE items without a c: tag MUST use {"item": "mod:item_id"} — never {"tag": "..."}.
     NeoForge common tags (c:ingots/copper, minecraft:logs, etc.) work fine as tags.
 """
 
@@ -16,11 +16,11 @@ Key format note:
 # ---------------------------------------------------------------------------
 
 MATERIAL_DEFS = {
-    # IE plates / rods / components (must be item refs)
-    "steel_plate":  lambda n: {"item": {"item": "immersiveengineering:plate_steel"},    "count": n},
-    "iron_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_iron"},     "count": n},
-    "alum_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_aluminum"}, "count": n},
-    "gold_plate":   lambda n: {"item": {"item": "immersiveengineering:plate_gold"},     "count": n},
+    # Plates (c: common tags — includes IE, Create, TFMG, etc.)
+    "steel_plate":  lambda n: {"item": {"tag": "c:plates/steel"},    "count": n},
+    "iron_plate":   lambda n: {"item": {"tag": "c:plates/iron"},     "count": n},
+    "alum_plate":   lambda n: {"item": {"tag": "c:plates/aluminum"}, "count": n},
+    "gold_plate":   lambda n: {"item": {"tag": "c:plates/gold"},     "count": n},
     "steel_rod":    lambda n: {"item": {"item": "immersiveengineering:stick_steel"},    "count": n},
     "iron_comp":    lambda n: {"item": {"item": "immersiveengineering:component_iron"}, "count": n},
     "steel_comp":   lambda n: {"item": {"item": "immersiveengineering:component_steel"},"count": n},
