@@ -89,6 +89,7 @@ PACK_DEFAULTS = {
 # adjusted = mult * budget ^ exponent
 # Use mult to shift eras cheaper/more expensive, exponent to control how steeply cost scales.
 PROFILE_MULT = {
+    "flint":          0.1,
     "old_wood":       0.52,
     "old_brass":      0.62,
     "mid_wood":       1.0,
@@ -99,6 +100,7 @@ PROFILE_MULT = {
     "launcher":       1.5,
 }
 PROFILE_EXPONENT = {
+    "flint":          1.0,
     "old_wood":       1.0,
     "old_brass":      1.0,
     "mid_wood":       1.0,
@@ -111,6 +113,8 @@ PROFILE_EXPONENT = {
 
 # Profile material distributions — weights MUST sum to 1.0. Validated at startup.
 PROFILES = {
+    # flint
+    "flint":        {"iron_plate": 0.45, "logs": 0.25, "brass": 0.30},
     # Historical (pre-WWI, WWI, WWII)
     "old_wood":       {"steel_plate": 0.50, "iron_plate": 0.15, "logs": 0.25, "steel_rod": 0.10},
     "old_brass":      {"steel_plate": 0.35, "iron_plate": 0.10, "logs": 0.15, "steel_rod": 0.10,
@@ -122,12 +126,12 @@ PROFILES = {
                        "alum_plate": 0.15, "iron_comp": 0.15},
     # Modern
     "modern_steel":   {"steel_plate": 0.35, "steel_comp": 0.25, "steel_rod": 0.10,
-                       "alum_plate": 0.20, "iron_plate": 0.08, "pmech": 0.02},
-    "modern_polymer": {"steel_plate": 0.24, "steel_comp": 0.20, "steel_rod": 0.10,
-                       "alum_plate": 0.15, "plastic": 0.28, "pmech": 0.03},
+                       "alum_plate": 0.20, "iron_plate": 0.06, "steelmech": 0.02, "pmech": 0.02},
+    "modern_polymer": {"steel_plate": 0.22, "steel_comp": 0.19, "steel_rod": 0.10,
+                       "alum_plate": 0.15, "plastic": 0.28, "steelmech": 0.03, "pmech": 0.03},
     # Special
-    "heavy_steel":    {"steel_plate": 0.35, "steel_comp": 0.20, "steel_rod": 0.10,
-                       "alum_plate": 0.15, "iron_plate": 0.20},
+    "heavy_steel":    {"steel_plate": 0.35, "steel_comp": 0.10, "steel_rod": 0.10,
+                       "alum_plate": 0.15, "steelmech": 0.10, "iron_plate": 0.20},
     "launcher":       {"steel_plate": 0.30, "steel_rod": 0.25, "iron_plate": 0.25,
                        "steel_comp": 0.20},
 }

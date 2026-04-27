@@ -31,6 +31,8 @@ MATERIAL_DEFS = {
     "electron_tube":lambda n: {"item": {"item": "create:electron_tube"},       "count": n},
     # TFMG
     "plastic":      lambda n: {"item": {"item": "tfmg:plastic_sheet"},         "count": n},
+    "steelmech":    lambda n: {"item": {"item": "tfmg:steel_mechanism"},        "count": n},
+    "screws":       lambda n: {"item": {"item": "tfmg:screw"},        "count": n},
     # NeoForge common tags (c:) / vanilla tags
     "lead":         lambda n: {"item": {"tag": "c:ingots/lead"},          "count": n},
     "uranium":      lambda n: {"item": {"tag": "c:ingots/uranium"},        "count": n},
