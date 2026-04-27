@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 32
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "item": "create:brass_ingot"
+      },
+      "count": 19
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 52
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:scope_1873_6x"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 144
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_iron"
+      },
+      "count": 43
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 28
+    },
+    {
+      "item": {
+        "tag": "minecraft:logs"
+      },
+      "count": 72
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "tacz:db_long"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

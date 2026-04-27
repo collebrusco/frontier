@@ -1,0 +1,39 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 264
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_iron"
+      },
+      "count": 151
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_aluminum"
+      },
+      "count": 113
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 75
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 151
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "tacz:m249"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

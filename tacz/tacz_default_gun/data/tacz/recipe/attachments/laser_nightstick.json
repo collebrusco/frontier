@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_gold"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 39
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "tag": "c:dusts/redstone"
+      },
+      "count": 39
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:laser_nightstick"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

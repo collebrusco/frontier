@@ -1,0 +1,27 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 17
+    },
+    {
+      "item": {
+        "item": "tfmg:plastic_sheet"
+      },
+      "count": 44
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:oem_stock_light"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

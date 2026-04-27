@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_iron"
+      },
+      "count": 4
+    },
+    {
+      "item": {
+        "tag": "c:ingots/lead"
+      },
+      "count": 30
+    },
+    {
+      "item": {
+        "tag": "c:ingots/copper"
+      },
+      "count": 40
+    },
+    {
+      "item": {
+        "tag": "c:gunpowders"
+      },
+      "count": 30
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:ammo_mod_slug"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

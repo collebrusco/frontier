@@ -20,7 +20,7 @@ CSV format (frontier_assets/recipes.csv):
 
 Key format note:
     IE items MUST use {"item": "immersiveengineering:..."} not {"tag": "..."}.
-    Forge-standard tags (forge:ingots/copper, minecraft:logs, etc.) work fine as tags.
+    NeoForge common tags (c:ingots/copper, minecraft:logs, etc.) work fine as tags.
 """
 
 import argparse

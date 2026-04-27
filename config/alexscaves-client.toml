@@ -1,4 +1,3 @@
-
 [visuals]
 	#whether to cave maps are visible when held by players from the third-person perspective.
 	cave_maps_visible_in_third_person = true
@@ -21,10 +20,12 @@
 	#true if irradiated effect makes mobs glow. May conflict with shaders.
 	radiation_glow_effect = true
 	#determines how far to the left the subterranodon flight indicator renders on the screen when mounted. Negative numbers will render it on the right. 
-	#Range: -12000 ~ 12000
+	# Default: 22
+	# Range: -12000 ~ 12000
 	subterranodon_indicator_x = 22
 	#determines how far from bottom the subterranodon flight indicator renders on the screen when mounted.
-	#Range: -12000 ~ 12000
+	# Default: 6
+	# Range: -12000 ~ 12000
 	subterranodon_indicator_y = 6
 	#true if sugar rush makes the world more saturated. May conflict with shaders.
 	sugar_rush_saturation_effect = true
@@ -32,4 +33,3 @@
 [audio]
 	#whether nuclear explosions briefly muffle other sounds.
 	nuclear_bomb_muffles_sounds = true
-

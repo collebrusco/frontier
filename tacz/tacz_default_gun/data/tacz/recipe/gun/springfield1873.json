@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 98
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_iron"
+      },
+      "count": 29
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 19
+    },
+    {
+      "item": {
+        "tag": "minecraft:logs"
+      },
+      "count": 49
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "tacz:springfield1873"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

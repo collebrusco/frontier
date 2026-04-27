@@ -1,0 +1,27 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "c:ingots/lead"
+      },
+      "count": 33
+    },
+    {
+      "item": {
+        "tag": "c:ingots/copper"
+      },
+      "count": 44
+    },
+    {
+      "item": {
+        "tag": "c:gunpowders"
+      },
+      "count": 37
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:ammo_mod_he"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

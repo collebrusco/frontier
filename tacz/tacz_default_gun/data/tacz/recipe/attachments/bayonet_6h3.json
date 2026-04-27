@@ -1,0 +1,27 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 84
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "tag": "c:leathers"
+      },
+      "count": 19
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:bayonet_6h3"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

@@ -1,0 +1,21 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 51
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 34
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:muzzle_choke_sg"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

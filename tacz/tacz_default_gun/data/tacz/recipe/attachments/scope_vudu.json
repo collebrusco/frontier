@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 38
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 31
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 31
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 54
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:scope_vudu"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

@@ -2,19 +2,19 @@
   "materials": [
     {
       "item": {
-        "tag": "forge:ingots/lead"
+        "tag": "c:ingots/lead"
       },
       "count": 16
     },
     {
       "item": {
-        "tag": "forge:nuggets/iron"
+        "tag": "c:nuggets/iron"
       },
       "count": 6
     },
     {
       "item": {
-        "tag": "forge:gunpowder"
+        "tag": "c:gunpowders"
       },
       "count": 12
     },

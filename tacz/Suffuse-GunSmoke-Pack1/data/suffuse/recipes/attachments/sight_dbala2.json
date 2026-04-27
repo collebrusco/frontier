@@ -14,13 +14,13 @@
     },
     {
       "item": {
-        "tag": "forge:glass"
+        "tag": "c:glass_blocks"
       },
       "count": 30
     },
     {
       "item": {
-        "tag": "forge:dusts/redstone"
+        "tag": "c:dusts/redstone"
       },
       "count": 20
     }

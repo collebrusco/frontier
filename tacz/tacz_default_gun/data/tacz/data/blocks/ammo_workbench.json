@@ -8,9 +8,9 @@
       "id": "tacz:ammo",
       "name": "tacz.type.ammo.name",
       "icon": {
-        "item": "tacz:ammo",
-        "nbt": {
-          "AmmoId": "tacz:762x39"
+        "id": "tacz:ammo",
+        "components": {
+          "minecraft:custom_data": "{AmmoId: \"tacz:762x39\"}"
         }
       }
     }

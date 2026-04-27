@@ -6,7 +6,7 @@ so they stay in sync automatically.
 
 Key format note:
     IE/Create items MUST use {"item": "mod:item_id"} — never {"tag": "..."}.
-    Forge-standard tags (forge:ingots/copper, minecraft:logs, etc.) work fine as tags.
+    NeoForge common tags (c:ingots/copper, minecraft:logs, etc.) work fine as tags.
 """
 
 # ---------------------------------------------------------------------------
@@ -31,19 +31,19 @@ MATERIAL_DEFS = {
     "electron_tube":lambda n: {"item": {"item": "create:electron_tube"},       "count": n},
     # TFMG
     "plastic":      lambda n: {"item": {"item": "tfmg:plastic_sheet"},         "count": n},
-    # Forge / vanilla tags
-    "lead":         lambda n: {"item": {"tag": "forge:ingots/lead"},      "count": n},
-    "uranium":      lambda n: {"item": {"tag": "forge:ingots/uranium"},    "count": n},
+    # NeoForge common tags (c:) / vanilla tags
+    "lead":         lambda n: {"item": {"tag": "c:ingots/lead"},          "count": n},
+    "uranium":      lambda n: {"item": {"tag": "c:ingots/uranium"},        "count": n},
     "logs":         lambda n: {"item": {"tag": "minecraft:logs"},          "count": n},
     "clay":         lambda n: {"item": {"tag": "minecraft:clay"},          "count": n},
-    "glass":        lambda n: {"item": {"tag": "forge:glass"},             "count": n},
-    "copper":       lambda n: {"item": {"tag": "forge:ingots/copper"},     "count": n},
-    "iron_nugget":  lambda n: {"item": {"tag": "forge:nuggets/iron"},      "count": n},
-    "gunpowder":    lambda n: {"item": {"tag": "forge:gunpowder"},         "count": n},
-    "blaze_rod":    lambda n: {"item": {"tag": "forge:rods/blaze"},        "count": n},
-    "lapis":        lambda n: {"item": {"tag": "forge:gems/lapis"},        "count": n},
-    "redstone":     lambda n: {"item": {"tag": "forge:dusts/redstone"},    "count": n},
-    "leather":      lambda n: {"item": {"tag": "forge:leather"},           "count": n},
+    "glass":        lambda n: {"item": {"tag": "c:glass_blocks"},          "count": n},
+    "copper":       lambda n: {"item": {"tag": "c:ingots/copper"},         "count": n},
+    "iron_nugget":  lambda n: {"item": {"tag": "c:nuggets/iron"},          "count": n},
+    "gunpowder":    lambda n: {"item": {"tag": "c:gunpowders"},            "count": n},
+    "blaze_rod":    lambda n: {"item": {"tag": "c:rods/blaze"},            "count": n},
+    "lapis":        lambda n: {"item": {"tag": "c:gems/lapis"},            "count": n},
+    "redstone":     lambda n: {"item": {"tag": "c:dusts/redstone"},        "count": n},
+    "leather":      lambda n: {"item": {"tag": "c:leathers"},              "count": n},
     "anvil":        lambda n: {"item": {"tag": "minecraft:anvil"},         "count": n},
     # Specific vanilla items
     "tnt":          lambda n: {"item": {"item": "minecraft:tnt"},          "count": n},
@@ -64,7 +64,7 @@ RECIPES_FIELDS = ["pack", "type", "id", "yield"] + MATERIAL_COLS + ["notes"]
 
 PACK_PATHS = {
     "hamster": "tacz/GunpowderRevolution_gunpack v1/data/hamster/recipes",
-    "tacz":    "tacz/tacz_default_gun/data/tacz/recipes",
+    "tacz":    "tacz/tacz_default_gun/data/tacz/recipe",
     "suffuse": "tacz/Suffuse-GunSmoke-Pack1/data/suffuse/recipes",
 }
 

@@ -1,0 +1,28 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "create:brass_ingot"
+      },
+      "count": 19
+    },
+    {
+      "item": {
+        "tag": "c:ingots/lead"
+      },
+      "count": 26
+    },
+    {
+      "item": {
+        "tag": "c:gunpowders"
+      },
+      "count": 30
+    }
+  ],
+  "result": {
+    "type": "ammo",
+    "id": "tacz:50bmg",
+    "count": 8
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

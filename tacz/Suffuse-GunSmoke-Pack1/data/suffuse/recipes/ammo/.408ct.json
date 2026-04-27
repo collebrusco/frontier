@@ -8,13 +8,13 @@
     },
     {
       "item": {
-        "tag": "forge:ingots/lead"
+        "tag": "c:ingots/lead"
       },
       "count": 25
     },
     {
       "item": {
-        "tag": "forge:gunpowder"
+        "tag": "c:gunpowders"
       },
       "count": 29
     }

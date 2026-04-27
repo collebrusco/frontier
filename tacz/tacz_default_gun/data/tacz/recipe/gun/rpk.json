@@ -1,0 +1,39 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 218
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_aluminum"
+      },
+      "count": 82
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 54
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_iron"
+      },
+      "count": 82
+    },
+    {
+      "item": {
+        "tag": "minecraft:logs"
+      },
+      "count": 109
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "tacz:rpk"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

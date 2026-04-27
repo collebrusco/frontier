@@ -1,0 +1,34 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "c:ingots/lead"
+      },
+      "count": 16
+    },
+    {
+      "item": {
+        "tag": "c:nuggets/iron"
+      },
+      "count": 6
+    },
+    {
+      "item": {
+        "tag": "c:gunpowders"
+      },
+      "count": 12
+    },
+    {
+      "item": {
+        "item": "minecraft:paper"
+      },
+      "count": 6
+    }
+  ],
+  "result": {
+    "type": "ammo",
+    "id": "tacz:12g",
+    "count": 11
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

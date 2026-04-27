@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_gold"
+      },
+      "count": 22
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 33
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 22
+    },
+    {
+      "item": {
+        "tag": "c:dusts/redstone"
+      },
+      "count": 33
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:laser_lopro"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

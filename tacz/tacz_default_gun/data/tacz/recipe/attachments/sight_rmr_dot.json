@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 25
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 17
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 25
+    },
+    {
+      "item": {
+        "tag": "c:dusts/redstone"
+      },
+      "count": 17
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:sight_rmr_dot"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

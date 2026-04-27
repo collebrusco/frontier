@@ -1,0 +1,27 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 78
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_gold"
+      },
+      "count": 48
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 52
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:deagle_golden_long_barrel"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

@@ -1,0 +1,45 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 170
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:plate_aluminum"
+      },
+      "count": 106
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:stick_steel"
+      },
+      "count": 71
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 142
+    },
+    {
+      "item": {
+        "item": "create:precision_mechanism"
+      },
+      "count": 21
+    },
+    {
+      "item": {
+        "item": "tfmg:plastic_sheet"
+      },
+      "count": 199
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "tacz:g36k"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

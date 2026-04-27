@@ -1,23 +1,24 @@
-
 [General]
 	#How much faster is hydration depletion relative to hunger (1 means they will deplete at the same speed)
 	thirstDepletionModifier = 1.2
 	#Whether hydration depletion in peaceful mode
 	thirstDepletionInPeace = false
 	#How much is hydration depletion in nether faster than overworld
-	#Range: 1.0 ~ 5.0
+	# Default: 3.0
+	# Range: 1.0 ~ 5.0
 	netherThirstDeletionModifier = 3.0
 	#How much faster is hydration depletion when players with fire resistance(Range 0 to 100, 0 means not to depletion,100 means depletion like normal)
-	#Range: 0 ~ 100
+	# Default: 0
+	# Range: 0 ~ 100
 	fireResistanceDehydration = 50
-	#Whether thirst depletes when player is nausea
+	#Thirst depletes when player is nausea
 	depletesWhenNausea = true
 	#Whether players won't be able to sprint if their thirst bar is 3 droplets or less
 	moveSlowWhenThirsty = true
 	#Whether players can drink rain water
 	DrinkRainWater = true
-	#Whether foods labeled as drinks will restore hunger
-	enableDrinksNutrition = true
+	#Whether or not drink loot will be added to vanilla loot tables
+	EnableLoot = true
 
 ["Drinking Mechanics"]
 	#Stack size for water bottles
@@ -28,7 +29,7 @@
 	healthRegenDepletesHydration = true
 	#Whether dehydration from regenerating health (if enabled above) should take into account temperature and humidity
 	healthRegenDehydrationIsBiomeDependent = true
-	#Whether players can drink by shift-right-clicking water with an empty hand. Attention: it needs to be enable on both server and client sides
+	#Whether players can drink by shift-right-clicking water with an empty hand
 	canDrinkByHand = true
 	#How much the player is hydrated when drinking by hand
 	handDrinkingHydration = 3
@@ -82,4 +83,3 @@
 	sandFilterFiltrationAmount = 1
 	#Millibuckets of water filtered per game tick with a Sand Filter
 	sandFilterMbPerTick = 10
-

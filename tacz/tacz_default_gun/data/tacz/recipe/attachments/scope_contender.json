@@ -1,0 +1,33 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "immersiveengineering:plate_steel"
+      },
+      "count": 34
+    },
+    {
+      "item": {
+        "item": "immersiveengineering:component_steel"
+      },
+      "count": 27
+    },
+    {
+      "item": {
+        "item": "create:electron_tube"
+      },
+      "count": 27
+    },
+    {
+      "item": {
+        "tag": "c:glass_blocks"
+      },
+      "count": 47
+    }
+  ],
+  "result": {
+    "type": "attachment",
+    "id": "tacz:scope_contender"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}
