@@ -2,19 +2,19 @@
   "materials": [
     {
       "item": {
-        "item": "immersiveengineering:plate_steel"
+        "tag": "c:plates/steel"
       },
       "count": 425
     },
     {
       "item": {
-        "item": "immersiveengineering:plate_iron"
+        "tag": "c:plates/iron"
       },
       "count": 243
     },
     {
       "item": {
-        "item": "immersiveengineering:plate_aluminum"
+        "tag": "c:plates/aluminum"
       },
       "count": 182
     },
@@ -28,7 +28,13 @@
       "item": {
         "item": "immersiveengineering:component_steel"
       },
-      "count": 243
+      "count": 121
+    },
+    {
+      "item": {
+        "item": "tfmg:steel_mechanism"
+      },
+      "count": 121
     }
   ],
   "result": {

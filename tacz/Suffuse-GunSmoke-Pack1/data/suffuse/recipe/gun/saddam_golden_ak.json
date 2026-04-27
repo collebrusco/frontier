@@ -2,19 +2,19 @@
   "materials": [
     {
       "item": {
-        "item": "immersiveengineering:plate_steel"
+        "tag": "c:plates/steel"
       },
       "count": 282
     },
     {
       "item": {
-        "item": "immersiveengineering:plate_aluminum"
+        "tag": "c:plates/aluminum"
       },
       "count": 106
     },
     {
       "item": {
-        "item": "immersiveengineering:plate_gold"
+        "tag": "c:plates/gold"
       },
       "count": 128
     },

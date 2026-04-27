@@ -2,27 +2,21 @@
   "materials": [
     {
       "item": {
-        "item": "immersiveengineering:plate_steel"
+        "tag": "c:plates/iron"
       },
-      "count": 28
+      "count": 4
     },
     {
       "item": {
-        "item": "immersiveengineering:plate_iron"
+        "item": "create:brass_ingot"
       },
-      "count": 8
-    },
-    {
-      "item": {
-        "item": "immersiveengineering:stick_steel"
-      },
-      "count": 5
+      "count": 3
     },
     {
       "item": {
         "tag": "minecraft:logs"
       },
-      "count": 14
+      "count": 2
     }
   ],
   "result": {

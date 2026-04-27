@@ -2,7 +2,7 @@
   "materials": [
     {
       "item": {
-        "item": "immersiveengineering:plate_iron"
+        "tag": "c:plates/iron"
       },
       "count": 22
     },
