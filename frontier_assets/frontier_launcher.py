@@ -402,9 +402,9 @@ class GitBackend:
 
             if mode == 'clean':
                 if not messagebox.askokcancel('Clean Install',
-                        'This will wipe gitignored files from bin/, libraries/, versions/, and config/,\n'
-                        'then hard-reset to the remote branch.\n\n'
-                        'Your saves, screenshots, and resourcepacks are safe.\n\nContinue?'):
+                        'This doesn\'t go full nuclear but should fix\n'
+                        'problems with big updates.\n\n'
+                        'Your saves, screenshots, resourcepacks, shaders, will NOT be affected.\n\nContinue?'):
                     raise UserWarning("user cancelled clean install")
                 self.ui_callback("Fetching remote...", "yellow")
                 repo.remotes.origin.fetch(progress=progress_callback)
@@ -553,6 +553,7 @@ class FrontEnd:
         self.cfglist.append(self.inner_image_frame)
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
+        self.cfglist.append(self.update_row)
 
         self.version_label = tk.Label(self.root, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
         self.version_label.pack(side=tk.BOTTOM, pady=2)
@@ -662,7 +663,7 @@ class FrontEnd:
         """Enable or disable the install and update buttons."""
         state = tk.NORMAL if enable else tk.DISABLED
         self.update_button.config(state=state)
-        self.mode_dropdown.config(state=state if not enable else 'readonly')
+        self.mode_menu.config(state=state)
         
     def enable_install(self, enable):
         """Enable or disable the install and update buttons."""
@@ -807,13 +808,19 @@ class FrontEnd:
         self.branch_dropdown.pack(pady=5)
 
         # Buttons (Stacked)
-        self.update_button = tk.Button(self.controls_frame, text="Update", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightblue')
-        self.update_button.pack(pady=5)
-
+        _MODE_COLORS = {'normal': 'lightblue', 'preserve': CONNECTED_BG_COLOR, 'clean': '#ffaa55'}
+        self.update_row = tk.Frame(self.controls_frame, bg=BG_COLOR)
+        self.update_row.pack(pady=5)
+        self.update_button = tk.Button(self.update_row, text="Update", command=None, height=BUTTON_HEIGHT, width=12, bg='lightblue')
+        self.update_button.pack(side=tk.LEFT)
         self.update_mode_var = tk.StringVar(value='normal')
-        self.mode_dropdown = ttk.Combobox(self.controls_frame, textvariable=self.update_mode_var,
-                                          values=['normal', 'preserve', 'clean'], state='readonly', width=25)
-        self.mode_dropdown.pack(pady=2)
+        self.mode_menu = tk.OptionMenu(self.update_row, self.update_mode_var, 'normal', 'preserve', 'clean')
+        self.mode_menu.config(height=BUTTON_HEIGHT, width=6, bg='lightblue', activebackground='lightblue')
+        self.mode_menu.pack(side=tk.LEFT)
+        def _sync_mode_color(*_):
+            c = _MODE_COLORS.get(self.update_mode_var.get(), BG_COLOR)
+            self.mode_menu.config(bg=c, activebackground=c)
+        self.update_mode_var.trace_add('write', _sync_mode_color)
 
         self.install_button = tk.Button(self.controls_frame, text="Install", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
         self.install_button.pack(pady=5)
