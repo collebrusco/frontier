@@ -1,5 +1,5 @@
 # ==== VERSION NUMBER ====
-VERSION_NUMBER = "1.1-dev"
+VERSION_NUMBER = "1.2"
 # ========================
 import sys
 import tkinter as tk
@@ -565,7 +565,7 @@ class FrontEnd:
         _bottom_inner.pack(expand=True, pady=2)  # no fill → shrinks to content, centers horizontally
         self.version_label = tk.Label(_bottom_inner, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
         self.version_label.pack(side=tk.LEFT, padx=(0, 6))
-        self.bug_report_button = tk.Button(_bottom_inner, text="report bug", font=("Arial", 8), bg="#c06060", fg="white", relief=tk.FLAT, padx=4, pady=2, command=None)
+        self.bug_report_button = tk.Button(_bottom_inner, text="problem...", font=("Arial", 8), bg="#c06060", fg="white", relief=tk.FLAT, padx=4, pady=2, command=None)
         self.bug_report_button.pack(side=tk.LEFT)
 
         self.cfglist.append(self.bottom_bar)
@@ -1122,15 +1122,15 @@ class Controller:
         username = self._get_minecraft_username(minecraft_path)
 
         dialog = tk.Toplevel(self.frontend.root)
-        dialog.title("Report a Bug")
+        dialog.title("problem report")
         dialog.geometry("500x420")
         dialog.configure(bg=BG_COLOR)
         dialog.resizable(False, False)
         dialog.grab_set()
 
-        tk.Label(dialog, text="Report a Bug", font=FONT_TITLE, bg=BG_COLOR).pack(pady=(12, 4))
+        tk.Label(dialog, text="Problem Report", font=FONT_TITLE, bg=BG_COLOR).pack(pady=(12, 4))
 
-        info_parts = [f"oops.. sending from {username}", "your last mc log will be attached"]
+        info_parts = [f"Sorry {username}, pls report it", "your log will be attached"]
         if crash_files:
             info_parts.append(f"crash report: {crash_files[0].name}")
         tk.Label(dialog, text="\n".join(info_parts), font=("Arial", 9), bg=BG_COLOR, fg="#555555", justify=tk.LEFT).pack(padx=16, pady=(0, 8))
