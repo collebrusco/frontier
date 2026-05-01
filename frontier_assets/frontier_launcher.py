@@ -1,5 +1,5 @@
 # ==== VERSION NUMBER ====
-VERSION_NUMBER = "1.1"
+VERSION_NUMBER = "1.1-dev"
 # ========================
 import sys
 import tkinter as tk
@@ -376,66 +376,92 @@ class GitBackend:
         except Exception as e:
             self.print_status(f"Clone failed: {e}", "red")
 
-    def update_modpack(self, repo_path, branch, preserve_settings=False):
-        """Fetch and pull updates for the selected branch."""
+    def update_modpack(self, repo_path, branch, mode='normal'):
+        """Fetch and pull updates. mode: 'normal', 'preserve', or 'clean'."""
         def progress_callback(op_code, cur_count, max_count=None, message=""):
-            """Handles progress updates."""
             progress_message = format_progress(cur_count, max_count, message)
             print(progress_message)
             self.ui_callback(progress_message, "cyan")
-            repo_path = Path(repo_path)
-        exe_path = Path(repo_path) / LAUNCHER_EXE_NAME
-        pre_hash = _hash_file(exe_path) if (get_current_os() == OS_WIN and exe_path.exists()) else None
 
+        repo_path = Path(repo_path)
+        exe_path = repo_path / LAUNCHER_EXE_NAME
+        pre_hash = _hash_file(exe_path) if (get_current_os() == OS_WIN and exe_path.exists()) else None
         exe_old_path = exe_path.with_suffix('.exe.old') if exe_path else None
 
-        try:
-            repo = git.Repo(repo_path)
-            stashed = False
-            if repo.is_dirty():
-                if preserve_settings:
-                    self.ui_callback("Stashing local settings...", "yellow")
-                    repo.git.stash('push', '-m', 'frontier_launcher_auto_stash')
-                    stashed = True
-                else:
-                    result = messagebox.askokcancel('Warning', 'You have modifications to tracked files that will be reset.\nCheck the preserve local settings box to try to save and re-apply these across the update')
-                    if not result:
-                        raise UserWarning("user cancelled to check modifications")
-                    if not repo.head.is_detached:
-                        tracking_branch = repo.active_branch.tracking_branch()
-                        if tracking_branch:
-                            self.ui_callback(f"Tracking branch: {tracking_branch}", "green")
-                            repo.git.reset('--hard')
-                            repo.remotes.origin.fetch(progress=progress_callback)
-            repo.git.checkout(branch)
-            # On Windows the running exe is locked — git can't overwrite it.
-            # Rename it out of the way, then restore it from HEAD so git sees a
-            # clean worktree for that file. Pull can then update it freely.
-            # Restore from .old if pull fails.
-            renamed_exe = False
+        def rename_exe_out():
             if pre_hash is not None and exe_path.exists():
                 if exe_old_path.exists():
                     exe_old_path.unlink()
                 exe_path.rename(exe_old_path)
-                renamed_exe = True
                 repo.git.checkout('HEAD', '--', LAUNCHER_EXE_NAME)
-            try:
-                repo.remotes.origin.pull(progress=progress_callback)
-            except Exception as pull_err:
-                if renamed_exe:
-                    exe_path.unlink(missing_ok=True)
-                    exe_old_path.rename(exe_path)
-                    renamed_exe = False
-                raise pull_err
-            if stashed:
-                self.ui_callback("Applying your settings...", "yellow")
+                return True
+            return False
+
+        def restore_exe():
+            exe_path.unlink(missing_ok=True)
+            exe_old_path.rename(exe_path)
+
+        try:
+            repo = git.Repo(repo_path)
+
+            if mode == 'clean':
+                if not messagebox.askokcancel('Clean Install',
+                        'This doesn\'t go full nuclear but should fix\n'
+                        'problems with big updates.\n\n'
+                        'Your saves, screenshots, resourcepacks, shaders, will NOT be affected.\n\nContinue?'):
+                    raise UserWarning("user cancelled clean install")
+                self.ui_callback("Fetching remote...", "yellow")
+                repo.remotes.origin.fetch(progress=progress_callback)
+                repo.git.checkout(branch)
+                renamed_exe = rename_exe_out()
                 try:
-                    repo.git.stash('pop')
-                    self.ui_callback("Settings applied successfully.", "lime")
-                except git.exc.GitCommandError:
-                    repo.git.checkout('--', '.')
-                    repo.git.stash('drop')
-                    self.ui_callback("Couldn't apply your settings cleanly — they conflicted with the update and were cleared. Sorry!", "orange")
+                    for d in ['bin', 'libraries', 'versions', 'config']:
+                        if (repo_path / d).exists():
+                            self.ui_callback(f"Cleaning {d}/...", "orange")
+                            repo.git.clean('-fdx', d)
+                    repo.git.reset('--hard', f'origin/{branch}')
+                except Exception as err:
+                    if renamed_exe:
+                        restore_exe()
+                    raise err
+
+            else:
+                stashed = False
+                if repo.is_dirty():
+                    if mode == 'preserve':
+                        self.ui_callback("Stashing local settings...", "yellow")
+                        repo.git.stash('push', '-m', 'frontier_launcher_auto_stash')
+                        stashed = True
+                    else:
+                        result = messagebox.askokcancel('Warning',
+                            'You have modifications to tracked files that will be reset.\n'
+                            'Select "Preserve local settings" to save and re-apply them across the update.')
+                        if not result:
+                            raise UserWarning("user cancelled to check modifications")
+                        if not repo.head.is_detached:
+                            tracking_branch = repo.active_branch.tracking_branch()
+                            if tracking_branch:
+                                self.ui_callback(f"Tracking branch: {tracking_branch}", "green")
+                                repo.git.reset('--hard')
+                                repo.remotes.origin.fetch(progress=progress_callback)
+                repo.git.checkout(branch)
+                renamed_exe = rename_exe_out()
+                try:
+                    repo.remotes.origin.pull(progress=progress_callback)
+                except Exception as pull_err:
+                    if renamed_exe:
+                        restore_exe()
+                    raise pull_err
+                if stashed:
+                    self.ui_callback("Applying your settings...", "yellow")
+                    try:
+                        repo.git.stash('pop')
+                        self.ui_callback("Settings applied successfully.", "lime")
+                    except git.exc.GitCommandError:
+                        repo.git.checkout('--', '.')
+                        repo.git.stash('drop')
+                        self.ui_callback("Couldn't apply your settings cleanly — they conflicted with the update and were cleared. Sorry!", "orange")
+
             self.ui_callback(f"Update on {branch} successful", 'lime')
             self.print_status_update(repo_path)
 
@@ -531,7 +557,7 @@ class FrontEnd:
         self.cfglist.append(self.inner_image_frame)
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
-        self.cfglist.append(self.preserve_settings_check)
+        self.cfglist.append(self.update_row)
 
         self.bottom_bar = tk.Frame(self.root, bg=BG_COLOR)
         self.bottom_bar.pack(side=tk.BOTTOM, fill=tk.X)
@@ -651,7 +677,7 @@ class FrontEnd:
         """Enable or disable the install and update buttons."""
         state = tk.NORMAL if enable else tk.DISABLED
         self.update_button.config(state=state)
-        self.preserve_settings_check.config(state=state)
+        self.mode_menu.config(state=state)
         
     def enable_install(self, enable):
         """Enable or disable the install and update buttons."""
@@ -791,12 +817,19 @@ class FrontEnd:
         self.branch_dropdown.pack(pady=5)
 
         # Buttons (Stacked)
-        self.update_button = tk.Button(self.controls_frame, text="Update", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightblue')
-        self.update_button.pack(pady=5)
-
-        self.preserve_settings_var = tk.BooleanVar(value=False)
-        self.preserve_settings_check = tk.Checkbutton(self.controls_frame, text="Preserve local settings", variable=self.preserve_settings_var, bg=BG_COLOR)
-        self.preserve_settings_check.pack()
+        _MODE_COLORS = {'normal': 'lightblue', 'preserve': CONNECTED_BG_COLOR, 'clean': '#ffaa55'}
+        self.update_row = tk.Frame(self.controls_frame, bg=BG_COLOR)
+        self.update_row.pack(pady=5)
+        self.update_button = tk.Button(self.update_row, text="Update", command=None, height=BUTTON_HEIGHT, width=12, bg='lightblue')
+        self.update_button.pack(side=tk.LEFT)
+        self.update_mode_var = tk.StringVar(value='normal')
+        self.mode_menu = tk.OptionMenu(self.update_row, self.update_mode_var, 'normal', 'preserve', 'clean')
+        self.mode_menu.config(height=BUTTON_HEIGHT, width=6, bg='lightblue', activebackground='lightblue')
+        self.mode_menu.pack(side=tk.LEFT)
+        def _sync_mode_color(*_):
+            c = _MODE_COLORS.get(self.update_mode_var.get(), BG_COLOR)
+            self.mode_menu.config(bg=c, activebackground=c)
+        self.update_mode_var.trace_add('write', _sync_mode_color)
 
         self.install_button = tk.Button(self.controls_frame, text="Install", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH)
         self.install_button.pack(pady=5)
@@ -966,8 +999,8 @@ class Controller:
         self.on_any_press()
         repo_path = Path(self.frontend.path_var.get())
         branch = self.frontend.branch_var.get()
-        preserve = self.frontend.preserve_settings_var.get()
-        self.backend.run_in_thread(self.backend.update_modpack, repo_path, branch, preserve)
+        mode = self.frontend.update_mode_var.get()
+        self.backend.run_in_thread(self.backend.update_modpack, repo_path, branch, mode)
     
     def control_open_internal(self):
         thisos = get_current_os()
