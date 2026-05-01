@@ -19,6 +19,7 @@ import datetime
 import time
 import random
 import hashlib
+import json
 
 # Global Constants for Design Language
 BG_COLOR = "#c0c0c0"  # Default background color
@@ -34,6 +35,9 @@ BUTTON_WIDTH = 20
 
 MAIN_BRANCH_NAME = 'main'
 LAUNCHER_EXE_NAME = "FrontierLauncher.exe"
+
+DISCORD_BUG_WEBHOOK_URL = "https://discord.com/api/webhooks/1499623650083602575/aZUKDLC65INPUnWfuN70kDMOZRTATEPTt-9omo0nk_JbV__Td6MQ-lI38BeY-rvmS72m"
+CRASH_RECENT_WINDOW_SECS = 300          # 5 minutes
 
 # Global Constants for Paths and Repo
 REPO_URL = "https://github.com/collebrusco/frontier.git"
@@ -529,9 +533,19 @@ class FrontEnd:
         self.cfglist.append(self.branch_label)
         self.cfglist.append(self.preserve_settings_check)
 
-        self.version_label = tk.Label(self.root, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
-        self.version_label.pack(side=tk.BOTTOM, pady=2)
+        self.bottom_bar = tk.Frame(self.root, bg=BG_COLOR)
+        self.bottom_bar.pack(side=tk.BOTTOM, fill=tk.X)
+        _bottom_inner = tk.Frame(self.bottom_bar, bg=BG_COLOR)
+        _bottom_inner.pack(expand=True, pady=2)  # no fill → shrinks to content, centers horizontally
+        self.version_label = tk.Label(_bottom_inner, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
+        self.version_label.pack(side=tk.LEFT, padx=(0, 6))
+        self.bug_report_button = tk.Button(_bottom_inner, text="report bug", font=("Arial", 8), bg="#c06060", fg="white", relief=tk.FLAT, padx=4, pady=2, command=None)
+        self.bug_report_button.pack(side=tk.LEFT)
+
+        self.cfglist.append(self.bottom_bar)
+        self.cfglist.append(_bottom_inner)
         self.cfglist.append(self.version_label)
+        # bug_report_button intentionally not in cfglist — keeps its reddish color regardless of state
 
     def setup_progress_bar(self, root):
         """Set up a progress bar below the console."""
@@ -702,20 +716,15 @@ class FrontEnd:
         self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.open_dir_button.grid(row=1, column=1, padx=10, pady=5)
 
-    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb, launch_cb):
+    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb, launch_cb, bug_report_cb):
         self.browse_button.config(command=browse_cb)
-
         self.confirm_button.config(command=confirm_cb)
-
         self.update_button.config(command=update_cb)
-
         self.install_button.config(command=install_cb)
-
         self.open_dir_button.config(command=open_cb)
-
         self.status_button.config(command=status_cb)
-
         self.launch_button.config(command=launch_cb)
+        self.bug_report_button.config(command=bug_report_cb)
 
     def setup_console(self, root, height=300, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
         """Set up the console for displaying messages."""
@@ -845,7 +854,8 @@ class Controller:
             self.control_install,
             self.control_open,
             self.control_status,
-            self.control_launch
+            self.control_launch,
+            self.control_bug_report
         )
 
         self.backend = GitBackend(self.frontend.console_print, self.frontend.update_progress_bar, self.frontend.root.quit)
@@ -908,6 +918,7 @@ class Controller:
             if repo:
                 self.update_dropdown()
                 self.set_state(STATE_CONNECTED)
+                self._check_for_recent_crashes(path)
             else:
                 response = messagebox.askokcancel(title="Warning", message="You have an existing minecraft folder here not installed by this installer. I can install on top of this, but I may need to overwrite files. This installer does NOT track your saves or main options, but some other things. You will be warned again before any overwrites happen.\nPress ok to continue")
                 if not response:
@@ -922,7 +933,8 @@ class Controller:
                     if not repo:
                         raise RuntimeError("failed to install remote")
                     self.frontend.console_print(f'successfully set up tracking for install at {path}')
-                    self.set_state(STATE_CONNECTED)       
+                    self.set_state(STATE_CONNECTED)
+                    self._check_for_recent_crashes(path)
         else:
             self.set_state(STATE_NO_INSTALL)
 
@@ -1031,6 +1043,153 @@ class Controller:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to launch Minecraft Launcher:\n{e}")
 
+
+    def _find_recent_crashes(self, minecraft_path):
+        crash_dir = Path(minecraft_path) / "crash-reports"
+        if not crash_dir.exists():
+            return []
+        now = time.time()
+        return sorted(
+            [f for f in crash_dir.iterdir() if f.is_file() and (now - f.stat().st_mtime) < CRASH_RECENT_WINDOW_SECS],
+            key=lambda f: f.stat().st_mtime,
+            reverse=True,
+        )
+
+    def _check_for_recent_crashes(self, minecraft_path):
+        crashes = self._find_recent_crashes(minecraft_path)
+        if crashes:
+            age_min = int((time.time() - crashes[0].stat().st_mtime) / 60)
+            self.frontend.root.after(0, lambda: self._prompt_crash_report(minecraft_path, crashes, age_min))
+
+    def _get_minecraft_username(self, minecraft_path):
+        for fname in ("launcher_accounts_microsoft_store.json", "launcher_accounts.json"):
+            try:
+                p = Path(minecraft_path) / fname
+                if not p.exists():
+                    continue
+                with open(p) as f:
+                    d = json.load(f)
+                active = d["activeAccountLocalId"]
+                return d["accounts"][active]["minecraftProfile"]["name"]
+            except Exception:
+                continue
+        return "Unknown"
+
+    def _prompt_crash_report(self, minecraft_path, crash_files, age_min):
+        msg = f"A Minecraft crash was detected {age_min} minute(s) ago.\n\nWould you like to send a bug report to the server admin?"
+        if messagebox.askyesno("Crash Detected", msg):
+            self._open_bug_report_dialog(minecraft_path, crash_files)
+
+    def control_bug_report(self):
+        minecraft_path = Path(self.frontend.path_var.get())
+        crashes = self._find_recent_crashes(minecraft_path) if minecraft_path.exists() else []
+        self._open_bug_report_dialog(minecraft_path, crashes)
+
+    def _open_bug_report_dialog(self, minecraft_path, crash_files=None):
+        username = self._get_minecraft_username(minecraft_path)
+
+        dialog = tk.Toplevel(self.frontend.root)
+        dialog.title("Report a Bug")
+        dialog.geometry("500x420")
+        dialog.configure(bg=BG_COLOR)
+        dialog.resizable(False, False)
+        dialog.grab_set()
+
+        tk.Label(dialog, text="Report a Bug", font=FONT_TITLE, bg=BG_COLOR).pack(pady=(12, 4))
+
+        info_parts = [f"oops.. sending from {username}", "your last mc log will be attached"]
+        if crash_files:
+            info_parts.append(f"crash report: {crash_files[0].name}")
+        tk.Label(dialog, text="\n".join(info_parts), font=("Arial", 9), bg=BG_COLOR, fg="#555555", justify=tk.LEFT).pack(padx=16, pady=(0, 8))
+
+        subject_frame = tk.Frame(dialog, bg=BG_COLOR)
+        subject_frame.pack(padx=16, fill=tk.X, pady=(0, 6))
+        tk.Label(subject_frame, text="problem:", font=FONT_TEXT, bg=BG_COLOR).pack(side=tk.LEFT, padx=(0, 6))
+        subject_var = tk.StringVar()
+        tk.Entry(subject_frame, textvariable=subject_var, font=("Arial", 10), width=38).pack(side=tk.LEFT)
+
+        tk.Label(dialog, text="more details (if u want):", font=FONT_TEXT, bg=BG_COLOR, anchor='w').pack(padx=16, fill=tk.X)
+        msg_text = tk.Text(dialog, height=6, width=56, font=("Arial", 10), wrap='word')
+        msg_text.pack(padx=16, pady=(4, 12))
+
+        ss_frame = tk.Frame(dialog, bg=BG_COLOR)
+        ss_frame.pack(padx=16, fill=tk.X, pady=(0, 8))
+        selected_screenshots = []
+        ss_label_var = tk.StringVar(value="no screenshots attached")
+        tk.Label(ss_frame, textvariable=ss_label_var, font=("Arial", 9), bg=BG_COLOR, fg="#555555").pack(side=tk.LEFT)
+
+        def browse_screenshots():
+            ss_dir = Path(minecraft_path) / "screenshots"
+            initial = str(ss_dir) if ss_dir.exists() else str(Path(minecraft_path))
+            paths = fd.askopenfilenames(
+                title="Select Screenshots",
+                initialdir=initial,
+                filetypes=[("Images", "*.png *.jpg *.jpeg *.gif"), ("All files", "*.*")],
+                parent=dialog,
+            )
+            if paths:
+                selected_screenshots.clear()
+                selected_screenshots.extend(Path(p) for p in paths)
+                names = ", ".join(p.name for p in selected_screenshots[:3])
+                if len(selected_screenshots) > 3:
+                    names += f" (+{len(selected_screenshots) - 3} more)"
+                ss_label_var.set(names)
+
+        tk.Button(ss_frame, text="Attach Screenshots", font=("Arial", 9), command=browse_screenshots).pack(side=tk.RIGHT)
+
+        btn_frame = tk.Frame(dialog, bg=BG_COLOR)
+        btn_frame.pack(pady=(0, 12))
+
+        def on_send():
+            subject = subject_var.get().strip() or "problem"
+            user_msg = msg_text.get("1.0", tk.END).strip()
+            dialog.destroy()
+            self.backend.run_in_thread(self._send_bug_report, minecraft_path, subject, user_msg, crash_files or [], username, list(selected_screenshots))
+
+        tk.Button(btn_frame, text="Send Report", bg="#c06060", fg="white", font=FONT_TEXT, width=14, height=1, command=on_send).pack(side=tk.LEFT, padx=8)
+        tk.Button(btn_frame, text="Cancel", font=FONT_TEXT, width=14, height=1, command=dialog.destroy).pack(side=tk.LEFT, padx=8)
+
+    def _send_bug_report(self, minecraft_path, subject, user_message, crash_files, username="Unknown", screenshots=None):
+        if DISCORD_BUG_WEBHOOK_URL == "YOUR_WEBHOOK_URL_HERE":
+            self.frontend.console_print("Bug reporting not configured (no webhook URL).", "orange")
+            return
+
+        minecraft_path = Path(minecraft_path)
+        log_path = minecraft_path / "logs" / "latest.log"
+
+        try:
+            log_content = b""
+            if log_path.exists():
+                with open(log_path, "rb") as f:
+                    log_content = f.read()
+
+            embed = {
+                "title": subject,
+                "description": user_message if user_message else "*(no message provided)*",
+                "color": 0xcc4444,
+                "fields": [
+                    {"name": "Player", "value": username, "inline": True},
+                    {"name": "OS", "value": get_current_os(), "inline": True},
+                    {"name": "Launcher", "value": f"v{VERSION_NUMBER}", "inline": True},
+                ],
+                "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+            }
+
+            fi = 0
+            files = {"payload_json": (None, json.dumps({"embeds": [embed]}), "application/json")}
+            files[f"files[{fi}]"] = ("latest.log", log_content, "text/plain"); fi += 1
+            if crash_files:
+                files[f"files[{fi}]"] = (crash_files[0].name, crash_files[0].read_bytes(), "text/plain"); fi += 1
+            for ss in (screenshots or [])[:8]:  # cap at 8 so total stays under Discord's 10-file limit
+                files[f"files[{fi}]"] = (Path(ss).name, Path(ss).read_bytes(), "image/png"); fi += 1
+
+            resp = requests.post(DISCORD_BUG_WEBHOOK_URL, files=files)
+            if resp.status_code in (200, 204):
+                self.frontend.console_print("Bug report sent! Thank you.", "lime")
+            else:
+                self.frontend.console_print(f"Failed to send bug report (HTTP {resp.status_code}).", "red")
+        except Exception as e:
+            self.frontend.console_print(f"Error sending bug report: {e}", "red")
 
     def control_launch(self):
         self.backend.run_in_thread(self.launch_task)
