@@ -1,5 +1,5 @@
 # ==== VERSION NUMBER ====
-VERSION_NUMBER = "1.2"
+VERSION_NUMBER = "1.2.1"
 # ========================
 import sys
 import tkinter as tk
@@ -38,6 +38,12 @@ LAUNCHER_EXE_NAME = "FrontierLauncher.exe"
 
 DISCORD_BUG_WEBHOOK_URL = "https://discord.com/api/webhooks/1499623650083602575/aZUKDLC65INPUnWfuN70kDMOZRTATEPTt-9omo0nk_JbV__Td6MQ-lI38BeY-rvmS72m"
 CRASH_RECENT_WINDOW_SECS = 300          # 5 minutes
+
+# Launcher stdout/stderr log — path depends on whether we're running as a frozen exe or raw script
+if getattr(sys, 'frozen', False):
+    LAUNCHER_LOG_PATH = Path(sys.executable).parent / "frontier_assets" / "launcher_log.log"
+else:
+    LAUNCHER_LOG_PATH = Path(__file__).parent / "launcher_log.log"
 
 # Global Constants for Paths and Repo
 REPO_URL = "https://github.com/collebrusco/frontier.git"
@@ -1123,14 +1129,14 @@ class Controller:
 
         dialog = tk.Toplevel(self.frontend.root)
         dialog.title("problem report")
-        dialog.geometry("500x420")
+        dialog.geometry("500x470")
         dialog.configure(bg=BG_COLOR)
         dialog.resizable(False, False)
         dialog.grab_set()
 
         tk.Label(dialog, text="Problem Report", font=FONT_TITLE, bg=BG_COLOR).pack(pady=(12, 4))
 
-        info_parts = [f"Sorry {username}, pls report it", "your log will be attached"]
+        info_parts = [f"Sorry {username}, pls report it", "your latest.log will be attached by default", "optionally add screenshots or more logs"]
         if crash_files:
             info_parts.append(f"crash report: {crash_files[0].name}")
         tk.Label(dialog, text="\n".join(info_parts), font=("Arial", 9), bg=BG_COLOR, fg="#555555", justify=tk.LEFT).pack(padx=16, pady=(0, 8))
@@ -1170,6 +1176,29 @@ class Controller:
 
         tk.Button(ss_frame, text="Attach Screenshots", font=("Arial", 9), command=browse_screenshots).pack(side=tk.RIGHT)
 
+        el_frame = tk.Frame(dialog, bg=BG_COLOR)
+        el_frame.pack(padx=16, fill=tk.X, pady=(0, 8))
+        selected_extra_logs = []
+        el_label_var = tk.StringVar(value="no extra logs attached")
+        tk.Label(el_frame, textvariable=el_label_var, font=("Arial", 9), bg=BG_COLOR, fg="#555555").pack(side=tk.LEFT)
+
+        def browse_extra_logs():
+            paths = fd.askopenfilenames(
+                title="Attach Extra Log",
+                initialdir=str(Path(minecraft_path)),
+                filetypes=[("Log / text files", "*.log *.txt *.json *.xml *.csv"), ("All files", "*.*")],
+                parent=dialog,
+            )
+            if paths:
+                selected_extra_logs.clear()
+                selected_extra_logs.extend(Path(p) for p in paths)
+                names = ", ".join(p.name for p in selected_extra_logs[:3])
+                if len(selected_extra_logs) > 3:
+                    names += f" (+{len(selected_extra_logs) - 3} more)"
+                el_label_var.set(names)
+
+        tk.Button(el_frame, text="Attach Extra Log", font=("Arial", 9), command=browse_extra_logs).pack(side=tk.RIGHT)
+
         btn_frame = tk.Frame(dialog, bg=BG_COLOR)
         btn_frame.pack(pady=(0, 12))
 
@@ -1177,24 +1206,34 @@ class Controller:
             subject = subject_var.get().strip() or "problem"
             user_msg = msg_text.get("1.0", tk.END).strip()
             dialog.destroy()
-            self.backend.run_in_thread(self._send_bug_report, minecraft_path, subject, user_msg, crash_files or [], username, list(selected_screenshots))
+            self.backend.run_in_thread(self._send_bug_report, minecraft_path, subject, user_msg, crash_files or [], username, list(selected_screenshots), list(selected_extra_logs))
 
         tk.Button(btn_frame, text="Send Report", bg="#c06060", fg="white", font=FONT_TEXT, width=14, height=1, command=on_send).pack(side=tk.LEFT, padx=8)
         tk.Button(btn_frame, text="Cancel", font=FONT_TEXT, width=14, height=1, command=dialog.destroy).pack(side=tk.LEFT, padx=8)
 
-    def _send_bug_report(self, minecraft_path, subject, user_message, crash_files, username="Unknown", screenshots=None):
+    def _send_bug_report(self, minecraft_path, subject, user_message, crash_files, username="Unknown", screenshots=None, extra_logs=None):
         if DISCORD_BUG_WEBHOOK_URL == "YOUR_WEBHOOK_URL_HERE":
             self.frontend.console_print("Bug reporting not configured (no webhook URL).", "orange")
             return
+
+        def _truncate_log(raw: bytes, budget: int, head: int = 32 * 1024) -> bytes:
+            if len(raw) <= budget:
+                return raw
+            tail_size = budget - head
+            sep = b"\n\n[...truncated, showing first %d KB then last %d KB...]\n\n" % (head // 1024, tail_size // 1024)
+            return raw[:head] + sep + raw[-tail_size:]
 
         minecraft_path = Path(minecraft_path)
         log_path = minecraft_path / "logs" / "latest.log"
 
         try:
+            LOG_BUDGET = 7 * 1024 * 1024        # 7 MB for latest.log
+            EXTRA_LOG_BUDGET = int(7.9 * 1024 * 1024)  # ~7.9 MB per extra log
+
             log_content = b""
             if log_path.exists():
                 with open(log_path, "rb") as f:
-                    log_content = f.read()
+                    log_content = _truncate_log(f.read(), LOG_BUDGET)
 
             embed = {
                 "title": subject,
@@ -1208,12 +1247,26 @@ class Controller:
                 "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
             }
 
+            LAUNCHER_LOG_BUDGET = 1 * 1024 * 1024  # 1 MB — launcher stdout is small
+
+            MAX_FILES = 10
             fi = 0
             files = {"payload_json": (None, json.dumps({"embeds": [embed]}), "application/json")}
             files[f"files[{fi}]"] = ("latest.log", log_content, "text/plain"); fi += 1
-            if crash_files:
+            if LAUNCHER_LOG_PATH.exists() and fi < MAX_FILES:
+                launcher_log_content = _truncate_log(LAUNCHER_LOG_PATH.read_bytes(), LAUNCHER_LOG_BUDGET)
+                files[f"files[{fi}]"] = ("launcher_log.log", launcher_log_content, "text/plain"); fi += 1
+            if crash_files and fi < MAX_FILES:
                 files[f"files[{fi}]"] = (crash_files[0].name, crash_files[0].read_bytes(), "text/plain"); fi += 1
-            for ss in (screenshots or [])[:8]:  # cap at 8 so total stays under Discord's 10-file limit
+            for el in (extra_logs or []):
+                if fi >= MAX_FILES:
+                    break
+                el_path = Path(el)
+                el_content = _truncate_log(el_path.read_bytes(), EXTRA_LOG_BUDGET)
+                files[f"files[{fi}]"] = (el_path.name, el_content, "text/plain"); fi += 1
+            for ss in (screenshots or []):
+                if fi >= MAX_FILES:
+                    break
                 files[f"files[{fi}]"] = (Path(ss).name, Path(ss).read_bytes(), "image/png"); fi += 1
 
             resp = requests.post(DISCORD_BUG_WEBHOOK_URL, files=files)
@@ -1234,6 +1287,16 @@ class Controller:
 
 # Create the Tkinter app
 if __name__ == "__main__":
+    try:
+        LAUNCHER_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _log_fh = open(LAUNCHER_LOG_PATH, "a", buffering=1, encoding="utf-8")
+        sys.stdout = _log_fh
+        sys.stderr = _log_fh
+        print(f"\n{'='*60}")
+        print(f"Frontier Launcher v{VERSION_NUMBER} — {datetime.datetime.now().isoformat()}")
+        print(f"{'='*60}")
+    except Exception as e:
+        pass  # don't prevent startup if log file can't be opened
 
     control = Controller(tk.Tk())
     control.run_app()
