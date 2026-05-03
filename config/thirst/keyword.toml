@@ -4,7 +4,7 @@
 	#lists of regular expressions to select items by their id name. It divides the items into categories
 	#that have preset values for hydration and quenching
 	#If the keyword config should be taken into consideration
-	enableKeywordConfig = false
+	enableKeywordConfig = true
 
 	["Keyword config"."Default Hydration values"]
 		#Default hydration for drinks selected with keywords [0-20]
