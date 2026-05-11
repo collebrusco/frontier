@@ -225,6 +225,128 @@ def _hash_file(path):
     return h.hexdigest()
 
 
+def _parse_servers_dat(path):
+    """Parse servers.dat NBT and return list of {'name': ..., 'ip': ...} dicts."""
+    import struct
+    from io import BytesIO
+    with open(path, 'rb') as f:
+        buf = BytesIO(f.read())
+    def rb(n): return buf.read(n)
+    def read_ubyte(): return struct.unpack('>B', rb(1))[0]
+    def read_int(): return struct.unpack('>i', rb(4))[0]
+    def read_string():
+        n = struct.unpack('>H', rb(2))[0]
+        return rb(n).decode('utf-8', errors='replace')
+    def skip(tag_id):
+        sizes = {1: 1, 2: 2, 3: 4, 4: 8, 5: 4, 6: 8}
+        if tag_id in sizes: rb(sizes[tag_id])
+        elif tag_id == 7: rb(read_int())
+        elif tag_id == 8: rb(struct.unpack('>H', rb(2))[0])
+        elif tag_id == 9:
+            t = read_ubyte(); n = read_int()
+            for _ in range(n): skip(t)
+        elif tag_id == 10: read_compound()
+        elif tag_id == 11: rb(read_int() * 4)
+        elif tag_id == 12: rb(read_int() * 8)
+    def read_compound():
+        d = {}
+        while True:
+            t = read_ubyte()
+            if t == 0: break
+            name = read_string()
+            if t == 8: d[name] = read_string()
+            else: skip(t)
+        return d
+    read_ubyte(); read_string()  # root TAG_Compound header (type + empty name)
+    servers = []
+    while True:
+        t = read_ubyte()
+        if t == 0: break
+        name = read_string()
+        if t == 9 and name == 'servers':
+            el_type = read_ubyte(); count = read_int()
+            for _ in range(count):
+                servers.append(read_compound() if el_type == 10 else skip(el_type))
+        else:
+            skip(t)
+    return [s for s in servers if s]
+
+
+def _get_server_address(minecraft_path):
+    """Return server address to ping: lastServer from options.txt, else first in servers.dat."""
+    minecraft_path = Path(minecraft_path)
+    options = minecraft_path / 'options.txt'
+    if options.exists():
+        for line in options.read_text(encoding='utf-8', errors='replace').splitlines():
+            if line.startswith('lastServer:'):
+                addr = line[len('lastServer:'):].strip()
+                if addr:
+                    return addr
+    dat = minecraft_path / 'servers.dat'
+    if dat.exists():
+        try:
+            servers = _parse_servers_dat(dat)
+            if servers:
+                return servers[0].get('ip', '')
+        except Exception:
+            pass
+    return None
+
+
+def _ping_minecraft_server(host, port=25565, timeout=5):
+    """Server List Ping — returns (players_online, players_max, ping_ms) or raises."""
+    import socket, struct, json
+    from io import BytesIO
+
+    def pack_varint(v):
+        out = b''
+        while True:
+            b = v & 0x7F; v >>= 7
+            if v: b |= 0x80
+            out += bytes([b])
+            if not v: break
+        return out
+
+    def read_varint_sock(s):
+        result = shift = 0
+        while True:
+            b = s.recv(1)
+            if not b: raise ConnectionError("socket closed")
+            b = b[0]; result |= (b & 0x7F) << shift; shift += 7
+            if not (b & 0x80): break
+        return result
+
+    def skip_varint_buf(buf):
+        while True:
+            b = buf.read(1)
+            if not b: raise EOFError
+            if not (b[0] & 0x80): break
+
+    host_b = host.encode('utf-8')
+    handshake = (b'\x00'
+                 + pack_varint(765)
+                 + pack_varint(len(host_b)) + host_b
+                 + struct.pack('>H', port)
+                 + pack_varint(1))
+    t0 = time.time()
+    with socket.create_connection((host, port), timeout=timeout) as s:
+        s.sendall(pack_varint(len(handshake)) + handshake)
+        s.sendall(b'\x01\x00')
+        length = read_varint_sock(s)
+        raw = b''
+        while len(raw) < length:
+            chunk = s.recv(length - len(raw))
+            if not chunk: break
+            raw += chunk
+    ping_ms = int((time.time() - t0) * 1000)
+    buf = BytesIO(raw)
+    skip_varint_buf(buf)   # packet ID
+    skip_varint_buf(buf)   # JSON length
+    data = json.loads(buf.read().decode('utf-8'))
+    players = data.get('players', {})
+    return players.get('online', 0), players.get('max', 0), ping_ms
+
+
 class GitBackend:
     def __init__(self, ui_callback, ui_bar_callback, quit_cb):
         self.ui_callback = ui_callback
@@ -564,6 +686,7 @@ class FrontEnd:
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
         self.cfglist.append(self.update_row)
+        self.cfglist.append(self.server_status_label)
 
         self.bottom_bar = tk.Frame(self.root, bg=BG_COLOR)
         self.bottom_bar.pack(side=tk.BOTTOM, fill=tk.X)
@@ -710,6 +833,15 @@ class FrontEnd:
         state = tk.NORMAL if enable else tk.DISABLED
         self.launch_button.config(state=state)
 
+    def update_server_status(self, online, players_online=0, players_max=0, ping_ms=0):
+        if online:
+            self.server_status_label.config(
+                text=f"● {players_online}/{players_max} online  ·  {ping_ms}ms",
+                fg="green"
+            )
+        else:
+            self.server_status_label.config(text="✖ server offline", fg="red")
+
     # TODO controller called, pass cbs
     def setup_path_field(self):
         """Setup the Minecraft path field."""
@@ -816,6 +948,9 @@ class FrontEnd:
         self.launch_button = tk.Button(self.inner_image_frame, text="Launch!", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.launch_button.pack(pady=5)
 
+        self.server_status_label = tk.Label(self.inner_image_frame, text="pinging server...", font=(FONT_FAMILY, 10), bg=BG_COLOR, fg="gray")
+        self.server_status_label.pack(pady=2)
+
         # --- Controls Section (Right) ---
         self.controls_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
         self.controls_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
@@ -921,8 +1056,29 @@ class Controller:
                     pass  # not critical
         self.frontend.console_print("Confirm your .minecraft path above to get started")
 
+    def poll_server_status(self):
+        def _run():
+            try:
+                addr = _get_server_address(self.frontend.path_var.get())
+                if not addr:
+                    self.frontend.root.after(0, lambda: self.frontend.update_server_status(False))
+                    return
+                if ':' in addr:
+                    host, port = addr.rsplit(':', 1)
+                    port = int(port)
+                else:
+                    host, port = addr, 25565
+                online, max_p, ping = _ping_minecraft_server(host, port)
+                self.frontend.root.after(0, lambda: self.frontend.update_server_status(True, online, max_p, ping))
+            except Exception:
+                self.frontend.root.after(0, lambda: self.frontend.update_server_status(False))
+            finally:
+                self.frontend.root.after(120_000, self.poll_server_status)
+        threading.Thread(target=_run, daemon=True).start()
+
     def run_app(self):
         self.backend.run_in_thread(self.bootup_seq)
+        self.frontend.root.after(500, self.poll_server_status)
         self.frontend.root.mainloop()
 
     def set_state(self, state, log=True):
