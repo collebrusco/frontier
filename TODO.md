@@ -22,6 +22,12 @@
     - by nature of that, this one's for the windows users, as with some other things in the launcher the mac/linux launcher dont hand hold quite as much bc its assumed anyone using those can figure things out more / most are on windows
     - but: idk how making a windows shortcut works, i.e., if a desktop shortcut points to the exe,  which must stay in the dir it ships in, and the exe changes, will the shortcut update? id think so but windows is stupid so nothing surprises me. if so, helping user manage the shortcut and allow the launcher to auto update itself would be great.
 
+- bypass the Minecraft launcher entirely (launch MC directly)
+    - technically feasible: bundled JRE lives at `runtime/java-runtime-gamma/`, NeoForge classpath is in the version JSON, `minecraft-launcher-lib` (Python pkg) handles most of this including Forge/NeoForge
+    - the hard part is Microsoft auth: access tokens in `launcher_accounts.json` expire in ~1hr, refreshing requires Microsoft OAuth2 → Xbox Live → XSTS → Minecraft auth chain
+    - risk: auth chain quietly breaks when Microsoft makes upstream changes, players get locked out
+    - worth revisiting once blind-launch (one-click update-check + launch) is proven out
+
 - BLOCKED combine map data 
     - we each have our own world maps with the areas we've explored. ideally, i want anyone to be able to push their map data / download the latest map data, s.t. we all have all of the combined explored areas shown on our map. waypoints can stay individual. 
         - first need to develop a way to merge the map data by reverse engineering the map data format. i assume that shouldn't be crazy hard

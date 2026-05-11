@@ -464,9 +464,9 @@ class GitBackend:
                         repo.git.stash('pop')
                         self.ui_callback("Settings applied successfully.", "lime")
                     except git.exc.GitCommandError:
-                        repo.git.checkout('--', '.')
+                        repo.git.reset('--hard')
                         repo.git.stash('drop')
-                        self.ui_callback("Couldn't apply your settings cleanly — they conflicted with the update and were cleared. Sorry!", "orange")
+                        self.ui_callback("oops, some files you'd changed were updated in the same place, and I can't merge them automatically. I'll have to reset, sorry", "orange")
 
             self.ui_callback(f"Update on {branch} successful", 'lime')
             self.print_status_update(repo_path)
@@ -656,7 +656,12 @@ class FrontEnd:
             self.enable_update(False)
             self.enable_opendir(True)
             self.enable_status(False)
-            self.enable_launch(False)
+            cache_file = Path(self.path_var.get()) / ".mc_launcher_path.cache"
+            can_blind_launch = False
+            if cache_file.exists():
+                cached = cache_file.read_text().strip()
+                can_blind_launch = Path(cached).is_file()
+            self.enable_launch(can_blind_launch)
         elif self.current_state in (STATE_NON_MANAGED, STATE_NO_INSTALL):
             self.enable_path_editing(True)
             self.enable_update(False)
@@ -1277,8 +1282,36 @@ class Controller:
         except Exception as e:
             self.frontend.console_print(f"Error sending bug report: {e}", "red")
 
+    def blind_launch_task(self):
+        path = Path(self.frontend.path_var.get())
+        self.frontend.console_print("Running blind launch..", "yellow")
+        self.frontend.console_print("Checking for tracked install..", "yellow")
+        self.frontend.simulate_progress_bar(0.22)
+        repo = self.backend.check_repo(path)
+        if repo:
+            try:
+                branch = repo.active_branch.name
+                repo.remotes.origin.fetch()
+                local = repo.head.commit
+                remote = repo.remotes.origin.refs[branch].commit
+                self.frontend.console_print("Got an install! Checking if up to date:", "lime")
+                if local != remote:
+                    self.frontend.console_print("Looks like there's an update -- stopping and connecting", "orange")
+                    self.update_dropdown()
+                    self.set_state(STATE_CONNECTED)
+                    return
+                self.frontend.console_print("Up to date.", "lime")
+            except Exception:
+                self.frontend.console_print("Couldn't reach remote, trying launch anyway!", "orange")
+        else:
+            self.frontend.console_print("Couldn't verify install, trying launch anyway!", "orange")
+        self.launch_task()
+
     def control_launch(self):
-        self.backend.run_in_thread(self.launch_task)
+        if self.get_state() == STATE_UNCONNECTED:
+            self.backend.run_in_thread(self.blind_launch_task)
+        else:
+            self.backend.run_in_thread(self.launch_task)
 
 
 
