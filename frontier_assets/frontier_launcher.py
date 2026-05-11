@@ -1,5 +1,5 @@
 # ==== VERSION NUMBER ====
-VERSION_NUMBER = "1.2.4"
+VERSION_NUMBER = "1.2.4-fix"
 # CHANGELOG:
 # 1.2.4: add linux default path
 # 1.2.3: add blind launch
@@ -195,13 +195,7 @@ else:
 import git  # Ensure GitPython is available after setup
 git.refresh()
 
-MINECRAFT_DEFAULT_DIR = Path.home()
-if get_current_os() == OS_WIN:
-    MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / "AppData/Roaming/.minecraft"
-if get_current_os() == OS_MAC:
-    MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / "Library/Application Support/minecraft"
-if get_current_os() == OS_LIN:
-    MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / ".var/app/com.mojang.Minecraft/.minecraft"
+MINECRAFT_DEFAULT_DIR = None
 
 def run_as_admin():
     """Attempt to restart the script as an administrator."""
@@ -1343,6 +1337,16 @@ if __name__ == "__main__":
         print(f"{'='*60}")
     except Exception as e:
         pass  # don't prevent startup if log file can't be opened
+
+    _os = get_current_os()
+    MINECRAFT_DEFAULT_DIR = Path.home()
+    if _os == OS_WIN:
+        MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / "AppData/Roaming/.minecraft"
+    elif _os == OS_MAC:
+        MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / "Library/Application Support/minecraft"
+    elif _os == OS_LIN:
+        MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / ".var/app/com.mojang.Minecraft/.minecraft"
+    print(f"OS: {_os}, default dir: {MINECRAFT_DEFAULT_DIR}")
 
     control = Controller(tk.Tk())
     control.run_app()
