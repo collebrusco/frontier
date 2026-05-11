@@ -1,5 +1,11 @@
 # ==== VERSION NUMBER ====
-VERSION_NUMBER = "1.2.1"
+VERSION_NUMBER = "1.2.3"
+# CHANGELOG:
+# 1.2.3: add blind launch
+# 1.2.2: fix preserve error path
+# 1.2.1: add screenshots to bug reports
+# 1.2: bug report button
+# 1.1: preserve update and first version number
 # ========================
 import sys
 import tkinter as tk
@@ -1299,6 +1305,7 @@ class Controller:
                     self.frontend.console_print("Looks like there's an update -- stopping and connecting", "orange")
                     self.update_dropdown()
                     self.set_state(STATE_CONNECTED)
+                    self.frontend.console_print("stopped blind launch due to found an update", "yellow")
                     return
                 self.frontend.console_print("Up to date.", "lime")
             except Exception:
