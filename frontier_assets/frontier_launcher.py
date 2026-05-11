@@ -1,6 +1,7 @@
 # ==== VERSION NUMBER ====
-VERSION_NUMBER = "1.2.3"
+VERSION_NUMBER = "1.2.4"
 # CHANGELOG:
+# 1.2.4: add linux default path
 # 1.2.3: add blind launch
 # 1.2.2: fix preserve error path
 # 1.2.1: add screenshots to bug reports
@@ -199,6 +200,8 @@ if get_current_os() == OS_WIN:
     MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / "AppData/Roaming/.minecraft"
 if get_current_os() == OS_MAC:
     MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / "Library/Application Support/minecraft"
+if get_current_os() == OS_LIN:
+    MINECRAFT_DEFAULT_DIR = MINECRAFT_DEFAULT_DIR / ".var/app/com.mojang.Minecraft/.minecraft"
 
 def run_as_admin():
     """Attempt to restart the script as an administrator."""
