@@ -482,7 +482,10 @@ class GitBackend:
                 if pre_hash != post_hash:
                     self.ui_callback("Launcher executable was updated!", "yellow")
                     if messagebox.askyesno("Launcher Updated", "The Frontier Launcher itself was updated.\nRestart now to run the new version?"):
-                        subprocess.Popen([str(exe_path)])
+                        env = os.environ.copy()
+                        for key in ('TCL_LIBRARY', 'TK_LIBRARY', 'TCLLIBPATH', 'TCL_ZIPFS_ROOT', 'TK_ZIPFS_ROOT'):
+                            env.pop(key, None)
+                        subprocess.Popen([str(exe_path)], env=env)
                         self.quit_cb()
 
         except UserWarning as w:
