@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "pack_format": 48,
+    "description": "Excludes Simply Swords items from spell_engine fallback spell assignment"
+  }
+}
