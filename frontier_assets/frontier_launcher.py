@@ -69,12 +69,13 @@ import tkinter as tk
 from tkinter import messagebox
 import subprocess
 import platform
+import tempfile
 import urllib.request
 
 
 # Git download URL for Windows
 GIT_DOWNLOAD_URL = "https://github.com/git-for-windows/git/releases/download/v2.47.1.windows.2/Git-2.47.1.2-64-bit.exe"
-GIT_INSTALLER_PATH = os.path.join(os.getenv("TEMP"), "Git-Installer.exe")
+GIT_INSTALLER_PATH = os.path.join(os.getenv("TEMP") or tempfile.gettempdir(), "Git-Installer.exe")
 
 # Detect OS
 OS_WIN = "Windows"
@@ -531,6 +532,16 @@ class FrontEnd:
         self.current_branch = None
         self.current_state = STATE_UNCONNECTED
 
+        # --- Bottom Bar (packed first so side=BOTTOM reserves its strip before other widgets consume vertical space) ---
+        self.bottom_bar = tk.Frame(self.root, bg=BG_COLOR)
+        self.bottom_bar.pack(side=tk.BOTTOM, fill=tk.X)
+        _bottom_inner = tk.Frame(self.bottom_bar, bg=BG_COLOR)
+        _bottom_inner.pack(expand=True, pady=2)
+        self.version_label = tk.Label(_bottom_inner, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
+        self.version_label.pack(side=tk.LEFT, padx=(0, 6))
+        self.bug_report_button = tk.Button(_bottom_inner, text="problem...", font=("Arial", 8), bg="#c06060", fg="white", relief=tk.FLAT, padx=4, pady=2, command=None)
+        self.bug_report_button.pack(side=tk.LEFT)
+
         # --- State Display Section ---
         self.setup_state_display(root)
 
@@ -571,17 +582,7 @@ class FrontEnd:
         self.cfglist.append(self.branch_label)
         self.cfglist.append(self.update_row)
 
-        self.bottom_bar = tk.Frame(self.root, bg=BG_COLOR)
-        self.bottom_bar.pack(side=tk.BOTTOM, fill=tk.X)
-        _bottom_inner = tk.Frame(self.bottom_bar, bg=BG_COLOR)
-        _bottom_inner.pack(expand=True, pady=2)  # no fill → shrinks to content, centers horizontally
-        self.version_label = tk.Label(_bottom_inner, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
-        self.version_label.pack(side=tk.LEFT, padx=(0, 6))
-        self.bug_report_button = tk.Button(_bottom_inner, text="problem...", font=("Arial", 8), bg="#c06060", fg="white", relief=tk.FLAT, padx=4, pady=2, command=None)
-        self.bug_report_button.pack(side=tk.LEFT)
-
         self.cfglist.append(self.bottom_bar)
-        self.cfglist.append(_bottom_inner)
         self.cfglist.append(self.version_label)
         # bug_report_button intentionally not in cfglist — keeps its reddish color regardless of state
 
@@ -1038,7 +1039,7 @@ class Controller:
     def launch_task(self):
         # Define the cache file path
         cache_file = os.path.join(self.frontend.path_var.get(), ".mc_launcher_path.cache")
-        default_launcher_path = "C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"
+        default_launcher_path = r"C:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe"
 
         # Check if the cache file exists
         if os.path.exists(cache_file):
