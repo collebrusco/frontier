@@ -24,6 +24,11 @@ import json
 # Global Constants for Design Language
 BG_COLOR = "#c0c0c0"  # Default background color
 CONNECTED_BG_COLOR = "#a4fba6"  # Background color when connected
+STATUS_BG_PINGING = "#cccccc"   # Server-status pill: pinging
+STATUS_BG_ONLINE  = "#a4fba6"   # Server-status pill: online, low ping
+STATUS_BG_MED     = "#fbe89a"   # Server-status pill: online, medium ping
+STATUS_BG_SLOW    = "#fbb89a"   # Server-status pill: online, slow ping
+STATUS_BG_OFFLINE = "#fba6a6"   # Server-status pill: offline
 CONSOLE_BG = "#0f0e0f"  # Console background
 CONSOLE_FG = "lime"  # Console text color
 FONT_FAMILY = "Arial"  # Font family
@@ -272,24 +277,47 @@ def _parse_servers_dat(path):
     return [s for s in servers if s]
 
 
-def _get_server_address(minecraft_path):
-    """Return server address to ping: lastServer from options.txt, else first in servers.dat."""
+def _get_server_info(minecraft_path):
+    """Return {'addr': str, 'name': str} for the latest-joined server, or None.
+
+    Picks lastServer from options.txt; falls back to first entry in servers.dat.
+    Name is looked up in servers.dat by matching ip; falls back to the address.
+    """
+    import re
     minecraft_path = Path(minecraft_path)
+
+    saved = []
+    dat = minecraft_path / 'servers.dat'
+    if dat.exists():
+        try:
+            saved = _parse_servers_dat(dat)
+        except Exception:
+            pass
+
+    def clean(s):
+        return re.sub(r'§.', '', s or '').strip()
+
+    addr = None
     options = minecraft_path / 'options.txt'
     if options.exists():
         for line in options.read_text(encoding='utf-8', errors='replace').splitlines():
             if line.startswith('lastServer:'):
-                addr = line[len('lastServer:'):].strip()
-                if addr:
-                    return addr
-    dat = minecraft_path / 'servers.dat'
-    if dat.exists():
-        try:
-            servers = _parse_servers_dat(dat)
-            if servers:
-                return servers[0].get('ip', '')
-        except Exception:
-            pass
+                a = line[len('lastServer:'):].strip()
+                if a:
+                    addr = a
+                    break
+
+    if addr:
+        for s in saved:
+            if s.get('ip', '').strip() == addr:
+                return {'addr': addr, 'name': clean(s.get('name', '')) or addr}
+        return {'addr': addr, 'name': addr}
+
+    if saved:
+        s = saved[0]
+        ip = s.get('ip', '')
+        return {'addr': ip, 'name': clean(s.get('name', '')) or ip}
+
     return None
 
 
@@ -708,11 +736,7 @@ class FrontEnd:
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
         self.cfglist.append(self.update_row)
-        self.cfglist.append(self.server_status_frame)
-        self.cfglist.append(self.server_dot_label)
-        self.cfglist.append(self.server_motd_label)
-        self.cfglist.append(self.server_players_label)
-        self.cfglist.append(self.server_ping_label)
+        # server_status_frame intentionally not in cfglist — its bg tracks server status, not app state
 
         self.bottom_bar = tk.Frame(self.root, bg=BG_COLOR)
         self.bottom_bar.pack(side=tk.BOTTOM, fill=tk.X)
@@ -729,26 +753,35 @@ class FrontEnd:
         # bug_report_button intentionally not in cfglist — keeps its reddish color regardless of state
 
     def setup_server_status(self, root):
-        """Server status strip — centered between console and progress bar."""
-        self.server_status_frame = tk.Frame(root, bg=BG_COLOR)
+        """Compact server-status pill, click-to-refresh. bg color tracks status."""
+        # Slot for server address could go here as a separate label (e.g. small subscript
+        # under the pill or to its right). Address is available via _get_server_info().
+
+        self.refresh_cb = None
+        self.server_status_frame = tk.Frame(root, bg=STATUS_BG_PINGING, relief=tk.RAISED, bd=2, cursor="hand2")
         self.server_status_frame.pack(pady=4)
 
-        # Slot for server name + address could go here, e.g.
-        #   self.server_name_label = tk.Label(self.server_status_frame, text="Frontier", ...)
-        #   self.server_addr_label = tk.Label(self.server_status_frame, text="play.example.com", ...)
-        # Name comes from servers.dat (match _get_server_address result against parsed entries).
+        self.server_status_label = tk.Label(
+            self.server_status_frame,
+            text="pinging server…",
+            font=(FONT_FAMILY, 11),
+            bg=STATUS_BG_PINGING,
+            fg="#222222",
+            padx=14, pady=4,
+            cursor="hand2",
+        )
+        self.server_status_label.pack()
 
-        self.server_dot_label = tk.Label(self.server_status_frame, text="·", font=(FONT_FAMILY, 14, "bold"), bg=BG_COLOR, fg="#888888")
-        self.server_dot_label.pack(side=tk.LEFT, padx=(0, 8))
+        for w in (self.server_status_frame, self.server_status_label):
+            w.bind("<Button-1>", lambda e: self._on_server_status_click())
 
-        self.server_motd_label = tk.Label(self.server_status_frame, text="pinging server…", font=(FONT_FAMILY, 10), bg=BG_COLOR, fg="#666666")
-        self.server_motd_label.pack(side=tk.LEFT, padx=(0, 12))
+    def _on_server_status_click(self):
+        if self.refresh_cb:
+            self.refresh_cb()
 
-        self.server_players_label = tk.Label(self.server_status_frame, text="", font=(FONT_FAMILY, 10), bg=BG_COLOR, fg="#222222")
-        self.server_players_label.pack(side=tk.LEFT, padx=(0, 12))
-
-        self.server_ping_label = tk.Label(self.server_status_frame, text="", font=(FONT_FAMILY, 10), bg=BG_COLOR, fg="#222222")
-        self.server_ping_label.pack(side=tk.LEFT)
+    def set_server_status_pinging(self):
+        self.server_status_frame.config(bg=STATUS_BG_PINGING)
+        self.server_status_label.config(text="pinging…", bg=STATUS_BG_PINGING)
 
     def setup_progress_bar(self, root):
         """Set up a progress bar below the console."""
@@ -881,24 +914,23 @@ class FrontEnd:
         state = tk.NORMAL if enable else tk.DISABLED
         self.launch_button.config(state=state)
 
-    def update_server_status(self, online, players_online=0, players_max=0, ping_ms=0, motd=""):
+    def update_server_status(self, online, players_online=0, players_max=0, ping_ms=0, name=""):
         if online:
             if ping_ms < 80:
-                dot_color = "#2a9b2a"
+                bg = STATUS_BG_ONLINE
             elif ping_ms < 200:
-                dot_color = "#c08800"
+                bg = STATUS_BG_MED
             else:
-                dot_color = "#c04040"
-            self.server_dot_label.config(text="●", fg=dot_color)
-            shown_motd = (motd[:50] + "…") if len(motd) > 51 else motd
-            self.server_motd_label.config(text=shown_motd, fg="#222222")
-            self.server_players_label.config(text=f"{players_online}/{players_max} online", fg="#222222")
-            self.server_ping_label.config(text=f"{ping_ms}ms ping", fg="#222222")
+                bg = STATUS_BG_SLOW
+            display_name = name or "server"
+            if len(display_name) > 24:
+                display_name = display_name[:23] + "…"
+            text = f"{display_name}  ·  {players_online}/{players_max} online  ·  {ping_ms}ms ping"
         else:
-            self.server_dot_label.config(text="✖", fg="#c04040")
-            self.server_motd_label.config(text="server offline", fg="#666666")
-            self.server_players_label.config(text="")
-            self.server_ping_label.config(text="")
+            bg = STATUS_BG_OFFLINE
+            text = "server offline  ·  click to retry"
+        self.server_status_frame.config(bg=bg)
+        self.server_status_label.config(text=text, bg=bg)
 
     # TODO controller called, pass cbs
     def setup_path_field(self):
@@ -943,7 +975,7 @@ class FrontEnd:
         self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.open_dir_button.grid(row=1, column=1, padx=10, pady=5)
 
-    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb, launch_cb, bug_report_cb):
+    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb, launch_cb, bug_report_cb, refresh_server_cb=None):
         self.browse_button.config(command=browse_cb)
         self.confirm_button.config(command=confirm_cb)
         self.update_button.config(command=update_cb)
@@ -952,6 +984,7 @@ class FrontEnd:
         self.status_button.config(command=status_cb)
         self.launch_button.config(command=launch_cb)
         self.bug_report_button.config(command=bug_report_cb)
+        self.refresh_cb = refresh_server_cb
 
     def setup_console(self, root, height=300, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
         """Set up the console for displaying messages."""
@@ -1089,7 +1122,8 @@ class Controller:
             self.control_open,
             self.control_status,
             self.control_launch,
-            self.control_bug_report
+            self.control_bug_report,
+            refresh_server_cb=self.poll_server_status,
         )
 
         self.backend = GitBackend(self.frontend.console_print, self.frontend.update_progress_bar, self.frontend.root.quit)
@@ -1112,23 +1146,38 @@ class Controller:
         self.frontend.console_print("Confirm your .minecraft path above to get started")
 
     def poll_server_status(self):
+        if getattr(self, '_polling', False):
+            return
+        self._polling = True
+        prev_after = getattr(self, '_poll_after_id', None)
+        if prev_after is not None:
+            try:
+                self.frontend.root.after_cancel(prev_after)
+            except Exception:
+                pass
+            self._poll_after_id = None
+        self.frontend.set_server_status_pinging()
+
         def _run():
             try:
-                addr = _get_server_address(self.frontend.path_var.get())
-                if not addr:
+                info = _get_server_info(self.frontend.path_var.get())
+                if not info:
                     self.frontend.root.after(0, lambda: self.frontend.update_server_status(False))
                     return
+                addr = info['addr']
+                name = info['name']
                 if ':' in addr:
                     host, port = addr.rsplit(':', 1)
                     port = int(port)
                 else:
                     host, port = addr, 25565
-                online, max_p, ping, motd = _ping_minecraft_server(host, port)
-                self.frontend.root.after(0, lambda: self.frontend.update_server_status(True, online, max_p, ping, motd))
+                online, max_p, ping, _motd = _ping_minecraft_server(host, port)
+                self.frontend.root.after(0, lambda: self.frontend.update_server_status(True, online, max_p, ping, name))
             except Exception:
                 self.frontend.root.after(0, lambda: self.frontend.update_server_status(False))
             finally:
-                self.frontend.root.after(120_000, self.poll_server_status)
+                self._polling = False
+                self._poll_after_id = self.frontend.root.after(120_000, self.poll_server_status)
         threading.Thread(target=_run, daemon=True).start()
 
     def run_app(self):
