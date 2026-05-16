@@ -321,6 +321,19 @@ def _get_server_info(minecraft_path):
     return None
 
 
+def _pick_pixel_font(root):
+    """Return the first installed pixel/retro font family, or 'Courier' as fallback."""
+    try:
+        import tkinter.font as tkfont
+        families = set(tkfont.families(root))
+    except Exception:
+        return "Courier"
+    for c in ("Pixelify Sans", "Press Start 2P", "Minecraftia", "Fixedsys", "Terminal", "Consolas", "Courier New", "Courier"):
+        if c in families:
+            return c
+    return "Courier"
+
+
 def _extract_motd_text(desc):
     """Flatten a Minecraft chat-component (str or dict-with-extra) to plain text, strip § codes."""
     import re
@@ -703,9 +716,6 @@ class FrontEnd:
         # --- Console Section ---
         self.setup_console(root, height=200, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE)
 
-        # --- Server Status Strip ---
-        self.setup_server_status(root)
-
         # --- Prog bar ---
         self.setup_progress_bar(root)
         self.pgsema = threading.Semaphore(1)
@@ -752,25 +762,26 @@ class FrontEnd:
         self.cfglist.append(self.version_label)
         # bug_report_button intentionally not in cfglist — keeps its reddish color regardless of state
 
-    def setup_server_status(self, root):
+    def setup_server_status(self, parent):
         """Compact server-status pill, click-to-refresh. bg color tracks status."""
-        # Slot for server address could go here as a separate label (e.g. small subscript
-        # under the pill or to its right). Address is available via _get_server_info().
+        # Slot for server address/name could go here as a small subscript label;
+        # _get_server_info() already resolves both.
 
         self.refresh_cb = None
-        self.server_status_frame = tk.Frame(root, bg=STATUS_BG_PINGING, relief=tk.RAISED, bd=2, cursor="hand2")
-        self.server_status_frame.pack(pady=4, padx=10, anchor=tk.E)
+        self.pixel_font_family = _pick_pixel_font(self.root)
+        self.server_status_frame = tk.Frame(parent, bg=STATUS_BG_PINGING, relief=tk.RAISED, bd=2, cursor="hand2")
+        self.server_status_frame.pack(pady=4)
 
-        # width sized for the longest state ("server offline  ·  click to retry" ≈ 33 chars)
-        # so the pill stays the same size across reloads / state changes
+        # width sized in chars for the longest state ("offline  ·  click to retry" — 26 chars)
+        # so the pill stays a constant size across pinging / online / offline transitions.
         self.server_status_label = tk.Label(
             self.server_status_frame,
-            text="pinging server…",
-            font=(FONT_FAMILY, 11),
+            text="pinging…",
+            font=(self.pixel_font_family, 10, "bold"),
             bg=STATUS_BG_PINGING,
             fg="#222222",
-            padx=14, pady=4,
-            width=36,
+            padx=8, pady=4,
+            width=20,
             cursor="hand2",
         )
         self.server_status_label.pack()
@@ -925,10 +936,10 @@ class FrontEnd:
                 bg = STATUS_BG_MED
             else:
                 bg = STATUS_BG_SLOW
-            text = f"{players_online}/{players_max} online  ·  {ping_ms}ms ping"
+            text = f"{players_online}/{players_max}  ·  {ping_ms}ms"
         else:
             bg = STATUS_BG_OFFLINE
-            text = "server offline  ·  click to retry"
+            text = "offline  ·  click to retry"
         self.server_status_frame.config(bg=bg)
         self.server_status_label.config(text=text, bg=bg)
 
@@ -1030,12 +1041,14 @@ class FrontEnd:
         self.image_label = tk.Label(self.inner_image_frame, bg=BG_COLOR)
         self.image_label.pack()
         self.load_image_from_url(
-            self.image_label, 
-            "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png", 
-            200, 
+            self.image_label,
+            "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png",
+            200,
             200
         )
-        
+
+        self.setup_server_status(self.inner_image_frame)
+
         self.launch_button = tk.Button(self.inner_image_frame, text="Launch!", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.launch_button.pack(pady=5)
 
