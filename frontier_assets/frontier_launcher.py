@@ -1,6 +1,7 @@
 # ==== VERSION NUMBER ====
-VERSION_NUMBER = "1.2.4-fix"
+VERSION_NUMBER = "1.3"
 # CHANGELOG:
+# 1.3: live server status bar
 # 1.2.4: add linux default path
 # 1.2.3: add blind launch
 # 1.2.2: fix preserve error path
@@ -1227,10 +1228,11 @@ class Controller:
                 pass
             self._poll_after_id = None
         self.frontend.set_server_status_pinging()
+        mc_path = self.frontend.path_var.get()  # snapshot on UI thread — Tk vars aren't thread-safe
 
         def _run():
             try:
-                info = _get_server_info(self.frontend.path_var.get())
+                info = _get_server_info(mc_path)
                 if not info:
                     self.frontend.root.after(0, lambda: self.frontend.update_server_status(False))
                     return
