@@ -24,11 +24,11 @@ import json
 # Global Constants for Design Language
 BG_COLOR = "#c0c0c0"  # Default background color
 CONNECTED_BG_COLOR = "#a4fba6"  # Background color when connected
-STATUS_BG_PINGING = "#cccccc"   # Server-status pill: pinging
-STATUS_BG_ONLINE  = "#a4fba6"   # Server-status pill: online, low ping
-STATUS_BG_MED     = "#fbe89a"   # Server-status pill: online, medium ping
-STATUS_BG_SLOW    = "#fbb89a"   # Server-status pill: online, slow ping
-STATUS_BG_OFFLINE = "#fba6a6"   # Server-status pill: offline
+STATUS_BG_PINGING = "#b8b8b8"   # Server-status pill: pinging
+STATUS_BG_ONLINE  = "#6be86d"   # Server-status pill: online, low ping
+STATUS_BG_MED     = "#f5d05a"   # Server-status pill: online, medium ping
+STATUS_BG_SLOW    = "#f59855"   # Server-status pill: online, slow ping
+STATUS_BG_OFFLINE = "#ee6868"   # Server-status pill: offline
 CONSOLE_BG = "#0f0e0f"  # Console background
 CONSOLE_FG = "lime"  # Console text color
 FONT_FAMILY = "Arial"  # Font family
@@ -759,8 +759,10 @@ class FrontEnd:
 
         self.refresh_cb = None
         self.server_status_frame = tk.Frame(root, bg=STATUS_BG_PINGING, relief=tk.RAISED, bd=2, cursor="hand2")
-        self.server_status_frame.pack(pady=4)
+        self.server_status_frame.pack(pady=4, padx=10, anchor=tk.E)
 
+        # width sized for the longest state ("server offline  ·  click to retry" ≈ 33 chars)
+        # so the pill stays the same size across reloads / state changes
         self.server_status_label = tk.Label(
             self.server_status_frame,
             text="pinging server…",
@@ -768,6 +770,7 @@ class FrontEnd:
             bg=STATUS_BG_PINGING,
             fg="#222222",
             padx=14, pady=4,
+            width=36,
             cursor="hand2",
         )
         self.server_status_label.pack()
@@ -922,10 +925,7 @@ class FrontEnd:
                 bg = STATUS_BG_MED
             else:
                 bg = STATUS_BG_SLOW
-            display_name = name or "server"
-            if len(display_name) > 24:
-                display_name = display_name[:23] + "…"
-            text = f"{display_name}  ·  {players_online}/{players_max} online  ·  {ping_ms}ms ping"
+            text = f"{players_online}/{players_max} online  ·  {ping_ms}ms ping"
         else:
             bg = STATUS_BG_OFFLINE
             text = "server offline  ·  click to retry"
