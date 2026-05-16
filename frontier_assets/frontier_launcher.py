@@ -31,6 +31,14 @@ import json
 # Global Constants for Design Language
 BG_COLOR = "#c0c0c0"  # Default background color
 CONNECTED_BG_COLOR = "#a4fba6"  # Background color when connected
+STATUS_BG_PINGING = "#b8b8b8"   # Server-status pill: pinging
+STATUS_BG_ONLINE  = "#2d7a3d"   # Server-status pill: online, low ping (forest green)
+STATUS_BG_MED     = "#f5d05a"   # Server-status pill: online, medium ping
+STATUS_BG_SLOW    = "#f59855"   # Server-status pill: online, slow ping
+STATUS_BG_OFFLINE = "#ee6868"   # Server-status pill: offline
+STATUS_BG_COOLDOWN = "#3a3a3a"  # Server-status pill: spam-click cooldown
+STATUS_FG_DARK    = "#222222"
+STATUS_FG_LIGHT   = "#ffffff"
 CONSOLE_BG = "#0f0e0f"  # Console background
 CONSOLE_FG = "lime"  # Console text color
 FONT_FAMILY = "Arial"  # Font family
@@ -227,6 +235,195 @@ def _hash_file(path):
         for chunk in iter(lambda: f.read(65536), b''):
             h.update(chunk)
     return h.hexdigest()
+
+
+def _parse_servers_dat(path):
+    """Parse servers.dat NBT and return list of {'name': ..., 'ip': ...} dicts."""
+    import struct
+    from io import BytesIO
+    with open(path, 'rb') as f:
+        buf = BytesIO(f.read())
+    def rb(n): return buf.read(n)
+    def read_ubyte(): return struct.unpack('>B', rb(1))[0]
+    def read_int(): return struct.unpack('>i', rb(4))[0]
+    def read_string():
+        n = struct.unpack('>H', rb(2))[0]
+        return rb(n).decode('utf-8', errors='replace')
+    def skip(tag_id):
+        sizes = {1: 1, 2: 2, 3: 4, 4: 8, 5: 4, 6: 8}
+        if tag_id in sizes: rb(sizes[tag_id])
+        elif tag_id == 7: rb(read_int())
+        elif tag_id == 8: rb(struct.unpack('>H', rb(2))[0])
+        elif tag_id == 9:
+            t = read_ubyte(); n = read_int()
+            for _ in range(n): skip(t)
+        elif tag_id == 10: read_compound()
+        elif tag_id == 11: rb(read_int() * 4)
+        elif tag_id == 12: rb(read_int() * 8)
+    def read_compound():
+        d = {}
+        while True:
+            t = read_ubyte()
+            if t == 0: break
+            name = read_string()
+            if t == 8: d[name] = read_string()
+            else: skip(t)
+        return d
+    read_ubyte(); read_string()  # root TAG_Compound header (type + empty name)
+    servers = []
+    while True:
+        t = read_ubyte()
+        if t == 0: break
+        name = read_string()
+        if t == 9 and name == 'servers':
+            el_type = read_ubyte(); count = read_int()
+            for _ in range(count):
+                servers.append(read_compound() if el_type == 10 else skip(el_type))
+        else:
+            skip(t)
+    return [s for s in servers if s]
+
+
+def _get_server_info(minecraft_path):
+    """Return {'addr': str, 'name': str} for the latest-joined server, or None.
+
+    Picks lastServer from options.txt; falls back to first entry in servers.dat.
+    Name is looked up in servers.dat by matching ip; falls back to the address.
+    """
+    import re
+    minecraft_path = Path(minecraft_path)
+
+    saved = []
+    dat = minecraft_path / 'servers.dat'
+    if dat.exists():
+        try:
+            saved = _parse_servers_dat(dat)
+        except Exception:
+            pass
+
+    def clean(s):
+        return re.sub(r'§.', '', s or '').strip()
+
+    addr = None
+    options = minecraft_path / 'options.txt'
+    if options.exists():
+        for line in options.read_text(encoding='utf-8', errors='replace').splitlines():
+            if line.startswith('lastServer:'):
+                a = line[len('lastServer:'):].strip()
+                if a:
+                    addr = a
+                    break
+
+    if addr:
+        for s in saved:
+            if s.get('ip', '').strip() == addr:
+                return {'addr': addr, 'name': clean(s.get('name', '')) or addr}
+        return {'addr': addr, 'name': addr}
+
+    if saved:
+        s = saved[0]
+        ip = s.get('ip', '')
+        return {'addr': ip, 'name': clean(s.get('name', '')) or ip}
+
+    return None
+
+
+def _pick_pixel_font(root):
+    """Return the first installed pixel/retro font family, or 'Courier' as fallback.
+
+    Minecraft-style fonts are preferred; falls through to generic pixel/retro fonts,
+    then to whichever monospace is available.
+    """
+    try:
+        import tkinter.font as tkfont
+        families = set(tkfont.families(root))
+    except Exception:
+        return "Courier"
+    candidates = (
+        # Minecraft-style first
+        "Monocraft", "Minecraft", "Minecraft Ten", "Minecrafter", "Minecraftia", "Mojangles", "MinecraftRegular",
+        # Generic pixel/retro
+        "Pixelify Sans", "Press Start 2P", "VT323",
+        # Fallbacks
+        "Fixedsys", "Terminal", "Consolas", "Courier New", "Courier",
+    )
+    for c in candidates:
+        if c in families:
+            return c
+    return "Courier"
+
+
+def _extract_motd_text(desc):
+    """Flatten a Minecraft chat-component (str or dict-with-extra) to plain text, strip § codes."""
+    import re
+    def walk(node):
+        if isinstance(node, str):
+            return node
+        if isinstance(node, dict):
+            s = node.get('text', '')
+            for child in node.get('extra', []):
+                s += walk(child)
+            return s
+        if isinstance(node, list):
+            return ''.join(walk(x) for x in node)
+        return ''
+    text = re.sub(r'§.', '', walk(desc))
+    return text.replace('\n', ' ').strip()
+
+
+def _ping_minecraft_server(host, port=25565, timeout=5):
+    """Server List Ping — returns (players_online, players_max, ping_ms, motd) or raises."""
+    import socket, struct, json
+    from io import BytesIO
+
+    def pack_varint(v):
+        out = b''
+        while True:
+            b = v & 0x7F; v >>= 7
+            if v: b |= 0x80
+            out += bytes([b])
+            if not v: break
+        return out
+
+    def read_varint_sock(s):
+        result = shift = 0
+        while True:
+            b = s.recv(1)
+            if not b: raise ConnectionError("socket closed")
+            b = b[0]; result |= (b & 0x7F) << shift; shift += 7
+            if not (b & 0x80): break
+        return result
+
+    def skip_varint_buf(buf):
+        while True:
+            b = buf.read(1)
+            if not b: raise EOFError
+            if not (b[0] & 0x80): break
+
+    host_b = host.encode('utf-8')
+    handshake = (b'\x00'
+                 + pack_varint(765)
+                 + pack_varint(len(host_b)) + host_b
+                 + struct.pack('>H', port)
+                 + pack_varint(1))
+    t0 = time.time()
+    with socket.create_connection((host, port), timeout=timeout) as s:
+        s.sendall(pack_varint(len(handshake)) + handshake)
+        s.sendall(b'\x01\x00')
+        length = read_varint_sock(s)
+        raw = b''
+        while len(raw) < length:
+            chunk = s.recv(length - len(raw))
+            if not chunk: break
+            raw += chunk
+    ping_ms = int((time.time() - t0) * 1000)
+    buf = BytesIO(raw)
+    skip_varint_buf(buf)   # packet ID
+    skip_varint_buf(buf)   # JSON length
+    data = json.loads(buf.read().decode('utf-8'))
+    players = data.get('players', {})
+    motd = _extract_motd_text(data.get('description', ''))
+    return players.get('online', 0), players.get('max', 0), ping_ms, motd
 
 
 class GitBackend:
@@ -581,10 +778,76 @@ class FrontEnd:
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
         self.cfglist.append(self.update_row)
+        # server_status_frame intentionally not in cfglist — its bg tracks server status, not app state
 
         self.cfglist.append(self.bottom_bar)
         self.cfglist.append(self.version_label)
         # bug_report_button intentionally not in cfglist — keeps its reddish color regardless of state
+
+    def setup_server_status(self, parent):
+        """Compact server-status pill, click-to-refresh. bg color tracks status."""
+        # Slot for server address/name could go here as a small subscript label;
+        # _get_server_info() already resolves both.
+
+        self.refresh_cb = None
+        self._click_times = []      # rolling click timestamps for spam detection
+        self._cooldown_until = None # epoch seconds; None when not on cooldown
+        self.pixel_font_family = _pick_pixel_font(self.root)
+        print(f"pixel font for server status pill: {self.pixel_font_family}")
+        # Fixed pixel size — matches the image width above so the pill, image, and
+        # launch button stack into one visual unit. propagate=False keeps the size
+        # stable when text changes between states.
+        self.server_status_frame = tk.Frame(parent, bg=STATUS_BG_PINGING, relief=tk.RAISED, bd=2, cursor="hand2", width=200, height=32)
+        self.server_status_frame.pack(pady=0)
+        self.server_status_frame.pack_propagate(False)
+
+        self.server_status_label = tk.Label(
+            self.server_status_frame,
+            text="pinging…",
+            font=(self.pixel_font_family, 10, "bold"),
+            bg=STATUS_BG_PINGING,
+            fg=STATUS_FG_DARK,
+            cursor="hand2",
+        )
+        self.server_status_label.pack(fill=tk.BOTH, expand=True)
+
+        for w in (self.server_status_frame, self.server_status_label):
+            w.bind("<Button-1>", lambda e: self._on_server_status_click())
+
+    def _on_server_status_click(self):
+        now = time.time()
+        if self._cooldown_until and now < self._cooldown_until:
+            return
+        # rolling 2s window
+        self._click_times = [t for t in self._click_times if now - t <= 2.0]
+        self._click_times.append(now)
+        if len(self._click_times) > 8:
+            self._click_times.clear()
+            self._cooldown_until = now + 10
+            self._cooldown_tick(10)
+            return
+        if self.refresh_cb:
+            self.refresh_cb()
+
+    def _cooldown_tick(self, remaining):
+        if remaining <= 0:
+            self._cooldown_until = None
+            if self.refresh_cb:
+                self.refresh_cb()  # fresh poll on exit
+            return
+        text = f"calm down! {remaining}s"
+        self.server_status_frame.config(bg=STATUS_BG_COOLDOWN)
+        self.server_status_label.config(text=text, bg=STATUS_BG_COOLDOWN, fg=STATUS_FG_LIGHT)
+        self.root.after(1000, lambda: self._cooldown_tick(remaining - 1))
+
+    def _on_cooldown(self):
+        return self._cooldown_until is not None and time.time() < self._cooldown_until
+
+    def set_server_status_pinging(self):
+        if self._on_cooldown():
+            return
+        self.server_status_frame.config(bg=STATUS_BG_PINGING)
+        self.server_status_label.config(text="pinging…", bg=STATUS_BG_PINGING, fg=STATUS_FG_DARK)
 
     def setup_progress_bar(self, root):
         """Set up a progress bar below the console."""
@@ -717,6 +980,25 @@ class FrontEnd:
         state = tk.NORMAL if enable else tk.DISABLED
         self.launch_button.config(state=state)
 
+    def update_server_status(self, online, players_online=0, players_max=0, ping_ms=0, name=""):
+        if self._on_cooldown():
+            return
+        fg = STATUS_FG_DARK
+        if online:
+            if ping_ms < 80:
+                bg = STATUS_BG_ONLINE
+                fg = STATUS_FG_LIGHT
+            elif ping_ms < 200:
+                bg = STATUS_BG_MED
+            else:
+                bg = STATUS_BG_SLOW
+            text = f"{players_online}/{players_max}  ·  {ping_ms}ms"
+        else:
+            bg = STATUS_BG_OFFLINE
+            text = "offline"
+        self.server_status_frame.config(bg=bg)
+        self.server_status_label.config(text=text, bg=bg, fg=fg)
+
     # TODO controller called, pass cbs
     def setup_path_field(self):
         """Setup the Minecraft path field."""
@@ -760,7 +1042,7 @@ class FrontEnd:
         self.open_dir_button = tk.Button(self.controls_frame, text="Open Minecraft Dir", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.open_dir_button.grid(row=1, column=1, padx=10, pady=5)
 
-    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb, launch_cb, bug_report_cb):
+    def setup_callbacks(self, browse_cb, confirm_cb, update_cb, install_cb, open_cb, status_cb, launch_cb, bug_report_cb, refresh_server_cb=None):
         self.browse_button.config(command=browse_cb)
         self.confirm_button.config(command=confirm_cb)
         self.update_button.config(command=update_cb)
@@ -769,6 +1051,7 @@ class FrontEnd:
         self.status_button.config(command=status_cb)
         self.launch_button.config(command=launch_cb)
         self.bug_report_button.config(command=bug_report_cb)
+        self.refresh_cb = refresh_server_cb
 
     def setup_console(self, root, height=300, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE):
         """Set up the console for displaying messages."""
@@ -812,16 +1095,18 @@ class FrontEnd:
         self.inner_image_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         self.image_label = tk.Label(self.inner_image_frame, bg=BG_COLOR)
-        self.image_label.pack()
+        self.image_label.pack(pady=0)
         self.load_image_from_url(
-            self.image_label, 
-            "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png", 
-            200, 
+            self.image_label,
+            "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png",
+            200,
             200
         )
-        
+
+        self.setup_server_status(self.inner_image_frame)
+
         self.launch_button = tk.Button(self.inner_image_frame, text="Launch!", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
-        self.launch_button.pack(pady=5)
+        self.launch_button.pack(pady=(0, 5))
 
         # --- Controls Section (Right) ---
         self.controls_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
@@ -906,7 +1191,8 @@ class Controller:
             self.control_open,
             self.control_status,
             self.control_launch,
-            self.control_bug_report
+            self.control_bug_report,
+            refresh_server_cb=self.poll_server_status,
         )
 
         self.backend = GitBackend(self.frontend.console_print, self.frontend.update_progress_bar, self.frontend.root.quit)
@@ -928,8 +1214,44 @@ class Controller:
                     pass  # not critical
         self.frontend.console_print("Confirm your .minecraft path above to get started")
 
+    def poll_server_status(self):
+        if getattr(self, '_polling', False):
+            return
+        self._polling = True
+        prev_after = getattr(self, '_poll_after_id', None)
+        if prev_after is not None:
+            try:
+                self.frontend.root.after_cancel(prev_after)
+            except Exception:
+                pass
+            self._poll_after_id = None
+        self.frontend.set_server_status_pinging()
+
+        def _run():
+            try:
+                info = _get_server_info(self.frontend.path_var.get())
+                if not info:
+                    self.frontend.root.after(0, lambda: self.frontend.update_server_status(False))
+                    return
+                addr = info['addr']
+                name = info['name']
+                if ':' in addr:
+                    host, port = addr.rsplit(':', 1)
+                    port = int(port)
+                else:
+                    host, port = addr, 25565
+                online, max_p, ping, _motd = _ping_minecraft_server(host, port)
+                self.frontend.root.after(0, lambda: self.frontend.update_server_status(True, online, max_p, ping, name))
+            except Exception:
+                self.frontend.root.after(0, lambda: self.frontend.update_server_status(False))
+            finally:
+                self._polling = False
+                self._poll_after_id = self.frontend.root.after(120_000, self.poll_server_status)
+        threading.Thread(target=_run, daemon=True).start()
+
     def run_app(self):
         self.backend.run_in_thread(self.bootup_seq)
+        self.frontend.root.after(500, self.poll_server_status)
         self.frontend.root.mainloop()
 
     def set_state(self, state, log=True):
