@@ -25,10 +25,12 @@ import json
 BG_COLOR = "#c0c0c0"  # Default background color
 CONNECTED_BG_COLOR = "#a4fba6"  # Background color when connected
 STATUS_BG_PINGING = "#b8b8b8"   # Server-status pill: pinging
-STATUS_BG_ONLINE  = "#6be86d"   # Server-status pill: online, low ping
+STATUS_BG_ONLINE  = "#2d7a3d"   # Server-status pill: online, low ping (forest green)
 STATUS_BG_MED     = "#f5d05a"   # Server-status pill: online, medium ping
 STATUS_BG_SLOW    = "#f59855"   # Server-status pill: online, slow ping
 STATUS_BG_OFFLINE = "#ee6868"   # Server-status pill: offline
+STATUS_FG_DARK    = "#222222"
+STATUS_FG_LIGHT   = "#ffffff"
 CONSOLE_BG = "#0f0e0f"  # Console background
 CONSOLE_FG = "lime"  # Console text color
 FONT_FAMILY = "Arial"  # Font family
@@ -929,9 +931,11 @@ class FrontEnd:
         self.launch_button.config(state=state)
 
     def update_server_status(self, online, players_online=0, players_max=0, ping_ms=0, name=""):
+        fg = STATUS_FG_DARK
         if online:
             if ping_ms < 80:
                 bg = STATUS_BG_ONLINE
+                fg = STATUS_FG_LIGHT
             elif ping_ms < 200:
                 bg = STATUS_BG_MED
             else:
@@ -939,9 +943,9 @@ class FrontEnd:
             text = f"{players_online}/{players_max}  ·  {ping_ms}ms"
         else:
             bg = STATUS_BG_OFFLINE
-            text = "offline  ·  click to retry"
+            text = "offline"
         self.server_status_frame.config(bg=bg)
-        self.server_status_label.config(text=text, bg=bg)
+        self.server_status_label.config(text=text, bg=bg, fg=fg)
 
     # TODO controller called, pass cbs
     def setup_path_field(self):
@@ -1039,7 +1043,7 @@ class FrontEnd:
         self.inner_image_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         self.image_label = tk.Label(self.inner_image_frame, bg=BG_COLOR)
-        self.image_label.pack()
+        self.image_label.pack(pady=0)
         self.load_image_from_url(
             self.image_label,
             "https://raw.githubusercontent.com/collebrusco/frontier/refs/heads/main/frontier_assets/img/icon.png",
@@ -1047,10 +1051,10 @@ class FrontEnd:
             200
         )
 
-        self.setup_server_status(self.inner_image_frame)
-
         self.launch_button = tk.Button(self.inner_image_frame, text="Launch!", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
-        self.launch_button.pack(pady=5)
+        self.launch_button.pack(pady=(0, 5))
+
+        self.setup_server_status(self.inner_image_frame)
 
         # --- Controls Section (Right) ---
         self.controls_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
