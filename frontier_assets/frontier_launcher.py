@@ -293,8 +293,26 @@ def _get_server_address(minecraft_path):
     return None
 
 
+def _extract_motd_text(desc):
+    """Flatten a Minecraft chat-component (str or dict-with-extra) to plain text, strip § codes."""
+    import re
+    def walk(node):
+        if isinstance(node, str):
+            return node
+        if isinstance(node, dict):
+            s = node.get('text', '')
+            for child in node.get('extra', []):
+                s += walk(child)
+            return s
+        if isinstance(node, list):
+            return ''.join(walk(x) for x in node)
+        return ''
+    text = re.sub(r'§.', '', walk(desc))
+    return text.replace('\n', ' ').strip()
+
+
 def _ping_minecraft_server(host, port=25565, timeout=5):
-    """Server List Ping — returns (players_online, players_max, ping_ms) or raises."""
+    """Server List Ping — returns (players_online, players_max, ping_ms, motd) or raises."""
     import socket, struct, json
     from io import BytesIO
 
@@ -344,7 +362,8 @@ def _ping_minecraft_server(host, port=25565, timeout=5):
     skip_varint_buf(buf)   # JSON length
     data = json.loads(buf.read().decode('utf-8'))
     players = data.get('players', {})
-    return players.get('online', 0), players.get('max', 0), ping_ms
+    motd = _extract_motd_text(data.get('description', ''))
+    return players.get('online', 0), players.get('max', 0), ping_ms, motd
 
 
 class GitBackend:
@@ -656,6 +675,9 @@ class FrontEnd:
         # --- Console Section ---
         self.setup_console(root, height=200, bg=CONSOLE_BG, fg=CONSOLE_FG, font=FONT_CONSOLE)
 
+        # --- Server Status Strip ---
+        self.setup_server_status(root)
+
         # --- Prog bar ---
         self.setup_progress_bar(root)
         self.pgsema = threading.Semaphore(1)
@@ -686,7 +708,11 @@ class FrontEnd:
         self.cfglist.append(self.controls_frame)
         self.cfglist.append(self.branch_label)
         self.cfglist.append(self.update_row)
-        self.cfglist.append(self.server_status_label)
+        self.cfglist.append(self.server_status_frame)
+        self.cfglist.append(self.server_dot_label)
+        self.cfglist.append(self.server_motd_label)
+        self.cfglist.append(self.server_players_label)
+        self.cfglist.append(self.server_ping_label)
 
         self.bottom_bar = tk.Frame(self.root, bg=BG_COLOR)
         self.bottom_bar.pack(side=tk.BOTTOM, fill=tk.X)
@@ -701,6 +727,28 @@ class FrontEnd:
         self.cfglist.append(_bottom_inner)
         self.cfglist.append(self.version_label)
         # bug_report_button intentionally not in cfglist — keeps its reddish color regardless of state
+
+    def setup_server_status(self, root):
+        """Server status strip — centered between console and progress bar."""
+        self.server_status_frame = tk.Frame(root, bg=BG_COLOR)
+        self.server_status_frame.pack(pady=4)
+
+        # Slot for server name + address could go here, e.g.
+        #   self.server_name_label = tk.Label(self.server_status_frame, text="Frontier", ...)
+        #   self.server_addr_label = tk.Label(self.server_status_frame, text="play.example.com", ...)
+        # Name comes from servers.dat (match _get_server_address result against parsed entries).
+
+        self.server_dot_label = tk.Label(self.server_status_frame, text="·", font=(FONT_FAMILY, 14, "bold"), bg=BG_COLOR, fg="#888888")
+        self.server_dot_label.pack(side=tk.LEFT, padx=(0, 8))
+
+        self.server_motd_label = tk.Label(self.server_status_frame, text="pinging server…", font=(FONT_FAMILY, 10), bg=BG_COLOR, fg="#666666")
+        self.server_motd_label.pack(side=tk.LEFT, padx=(0, 12))
+
+        self.server_players_label = tk.Label(self.server_status_frame, text="", font=(FONT_FAMILY, 10), bg=BG_COLOR, fg="#222222")
+        self.server_players_label.pack(side=tk.LEFT, padx=(0, 12))
+
+        self.server_ping_label = tk.Label(self.server_status_frame, text="", font=(FONT_FAMILY, 10), bg=BG_COLOR, fg="#222222")
+        self.server_ping_label.pack(side=tk.LEFT)
 
     def setup_progress_bar(self, root):
         """Set up a progress bar below the console."""
@@ -833,14 +881,24 @@ class FrontEnd:
         state = tk.NORMAL if enable else tk.DISABLED
         self.launch_button.config(state=state)
 
-    def update_server_status(self, online, players_online=0, players_max=0, ping_ms=0):
+    def update_server_status(self, online, players_online=0, players_max=0, ping_ms=0, motd=""):
         if online:
-            self.server_status_label.config(
-                text=f"● {players_online}/{players_max} online  ·  {ping_ms}ms",
-                fg="green"
-            )
+            if ping_ms < 80:
+                dot_color = "#2a9b2a"
+            elif ping_ms < 200:
+                dot_color = "#c08800"
+            else:
+                dot_color = "#c04040"
+            self.server_dot_label.config(text="●", fg=dot_color)
+            shown_motd = (motd[:50] + "…") if len(motd) > 51 else motd
+            self.server_motd_label.config(text=shown_motd, fg="#222222")
+            self.server_players_label.config(text=f"{players_online}/{players_max} online", fg="#222222")
+            self.server_ping_label.config(text=f"{ping_ms}ms ping", fg="#222222")
         else:
-            self.server_status_label.config(text="✖ server offline", fg="red")
+            self.server_dot_label.config(text="✖", fg="#c04040")
+            self.server_motd_label.config(text="server offline", fg="#666666")
+            self.server_players_label.config(text="")
+            self.server_ping_label.config(text="")
 
     # TODO controller called, pass cbs
     def setup_path_field(self):
@@ -947,9 +1005,6 @@ class FrontEnd:
         
         self.launch_button = tk.Button(self.inner_image_frame, text="Launch!", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.launch_button.pack(pady=5)
-
-        self.server_status_label = tk.Label(self.inner_image_frame, text="pinging server...", font=(FONT_FAMILY, 10), bg=BG_COLOR, fg="gray")
-        self.server_status_label.pack(pady=2)
 
         # --- Controls Section (Right) ---
         self.controls_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
@@ -1068,8 +1123,8 @@ class Controller:
                     port = int(port)
                 else:
                     host, port = addr, 25565
-                online, max_p, ping = _ping_minecraft_server(host, port)
-                self.frontend.root.after(0, lambda: self.frontend.update_server_status(True, online, max_p, ping))
+                online, max_p, ping, motd = _ping_minecraft_server(host, port)
+                self.frontend.root.after(0, lambda: self.frontend.update_server_status(True, online, max_p, ping, motd))
             except Exception:
                 self.frontend.root.after(0, lambda: self.frontend.update_server_status(False))
             finally:
