@@ -324,13 +324,25 @@ def _get_server_info(minecraft_path):
 
 
 def _pick_pixel_font(root):
-    """Return the first installed pixel/retro font family, or 'Courier' as fallback."""
+    """Return the first installed pixel/retro font family, or 'Courier' as fallback.
+
+    Minecraft-style fonts are preferred; falls through to generic pixel/retro fonts,
+    then to whichever monospace is available.
+    """
     try:
         import tkinter.font as tkfont
         families = set(tkfont.families(root))
     except Exception:
         return "Courier"
-    for c in ("Pixelify Sans", "Press Start 2P", "Minecraftia", "Fixedsys", "Terminal", "Consolas", "Courier New", "Courier"):
+    candidates = (
+        # Minecraft-style first
+        "Monocraft", "Minecraft", "Minecraft Ten", "Minecrafter", "Minecraftia", "Mojangles", "MinecraftRegular",
+        # Generic pixel/retro
+        "Pixelify Sans", "Press Start 2P", "VT323",
+        # Fallbacks
+        "Fixedsys", "Terminal", "Consolas", "Courier New", "Courier",
+    )
+    for c in candidates:
         if c in families:
             return c
     return "Courier"
@@ -771,22 +783,23 @@ class FrontEnd:
 
         self.refresh_cb = None
         self.pixel_font_family = _pick_pixel_font(self.root)
-        self.server_status_frame = tk.Frame(parent, bg=STATUS_BG_PINGING, relief=tk.RAISED, bd=2, cursor="hand2")
-        self.server_status_frame.pack(pady=4)
+        print(f"pixel font for server status pill: {self.pixel_font_family}")
+        # Fixed pixel size — matches the image width above so the pill, image, and
+        # launch button stack into one visual unit. propagate=False keeps the size
+        # stable when text changes between states.
+        self.server_status_frame = tk.Frame(parent, bg=STATUS_BG_PINGING, relief=tk.RAISED, bd=2, cursor="hand2", width=200, height=32)
+        self.server_status_frame.pack(pady=0)
+        self.server_status_frame.pack_propagate(False)
 
-        # width sized in chars for the longest state ("offline  ·  click to retry" — 26 chars)
-        # so the pill stays a constant size across pinging / online / offline transitions.
         self.server_status_label = tk.Label(
             self.server_status_frame,
             text="pinging…",
             font=(self.pixel_font_family, 10, "bold"),
             bg=STATUS_BG_PINGING,
-            fg="#222222",
-            padx=8, pady=4,
-            width=20,
+            fg=STATUS_FG_DARK,
             cursor="hand2",
         )
-        self.server_status_label.pack()
+        self.server_status_label.pack(fill=tk.BOTH, expand=True)
 
         for w in (self.server_status_frame, self.server_status_label):
             w.bind("<Button-1>", lambda e: self._on_server_status_click())
@@ -797,7 +810,7 @@ class FrontEnd:
 
     def set_server_status_pinging(self):
         self.server_status_frame.config(bg=STATUS_BG_PINGING)
-        self.server_status_label.config(text="pinging…", bg=STATUS_BG_PINGING)
+        self.server_status_label.config(text="pinging…", bg=STATUS_BG_PINGING, fg=STATUS_FG_DARK)
 
     def setup_progress_bar(self, root):
         """Set up a progress bar below the console."""
@@ -1051,10 +1064,10 @@ class FrontEnd:
             200
         )
 
+        self.setup_server_status(self.inner_image_frame)
+
         self.launch_button = tk.Button(self.inner_image_frame, text="Launch!", command=None, height=BUTTON_HEIGHT, width=BUTTON_WIDTH, bg='lightgreen')
         self.launch_button.pack(pady=(0, 5))
-
-        self.setup_server_status(self.inner_image_frame)
 
         # --- Controls Section (Right) ---
         self.controls_frame = tk.Frame(self.controls_image_frame, bg=BG_COLOR)
