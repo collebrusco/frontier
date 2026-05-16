@@ -732,11 +732,11 @@ class FrontEnd:
         # --- Bottom Bar (packed first so side=BOTTOM reserves its strip before other widgets consume vertical space) ---
         self.bottom_bar = tk.Frame(self.root, bg=BG_COLOR)
         self.bottom_bar.pack(side=tk.BOTTOM, fill=tk.X)
-        _bottom_inner = tk.Frame(self.bottom_bar, bg=BG_COLOR)
-        _bottom_inner.pack(expand=True, pady=2)
-        self.version_label = tk.Label(_bottom_inner, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
+        self._bottom_inner = tk.Frame(self.bottom_bar, bg=BG_COLOR)
+        self._bottom_inner.pack(expand=True, pady=2)
+        self.version_label = tk.Label(self._bottom_inner, text=f"frontier launcher v{VERSION_NUMBER}", font=("Arial", 8), bg=BG_COLOR, fg="#999999")
         self.version_label.pack(side=tk.LEFT, padx=(0, 6))
-        self.bug_report_button = tk.Button(_bottom_inner, text="problem...", font=("Arial", 8), bg="#c06060", fg="white", relief=tk.FLAT, padx=4, pady=2, command=None)
+        self.bug_report_button = tk.Button(self._bottom_inner, text="problem...", font=("Arial", 8), bg="#c06060", fg="white", relief=tk.FLAT, padx=4, pady=2, command=None)
         self.bug_report_button.pack(side=tk.LEFT)
 
         # --- State Display Section ---
@@ -781,6 +781,7 @@ class FrontEnd:
         # server_status_frame intentionally not in cfglist — its bg tracks server status, not app state
 
         self.cfglist.append(self.bottom_bar)
+        self.cfglist.append(self._bottom_inner)
         self.cfglist.append(self.version_label)
         # bug_report_button intentionally not in cfglist — keeps its reddish color regardless of state
 
