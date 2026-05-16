@@ -29,6 +29,7 @@ STATUS_BG_ONLINE  = "#2d7a3d"   # Server-status pill: online, low ping (forest g
 STATUS_BG_MED     = "#f5d05a"   # Server-status pill: online, medium ping
 STATUS_BG_SLOW    = "#f59855"   # Server-status pill: online, slow ping
 STATUS_BG_OFFLINE = "#ee6868"   # Server-status pill: offline
+STATUS_BG_COOLDOWN = "#3a3a3a"  # Server-status pill: spam-click cooldown
 STATUS_FG_DARK    = "#222222"
 STATUS_FG_LIGHT   = "#ffffff"
 CONSOLE_BG = "#0f0e0f"  # Console background
@@ -782,6 +783,8 @@ class FrontEnd:
         # _get_server_info() already resolves both.
 
         self.refresh_cb = None
+        self._click_times = []      # rolling click timestamps for spam detection
+        self._cooldown_until = None # epoch seconds; None when not on cooldown
         self.pixel_font_family = _pick_pixel_font(self.root)
         print(f"pixel font for server status pill: {self.pixel_font_family}")
         # Fixed pixel size — matches the image width above so the pill, image, and
@@ -805,10 +808,37 @@ class FrontEnd:
             w.bind("<Button-1>", lambda e: self._on_server_status_click())
 
     def _on_server_status_click(self):
+        now = time.time()
+        if self._cooldown_until and now < self._cooldown_until:
+            return
+        # rolling 2s window
+        self._click_times = [t for t in self._click_times if now - t <= 2.0]
+        self._click_times.append(now)
+        if len(self._click_times) > 8:
+            self._click_times.clear()
+            self._cooldown_until = now + 10
+            self._cooldown_tick(10)
+            return
         if self.refresh_cb:
             self.refresh_cb()
 
+    def _cooldown_tick(self, remaining):
+        if remaining <= 0:
+            self._cooldown_until = None
+            if self.refresh_cb:
+                self.refresh_cb()  # fresh poll on exit
+            return
+        text = f"calm down! {remaining}s"
+        self.server_status_frame.config(bg=STATUS_BG_COOLDOWN)
+        self.server_status_label.config(text=text, bg=STATUS_BG_COOLDOWN, fg=STATUS_FG_LIGHT)
+        self.root.after(1000, lambda: self._cooldown_tick(remaining - 1))
+
+    def _on_cooldown(self):
+        return self._cooldown_until is not None and time.time() < self._cooldown_until
+
     def set_server_status_pinging(self):
+        if self._on_cooldown():
+            return
         self.server_status_frame.config(bg=STATUS_BG_PINGING)
         self.server_status_label.config(text="pinging…", bg=STATUS_BG_PINGING, fg=STATUS_FG_DARK)
 
@@ -944,6 +974,8 @@ class FrontEnd:
         self.launch_button.config(state=state)
 
     def update_server_status(self, online, players_online=0, players_max=0, ping_ms=0, name=""):
+        if self._on_cooldown():
+            return
         fg = STATUS_FG_DARK
         if online:
             if ping_ms < 80:
