@@ -1,0 +1,16 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:tag_empty",
+      "tag": "minecraft:logs"
+    }
+  ],
+  "type": "create:mixing",
+  "ingredients": [
+    {"tag": "c:dusts/coal"},
+    {"tag": "c:ingots/iron"}
+  ],
+  "results": [
+    {"id": "createnuclear:steel_ingot"}
+  ]
+}
